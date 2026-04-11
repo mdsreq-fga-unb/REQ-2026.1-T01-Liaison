@@ -1,0 +1,51 @@
+site_name: Liaison
+site_url: https://mdsreq-fga-unb.github.io/REQ-2026.1-T01-Liaison/
+site_description: Plataforma de Conexão entre Estudantes e Voluntariado
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Mudar para modo escuro
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Mudar para modo claro
+
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - tables
+  - attr_list
+
+nav:
+  - Início: index.md
+  - Definição do Projeto:
+      - Cenário e Negócio: projeto/cenario.md
+      - Solução Proposta: projeto/solucao.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison

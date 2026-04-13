@@ -44,6 +44,12 @@ nav:
   - Definição do Projeto:
       - Cenário e Negócio: projeto/cenario.md
       - Solução Proposta: projeto/solucao.md
+      - Estratégias de Engenharia de Software: projeto/estrategias.md
+      - Engenharia de Requisitos: projeto/requisitos.md
+      - Cronograma e Entregas: projeto/cronograma.md
+      - Interação entre Equipe e Cliente: projeto/interacao.md
+      - Lições Aprendidas: projeto/licoes.md
+      - Referências Bibliográficas: projeto/referencias.md
 
 extra:
   social:

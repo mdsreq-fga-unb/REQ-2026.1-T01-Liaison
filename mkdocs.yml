@@ -50,6 +50,8 @@ nav:
       - Interação entre Equipe e Cliente: projeto/interacao.md
       - Lições Aprendidas: projeto/licoes.md
       - Referências Bibliográficas: projeto/referencias.md
+  - Entregas:
+      - Unidade 1: entregas/unidade1.md
 
 extra:
   social:

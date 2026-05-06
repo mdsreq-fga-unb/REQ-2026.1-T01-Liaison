@@ -33,3 +33,20 @@ O KanbanXP foi escolhido como processo de desenvolvimento do Liaison pelos segui
 *   **Qualidade técnica garantida pelo XP:** O XP complementa o Kanban ao fornecer as práticas técnicas que o Kanban não prescreve. Conforme Beck e Andres (2004), o XP organiza os requisitos como histórias de usuário com critérios de aceitação explícitos, válida continuamente por meio de testes automatizados e promove a integração contínua, garantindo que o código produzido de forma assíncrona se mantenha coeso e funcional.
 *   **Alinhamento com as entregas da disciplina:** O quadro da equipe será estruturado com marcos de entrega correspondentes às datas das Unidades (EU1, EU2, EU3, EU4), funcionando como checkpoints sem engessar o fluxo diário.
 *   **Compatibilidade com o cliente:** O XP prevê que a elicitação é contínua e que o cliente participa ao longo do processo (Beck; Andres, 2004). O representante do cliente será consultado em reuniões quinzenais para validação de histórias de usuário e priorização do backlog.
+
+## 3.4 Políticas de Trabalho do Kanban
+
+Para garantir o bom andamento do fluxo (flow) e evitar gargalos, a equipe estabelece as seguintes políticas explícitas para as colunas do quadro:
+
+*   **Puxar (Pull System):** Um membro da equipe só deve puxar um novo item para *In Progress* quando tiver concluído ou bloqueado temporariamente sua tarefa atual.
+*   **Limites de WIP (Work in Progress):** Serão estabelecidos e respeitados limites de tarefas simultâneas para as colunas de desenvolvimento e revisão, evitando a sobrecarga e garantindo a conclusão dos itens em andamento.
+*   **Tratamento de Bloqueios:** Qualquer item impedido de avançar deve ser sinalizado imediatamente no quadro (via tags/labels como *blocked*). A equipe deve priorizar o desbloqueio desse item antes de iniciar novos trabalhos.
+*   **Transição de Estados:** O avanço de um card para a próxima coluna exige que os critérios de saída da coluna atual tenham sido integralmente cumpridos.
+
+## 3.5 Critérios de Qualidade
+
+A qualidade no desenvolvimento do Liaison não se limita apenas a métricas de código, sendo abordada sob três perspectivas fundamentais que garantem a construção correta do produto e a entrega contínua de valor:
+
+*   **Qualidade do Processo (Fluxo Kanban):** Avaliada pela fluidez contínua dos itens no quadro. Um item possui qualidade de processo quando suas dependências são mapeadas e resolvidas previamente, garantindo que ele possa atravessar o fluxo sem gerar bloqueios prolongados ou sobrecarregar a equipe (respeitando os limites de WIP).
+*   **Qualidade Técnica (Engenharia XP):** Assegurada pelas práticas do Extreme Programming. O código desenvolvido deve ser, obrigatoriamente, validado por meio de revisão por pares (*Code Review*) antes de ser considerado pronto.
+*   **Qualidade do Produto (Requisitos e Validação):** Garantida pelo cumprimento rigoroso dos Critérios de Aceitação definidos para cada História de Usuário. Nenhum incremento de software avança para a conclusão sem atender às necessidades de negócio elicitadas e sem ser passível de demonstração para coleta de feedback.

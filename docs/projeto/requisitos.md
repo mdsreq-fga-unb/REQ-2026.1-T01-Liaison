@@ -15,14 +15,14 @@ As seis atividades da Engenharia de Requisitos são praticadas de forma iterativ
 
 ## 4.2 Engenharia de Requisitos e KanbanXP
 
-A tabela a seguir apresenta como cada atividade de ER se encaixa nas fases do KanbanXP, descrevendo a técnica utilizada e o resultado esperado em cada momento do fluxo de trabalho.
-
-| Fase do KanbanXP | Atividade da ER | Técnica | Resultado Esperado |
+A tabela a seguir apresenta como cada atividade de ER se encaixa nos momentos e práticas do KanbanXP, descrevendo a técnica utilizada e o resultado esperado no fluxo de trabalho.
+      
+| Momento/Prática no KanbanXP | Atividade da ER | Técnica | Resultado Esperado |
 | :--- | :--- | :--- | :--- |
-| Entrada de item no quadro | Elicitação e Descoberta | Entrevista semiestruturada | Requisitos de alto nível identificados e registrados como histórias de usuário no backlog |
-| Refinamento do item (A fazer) | Análise e Consenso | Priorização MoSCoW; discussão em equipe | Histórias priorizadas, com dependências identificadas e viabilidade técnica confirmada |
-| Item em progresso | Declaração | Histórias de usuário com critérios de aceitação | Histórias detalhadas com critérios claros que definem o que significa "pronto" |
-| Item em progresso | Representação | Protótipos e wireframes de tela | Protótipos que orientam o desenvolvimento e antecipam a validação com o cliente |
-| Coluna Em revisão | Verificação e Validação | Demonstração do protótipo ao cliente; revisão dos critérios de aceitação | Funcionalidade validada; ajustes incorporados antes de mover para Concluído |
-| Revisão periódica do quadro | Organização e Atualização | Revisão do backlog no GitHub Projects | Backlog atualizado, repriorizado e alinhado ao feedback das reuniões com o cliente |
-| Marcos de entrega (EU1–EU4) | Todas | Retrospectiva da equipe; atualização do documento de visão | Artefatos entregues, lições registradas e processo ajustado para o próximo ciclo |
+| Descoberta e entrada no backlog | Elicitação e Descoberta | Entrevista semiestruturada, conversa guiada | Requisitos de alto nível identificados e registrados como itens candidatos |
+| Refinamento antes de puxar o item | Análise e Consenso | Priorização MoSCoW, discussão técnica em equipe | Histórias priorizadas, com dependências identificadas, viáveis e compreendidas |
+| Preparação da história (antes de iniciar) | Declaração | Histórias de usuário com critérios de aceitação explícitos | Histórias detalhadas com critérios claros que definem o que significa "pronto" |
+| Apoio visual ao entendimento | Representação | Protótipos e wireframes de tela | Protótipos que orientam o desenvolvimento e antecipam a validação com o cliente |
+| Desenvolvimento com práticas XP | Organização e Atualização | Gestão visual do quadro, integração contínua (CI) e TDD | Incremento de software desenvolvido segundo os critérios de aceitação |
+| Revisão/Demonstração | Verificação e Validação | Demonstração do protótipo/software ao cliente | Funcionalidade validada; feedback coletado e ajustes mapeados |
+| Revisão contínua do backlog | Organização e Atualização | Revisão do backlog no GitHub Projects | Backlog repriorizado e alinhado ao feedback e necessidades do cliente |

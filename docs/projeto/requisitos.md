@@ -7,11 +7,15 @@ As seis atividades da Engenharia de Requisitos são praticadas de forma iterativ
 | Atividade de ER | Técnica adotada | Como será utilizada no projeto |
 | :--- | :--- | :--- |
 | Elicitação e Descoberta | Entrevista semiestruturada combinada com conversa guiada por temas | Reuniões quinzenais com o representante do cliente utilizando roteiro de perguntas combinado com exploração livre de temas emergentes. Permite capturar requisitos explícitos e necessidades latentes. |
-| Análise e Consenso | Priorização MoSCoW | Após cada sessão de elicitação, os requisitos são classificados em Must Have, Should Have, Could Have e Won't Have, com validação do cliente. Permite conciliar expectativas e restrições técnicas. |
-| Declaração | Histórias de Usuário | Requisitos declarados no formato: "Como [perfil], quero [ação], para [benefício]", acompanhados de critérios de aceitação. Mantém linguagem acessível ao cliente e precisão para a equipe técnica. |
+| Análise e Consenso | Priorização MoSCoW, Matriz de Avaliação Técnica × Valor de Negócio e Workshops de Requisitos | Após cada sessão de elicitação, os requisitos são classificados em Must Have, Should Have, Could Have e Won't Have com validação do cliente. A Matriz de Avaliação Técnica × Valor de Negócio cruza o esforço estimado de implementação com o valor entregue, priorizando entregas de alto impacto e baixa complexidade para o MVP. Quando surgem ambiguidades ou conflitos de prioridade, a equipe realiza workshops internos para construir consenso antes de apresentar as decisões ao cliente. |
+| Declaração | Histórias de Usuário, Casos de Uso em breve descrição e Critérios de Aceitação | Requisitos declarados no formato "Como [perfil], quero [ação], para [benefício]". Casos de uso em breve descrição mapeiam as interações essenciais entre os perfis e o sistema. Critérios de aceitação definem as condições verificáveis que cada história precisa atender para ser considerada concluída. |
 | Representação | Protótipos e wireframes de tela | Funcionalidades representadas visualmente antes da implementação. Orientam o desenvolvimento e servem como base concreta para as sessões de validação com o cliente. |
-| Verificação e Validação | Demonstração do protótipo ao cliente | Ao final de cada ciclo, a equipe apresenta ao cliente o incremento desenvolvido e coleta feedback estruturado, garantindo que o produto evolui na direção correta. |
-| Organização e Atualização | GitHub Projects (quadro Kanban) | Backlog gerenciado em quadro Kanban com colunas (A fazer / Em progresso / Em revisão / Concluído). Revisado a cada reunião com o cliente, mantendo os requisitos atualizados. |
+| Verificação e Validação | Demonstração ao Cliente, Revisão de Critérios de Aceitação e Checklist | Ao final de cada ciclo, o incremento desenvolvido é apresentado ao cliente e feedback estruturado é coletado. Antes de cada demonstração, o Analista de QA conduz uma revisão sistemática dos critérios de aceitação por meio de checklists, verificando completude, consistência e testabilidade de cada item. |
+| Organização e Atualização | Revisão e Repriorização do Backlog e Rastreabilidade de Requisitos | O backlog é revisado e repriorizado a cada reunião com o cliente, com os itens organizados no GitHub Projects nas colunas A fazer, Em progresso, Em revisão e Concluído. A rastreabilidade é mantida por meio de vínculos explícitos entre histórias de usuário, critérios de aceitação e características do produto definidas na seção 2.3. |
+
+
+
+
 
 ## 4.2 Engenharia de Requisitos e KanbanXP
 

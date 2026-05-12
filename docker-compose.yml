@@ -38,20 +38,5 @@ services:
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: liaison_frontend
-    restart: unless-stopped
-    ports:
-      - "8081:8081"
-      - "19006:19006"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-
 volumes:
   postgres_data:

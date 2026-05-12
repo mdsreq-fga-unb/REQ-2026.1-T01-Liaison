@@ -7,21 +7,29 @@ from pathlib import Path
 
 from decouple import config, Csv
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ---------------------------------------------------------------------------
-# Security
-# ---------------------------------------------------------------------------
+
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-me-in-production")
 DEBUG = config("DEBUG", default=True, cast=bool)
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1,0.0.0.0", cast=Csv())
 
 # ---------------------------------------------------------------------------
-# Application definition
+# ALLOWED_HOSTS — built from LOCAL_IP so Expo Go (device/emulator) can reach
+# the backend over Wi-Fi. Set LOCAL_IP in .env to your machine's local IP.
+# Wildcard (*) is the fallback when LOCAL_IP is missing (safe: DEBUG=True).
 # ---------------------------------------------------------------------------
+LOCAL_IP = config("LOCAL_IP", default="")
+_extra_hosts = config("ALLOWED_HOSTS_EXTRA", default="", cast=Csv())
+_hosts = ["localhost", "127.0.0.1", "0.0.0.0"]
+if LOCAL_IP:
+    _hosts.append(LOCAL_IP)
+_hosts.extend(h for h in _extra_hosts if h)
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    default=",".join(_hosts) if LOCAL_IP else "localhost,127.0.0.1,0.0.0.0,*",
+    cast=Csv(),
+)
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -71,11 +79,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# ---------------------------------------------------------------------------
-# Database
-# ---------------------------------------------------------------------------
-# Uses DATABASE_URL from .env — format: postgres://USER:PASS@HOST:PORT/DBNAME
-_db_url = config("DATABASE_URL", default="postgres://postgres:postgres@localhost:5432/liaison")
+
+# DATABASE_URL is read from .env (local) or set by docker-compose (Container).
+# No hardcoded fallback — fails fast if missing.
+_db_url = config("DATABASE_URL")
 
 # Parse DATABASE_URL manually for compatibility
 import re  # noqa: E402
@@ -108,14 +115,8 @@ else:
         }
     }
 
-# ---------------------------------------------------------------------------
-# Custom User model
-# ---------------------------------------------------------------------------
 AUTH_USER_MODEL = "users.User"
 
-# ---------------------------------------------------------------------------
-# Password validation
-# ---------------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -123,28 +124,16 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# ---------------------------------------------------------------------------
-# Internationalization
-# ---------------------------------------------------------------------------
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
 
-# ---------------------------------------------------------------------------
-# Static files
-# ---------------------------------------------------------------------------
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# ---------------------------------------------------------------------------
-# Default primary key
-# ---------------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ---------------------------------------------------------------------------
-# Django REST Framework
-# ---------------------------------------------------------------------------
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -162,9 +151,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-# ---------------------------------------------------------------------------
-# Simple JWT
-# ---------------------------------------------------------------------------
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -178,11 +164,25 @@ SIMPLE_JWT = {
 }
 
 # ---------------------------------------------------------------------------
-# CORS
+# CORS — origins built from LOCAL_IP so Expo Go Metro (port 8081) is allowed.
+# Set LOCAL_IP in .env. Falls back to localhost-only when LOCAL_IP is missing.
 # ---------------------------------------------------------------------------
+_cors_origins = [
+    "http://localhost:8081",
+    "http://localhost:3000",
+    "exp://localhost:8081",
+]
+if LOCAL_IP:
+    _cors_origins += [
+        f"http://{LOCAL_IP}:8081",
+        f"exp://{LOCAL_IP}:8081",
+    ]
+_extra_origins = config("CORS_ALLOWED_ORIGINS_EXTRA", default="", cast=Csv())
+_cors_origins.extend(o for o in _extra_origins if o)
+
 CORS_ALLOWED_ORIGINS = config(
     "CORS_ALLOWED_ORIGINS",
-    default="http://localhost:8081,http://localhost:3000,exp://localhost:8081",
+    default=",".join(_cors_origins),
     cast=Csv(),
 )
 CORS_ALLOW_CREDENTIALS = True

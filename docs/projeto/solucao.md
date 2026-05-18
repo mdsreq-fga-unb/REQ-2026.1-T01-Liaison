@@ -8,10 +8,8 @@ Aumentar a conexão entre estudantes universitários e oportunidades de voluntar
 
 | ID | Objetivo Específico |
 | :--- | :--- |
-| OE01 | Facilitar a busca e a descoberta de oportunidades de voluntariado compatíveis com o perfil e a disponibilidade do estudante. |
-| OE02 | Permitir que organizações cadastrem, publiquem e gerenciem suas oportunidades de voluntariado de forma autônoma. |
-| OE03 | Automatizar a emissão de certificados digitais de participação ao término das atividades, integrando os dados de presença registrados. |
-| OE04 | Prover mecanismos de controle de presença e participação dos voluntários nas atividades cadastradas. |
+| OE01 | Conectar estudantes e organizações de forma centralizada, facilitando o fluxo de publicação, descoberta e gestão de inscrições em oportunidades de voluntariado. |
+| OE02 | Automatizar o fluxo de comprovação acadêmica das atividades extracurriculares, unificando o controle de participação e a emissão de certificados digitais. |
 
 ## 2.3 Características de Produto
 
@@ -19,12 +17,9 @@ A tabela a seguir lista as características do produto, cada uma descrita em ter
 
 | ID | Característica | Descrição resumida | OE principal | Contrib. secundária | Valor entregue e indicador de sucesso |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| CP01 | Cadastro | Permite o registro de estudantes e organizações na plataforma, com coleta e armazenamento de informações para identificação, personalização da experiência e uso das funcionalidades. | OE02 | OE01, OE04 | A plataforma mantém base estruturada de usuários e organizações, possibilitando personalização da experiência e operação das demais funcionalidades. |
-| CP02 | Gestão de oportunidades | Permite que organizações criem, atualizem e disponibilizem oportunidades de voluntariado, incluindo suas informações essenciais. | OE02 | OE01 | As organizações conseguem gerenciar suas oportunidades de forma centralizada na plataforma. |
-| CP03 | Descoberta de oportunidades | Permite que estudantes encontrem oportunidades de voluntariado disponíveis de acordo com seus interesses e contexto de uso. | OE01 | — | O estudante consegue localizar oportunidades relevantes dentro da plataforma. |
-| CP04 | Inscrição em atividades | Fluxo de candidatura do estudante à vaga, com confirmação ou recusa pela organização. | OE01 | OE02 | Desburocratiza o processo de adesão ao voluntariado e facilita a gestão de inscrições pelas organizações. |
-| CP05 | Controle de presença | Registro de frequência dos voluntários nas atividades, gerenciado pela organização responsável. | OE04 | OE03 | Rastreabilidade dos dados necessários para emissão de certificados e validação acadêmica. |
-| CP06 | Emissão de certificados | Geração e envio digital de certificado de participação ao estudante ao término da atividade, contendo carga horária registrada. | OE03 | OE01 | Valor acadêmico direto para o estudante; principal diferencial da plataforma. |
+| CP01 | Gestão de Usuários e Entidades | Engloba o registro, autenticação e manutenção de dados estruturados para diferentes perfis (Estudantes e Organizações Sociais) dentro da plataforma. | OE01 | OE02 | A plataforma mantém uma base confiável, permitindo personalização da experiência, identificação correta das partes e operação segura das funcionalidades. |
+| CP02 | Ciclo de Vagas e Engajamento | Centraliza a criação, atualização e publicação de vagas pelas organizações; o motor de busca personalizado para estudantes; e o fluxo completo de candidaturas e aprovações. | OE01 | OE02 | Desburocratiza a adesão ao voluntariado: o estudante encontra vagas relevantes e a organização gerencia o recrutamento e os inscritos em um único painel. |
+| CP03 | Acompanhamento e Certificação Acadêmica | Unifica a operação pós-inscrição, integrando o registro de frequência/horas nas atividades gerenciadas pela organização com a geração e envio automatizado de certificados digitais aos voluntários. | OE02 | OE01 | Rastreabilidade total dos dados de participação garantida; entrega imediata de valor acadêmico (comprovante) para o estudante sem esforço manual das organizações. |
 
 ## 2.4 Tecnologias a Serem Utilizadas
 

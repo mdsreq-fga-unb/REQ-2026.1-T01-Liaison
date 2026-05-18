@@ -5,6 +5,8 @@ site_description: Plataforma de Conexão entre Estudantes e Voluntariado
 theme:
   name: material
   language: pt-BR
+  logo: material/handshake # Um ícone legal para a plataforma (Liaison/Conexão)
+  favicon: material/handshake
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
@@ -12,7 +14,7 @@ theme:
       primary: deep purple
       accent: indigo
       toggle:
-        icon: material/brightness-7
+        icon: material/weather-night
         name: Mudar para modo escuro
 
     # Palette toggle for dark mode
@@ -21,16 +23,21 @@ theme:
       primary: deep purple
       accent: indigo
       toggle:
-        icon: material/brightness-4
+        icon: material/weather-sunny
         name: Mudar para modo claro
 
   features:
-    - navigation.tabs
+    # Removemos navigation.tabs para ter uma barra lateral unificada (estilo Docusaurus/Starlight)
     - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.footer
     - navigation.top
     - search.suggest
     - search.highlight
+    - search.share
     - content.code.copy
+    - toc.follow
 
 markdown_extensions:
   - admonition
@@ -41,7 +48,7 @@ markdown_extensions:
 
 nav:
   - Início: index.md
-  - Definição do Projeto:
+  - Visão do Produto e Projeto:
       - Cenário e Negócio: projeto/cenario.md
       - Solução Proposta: projeto/solucao.md
       - Estratégias de Engenharia de Software: projeto/estrategias.md
@@ -50,9 +57,15 @@ nav:
       - Interação entre Equipe e Cliente: projeto/interacao.md
       - Lições Aprendidas: projeto/licoes.md
       - DoR e DoD: projeto/dor_e_dod.md
+      - Requisitos de Software: projeto/requisitos_software.md
       - Referências Bibliográficas: projeto/referencias.md
+  - Lições Aprendidas:
+      - Unidade 1: projeto/licoes.md
   - Entregas:
       - Unidade 1: entregas/unidade1.md
+
+extra_css:
+  - stylesheets/extra.css
 
 extra:
   social:

@@ -1,19 +1,13 @@
 # 5 CRONOGRAMA E ENTREGAS
 
-O cronograma a seguir apresenta as atividades e entregáveis do projeto ao longo das quatro unidades da disciplina, alinhado ao plano de ensino do Prof. George Marsicano Corrêa.
+O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são incrementais e cumulativas — cada uma entrega um conjunto coeso de funcionalidades que agregam valor direto ao usuário final. Infraestrutura e configuração de ambiente são incorporadas conforme a necessidade de cada release, nunca concentradas em etapa isolada.
 
-| Unidade | Período | Atividades / Entregáveis | Peso AE |
-| :--- | :--- | :--- | :--- |
-| Unidade 1 - Fundamentos e Visão do Produto | 17/03 → 16/04 | Formação da equipe · Fundamentos de ER · Visão do Produto completa (seções 1 a 6.3) · Apresentação · QAU1 · Avaliação Cruzada | 15% |
-| Unidade 2 - Elicitação, Backlog e MVP | 21/04 → 21/05 | Elicitação com o cliente · Análise e consenso · Histórias de usuário · Product Backlog · Definição do MVP · DoR e DoD · Início da codificação · QAU2 · Avaliação Cruzada | 25% |
-| Unidade 3 - Verificação, Validação e PBB/BDD | 26/05 → 18/06 | Verificação e validação de requisitos · PBB e BDD · MVP em desenvolvimento · QAU3 · Avaliação Cruzada | 20% |
-| Unidade 4 - User Story Mapping e Casos de Uso | 23/06 → 16/07 | User Story Mapping · Casos de uso · Produto final (APK/Web no GitPages) · Documentação completa · QAU4 + QAG · Revisão de Notas | 40% |
+## 5.1 Plano de Releases
 
-Releases planejadas:
+| Release | Data | Objetivo | Escopo | Valor Entregue |
+| :--- | :--- | :--- | :--- | :--- |
+| **R1 — Fundação** | 26/05/2026 | Cadastro e Acesso Seguro | Cadastro de estudantes e organizações. Autenticação com e-mail e senha. Moderação de organizações pelo administrador. Segurança de credenciais. | A plataforma passa a existir: os três perfis de usuário conseguem se cadastrar e acessar com segurança. Apenas organizações legítimas são aprovadas. |
+| **R2 — Perfis e Conexão** | 16/06/2026 | Personalização e Descoberta | Gestão de perfis de estudantes e organizações. Visualização de oportunidades. Candidatura e cancelamento de candidatura. | Usuários constroem sua identidade na plataforma. Estudantes descobrem vagas e se candidatam com autonomia. |
+| **R3 — Gestão e Triagem** | 30/06/2026 | Ciclo Operacional das Vagas | Criação, edição e cancelamento de vagas pelas organizações. Avaliação de candidatos (aprovar/recusar). Suporte a uso concorrente e mobile. | Organizações gerenciam suas vagas de ponta a ponta. Plataforma responsiva e pronta para escala. |
+| **R4 — Certificação** | 14/07/2026 | Fechamento do Ciclo | Listagem de aprovados. Registro de presença e ateste de horas. Emissão automática de certificado digital com hash de validação. | O ciclo do voluntariado se fecha: a organização atesta a participação e o estudante recebe um certificado digital verificável. |
 
-| Release | Data | Objetivo Principal | Entregas Esperadas |
-| :--- | :--- | :--- | :--- |
-| Release 1 | 14/04/2026 | Visão do projeto e produto | Documento de Visão e Escopo consolidado. Definição da stack tecnológica. |
-| Release 2 | 19/05/2026 | Configuração e Arquitetura do Ambiente | Setup dos ambientes (Dev/Staging). Configuração de CI/CD. Integração de Autenticação. Estrutura inicial do Banco de Dados. Cadastro base de usuários. |
-| Release 3 | 16/06/2026 | MVP Core e Fluxo Operacional | Criação de vagas pelas Organizações. Motor de busca e visualização de vagas. Fluxo de candidatura e triagem. Painel de gestão diária. |
-| Release 4 | 07/07/2026 | Certificação, Compliance e Entrega Final | Sistema de validação de presença. Geração de certificados com validação/hash. Relatórios e histórico de horas. Documentação final. |

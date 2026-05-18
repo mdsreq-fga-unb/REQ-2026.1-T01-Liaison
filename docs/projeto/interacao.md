@@ -6,12 +6,12 @@ O Kanban não prescreve papéis fixos, permitindo que a equipe os defina conform
 
 | Papel | Descrição | Responsável |
 | :--- | :--- | :--- |
-| Líder do Projeto | Coordena o grupo, garante comunicação com o cliente e com o professor, acompanha o progresso do quadro Kanban e remove impedimentos. | Gustavo da Costa Cintra |
+| Líder do Projeto e Coordenador de Análise de Requisitos | Coordena o grupo, garante comunicação com o cliente e com o professor, acompanha o progresso do quadro Kanban e remove impedimentos. | Gustavo da Costa Cintra |
 | Analista de Requisitos | Conduz as sessões de elicitação com o cliente, redige histórias de usuário, define critérios de aceitação e mantém o backlog atualizado no GitHub Projects. | Henrique Fontenelle G. Passos |
-| Dev. Frontend | Implementa as interfaces em React com Expo, responsável pela experiência do usuário em mobile e web. | Nicole Jovita Fernandes |
-| Dev. Frontend | Apoia a implementação das interfaces, construção de protótipos e wireframes para validação com o cliente. | Pedro Felipe Silva Vargas |
-| Dev. Backend | Implementa a API REST em Django com DRF, gerencia o PostgreSQL e garante a integração entre frontend e backend. | Luis Guilherme Borges Monteiro |
-| Analista de QA / Testes | Responsável pela verificação dos critérios de aceitação, execução de testes funcionais e validação da qualidade antes de cada entrega. | Danilo Sarmento Barros |
+| Dev. Frontend e Analista de Requisitos | Implementa as interfaces em React com Expo, responsável pela experiência do usuário em mobile e web. | Nicole Jovita Fernandes |
+| Dev. Frontend e Analista de Requisitos | Apoia a implementação das interfaces, construção de protótipos e wireframes para validação com o cliente. | Pedro Felipe Silva Vargas |
+| Dev. Backend e Analista de Requisitos | Implementa a API REST em Django com DRF, gerencia o PostgreSQL e garante a integração entre frontend e backend. | Luis Guilherme Borges Monteiro |
+| Analista de QA / Testes e Analista de Requisitos | Responsável pela verificação dos critérios de aceitação, execução de testes funcionais e validação da qualidade antes de cada entrega. | Danilo Sarmento Barros |
 
 ## 6.2 Comunicação
 

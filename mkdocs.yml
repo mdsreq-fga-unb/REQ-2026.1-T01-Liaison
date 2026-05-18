@@ -49,6 +49,7 @@ nav:
       - Cronograma e Entregas: projeto/cronograma.md
       - Interação entre Equipe e Cliente: projeto/interacao.md
       - Lições Aprendidas: projeto/licoes.md
+      - DoR e DoD: projeto/dor_e_dod.md
       - Referências Bibliográficas: projeto/referencias.md
   - Entregas:
       - Unidade 1: entregas/unidade1.md

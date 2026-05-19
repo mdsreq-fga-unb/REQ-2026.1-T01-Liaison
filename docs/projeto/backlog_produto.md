@@ -46,14 +46,14 @@ Com base nos valores de Impacto e Esforço, os requisitos foram distribuídos em
 
 |  | **Baixo Esforço** | **Alto Esforço** |
 |---|---|---|
-| **Alto Impacto** | ⚡ **Quick Wins** — implementar primeiro | 🎯 **Strategic** — planejar com cuidado |
-| **Baixo Impacto** | 📥 **Fill In** — preencher quando houver folga | ⛔ **Avoid** — evitar ou postergar |
+| **Alto Impacto** | **Quick Wins** — implementar primeiro | **Strategic** — planejar com cuidado |
+| **Baixo Impacto** | **Fill In** — preencher quando houver folga | **Avoid** — evitar ou postergar |
 
 A ordenação dentro de cada quadrante segue o **Score ICE** (decrescente).
 
 ---
 
-### ⚡ Quick Wins (Alto Impacto, Baixo Esforço)
+### Quick Wins (Alto Impacto, Baixo Esforço)
 
 | ID | Descrição | I | C | E | ICE |
 | :--- | :--- | :---: | :---: | :---: | :---: |
@@ -77,7 +77,7 @@ A ordenação dentro de cada quadrante segue o **Score ICE** (decrescente).
 | **RF14** | Registrar frequência | 7 | 1,0 | 3 | 2,33 |
 | **RF08** | Buscar vaga | 10 | 0,8 | 5 | 1,60 |
 
-### 🎯 Strategic (Alto Impacto, Alto Esforço)
+### Strategic (Alto Impacto, Alto Esforço)
 
 | ID | Descrição | I | C | E | ICE |
 | :--- | :--- | :---: | :---: | :---: | :---: |
@@ -89,20 +89,47 @@ A ordenação dentro de cada quadrante segue o **Score ICE** (decrescente).
 | **RF17** | Validar certificado | 10 | 0,6 | 8 | 0,75 |
 | **RF05** | Recuperar senha | 6 | 0,8 | 8 | 0,60 |
 
-### ⛔ Avoid (Baixo Impacto, Alto Esforço)
+### Avoid (Baixo Impacto, Alto Esforço)
 
 | ID | Descrição | I | C | E | ICE |
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **RNF07** | Geração assíncrona de PDFs | 2 | 0,5 | 7 | 0,14 |
 
-### 📥 Fill In (Baixo Impacto, Baixo Esforço)
+### Fill In (Baixo Impacto, Baixo Esforço)
 
 | ID | Descrição | I | C | E | ICE |
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **RNF03** | Validação de CNPJ | 5 | 1,0 | 1 | 5,00 |
 | **RNF08** | Imutabilidade de certificados | 4 | 0,7 | 4 | 0,70 |
 
-## 10.3 Anexos de Priorização
+## 10.3 MVP (Must Have — MoSCoW)
+
+O MVP (Minimum Viable Product) é composto exclusivamente pelos requisitos classificados como **Must Have** na priorização MoSCoW. Abaixo estão os itens selecionados, ordenados por Score ICE (decrescente):
+
+| ID | Descrição | I | C | E | ICE |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **RF06** | Moderar organização | 10 | 1,0 | 1 | 10,00 |
+| **RF10** | Realizar candidatura | 10 | 1,0 | 1 | 10,00 |
+| **RF11** | Avaliar candidatura | 10 | 1,0 | 1 | 10,00 |
+| **RNF01** | Criptografia de senhas (bcrypt) | 10 | 1,0 | 1 | 10,00 |
+| **RNF04** | Interface responsiva (iOS e Android) | 10 | 1,0 | 1 | 10,00 |
+| **RF03** | Autenticar usuário | 10 | 1,0 | 2 | 5,00 |
+| **RF09** | Consultar vaga | 10 | 1,0 | 2 | 5,00 |
+| **RF13** | Listar aprovados | 10 | 1,0 | 2 | 5,00 |
+| **RF20** | Publicar oportunidade | 10 | 1,0 | 2 | 5,00 |
+| **RF02** | Cadastrar organização | 10 | 1,0 | 3 | 3,33 |
+| **RF12** | Acompanhar candidatura | 6 | 0,8 | 2 | 2,40 |
+| **RF14** | Registrar frequência | 7 | 1,0 | 3 | 2,33 |
+| **RF01** | Cadastrar estudante | 10 | 1,0 | 6 | 1,67 |
+| **RF04** | Gerenciar perfil | 10 | 1,0 | 6 | 1,67 |
+| **RF19** | Editar oportunidade | 10 | 1,0 | 6 | 1,67 |
+| **RF08** | Buscar vaga | 10 | 0,8 | 5 | 1,60 |
+| **RF15** | Emitir certificado | 10 | 1,0 | 7 | 1,43 |
+| **RF18** | Criar oportunidade | 10 | 1,0 | 9 | 1,11 |
+
+Total de itens no MVP: **18** (16 RFs + 2 RNFs).
+
+## 10.4 Anexos de Priorização
 
 Abaixo estão os documentos de apoio utilizados pela equipe durante as sessões de priorização:
 

@@ -51,6 +51,7 @@ nav:
   - Visão do Produto e Projeto:
       - Cenário e Negócio: projeto/cenario.md
       - Solução Proposta: projeto/solucao.md
+      - Intervenção Social: projeto/intervencao_social.md
       - Estratégias de Engenharia de Software: projeto/estrategias.md
       - Engenharia de Requisitos: projeto/requisitos.md
       - Cronograma e Entregas: projeto/cronograma.md

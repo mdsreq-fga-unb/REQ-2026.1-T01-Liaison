@@ -65,6 +65,7 @@ nav:
       - Unidade 2: projeto/licoes/unidade2.md
   - Entregas:
       - Unidade 1: entregas/unidade1.md
+      - Unidade 2: entregas/unidade2.md
 
 extra_css:
   - stylesheets/extra.css

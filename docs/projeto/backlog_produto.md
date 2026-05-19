@@ -101,3 +101,13 @@ A ordenação dentro de cada quadrante segue o **Score ICE** (decrescente).
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **RNF03** | Validação de CNPJ | 5 | 1,0 | 1 | 5,00 |
 | **RNF08** | Imutabilidade de certificados | 4 | 0,7 | 4 | 0,70 |
+
+## 10.3 Anexos de Priorização
+
+Abaixo estão os documentos de apoio utilizados pela equipe durante as sessões de priorização:
+
+### Matriz de Priorização
+![Matriz de Priorização](assets/Matriz.pdf){ type="application/pdf" width="100%" height="800" }
+
+### Priorização MoSCoW
+![Priorização MoSCoW](assets/MoSCoW.pdf){ type="application/pdf" width="100%" height="800" }

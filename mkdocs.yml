@@ -73,3 +73,7 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison
+
+plugins:
+  - search
+  - mkdocs-pdf

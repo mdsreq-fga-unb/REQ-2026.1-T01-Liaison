@@ -19,7 +19,10 @@ Os requisitos funcionais descrevem as funcionalidades específicas que o sistema
 ### CP02 - Ciclo de Vagas e Engajamento
 | ID | Nome do Requisito | Descrição |
 | :--- | :--- | :--- |
-| **RF07** | Gerenciar vaga | Permitir que organizações criem, editem, publiquem e encerrem oportunidades. |
+| **RF18** | Criar oportunidade | Permitir que organizações criem novas vagas de voluntariado. |
+| **RF19** | Editar oportunidade | Permitir que organizações editem vagas de voluntariado existentes. |
+| **RF20** | Publicar oportunidade | Permitir que organizações publiquem vagas de voluntariado para visualização dos estudantes. |
+| **RF21** | Encerrar oportunidade | Permitir que organizações encerrem vagas de voluntariado. |
 | **RF08** | Buscar vaga | Prover listagem de oportunidades com filtros personalizados para o estudante. |
 | **RF09** | Consultar vaga | Exibir informações detalhadas, requisitos mínimos e datas de uma vaga específica. |
 | **RF10** | Realizar candidatura | Permitir que o estudante confirme interesse e se inscreva em uma vaga. |

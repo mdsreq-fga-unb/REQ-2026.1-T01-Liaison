@@ -33,47 +33,71 @@ A tabela, a seguir, apresenta cada um dos requisitos funcionais (RFs) declarados
 
 Para a priorização do backlog, a equipe adotou o método **ICE Score** (Impact, Confidence, Effort), conforme alinhado nas lições aprendidas e revisões do processo de engenharia de requisitos. Esse método permite uma ordenação objetiva fundamentada no valor gerado e no custo técnico.
 
-Os critérios avaliados para cada História de Usuário são:
+Os critérios avaliados para cada requisito são:
 
 - **Impacto (Impact - I):** Valor gerado para o usuário e para os objetivos do produto (Escala de 1 a 10).
-- **Confiança (Confidence - C):** Grau de segurança da equipe em relação à relevância e compreensão do requisito (Escala de 0,1 a 1,0).
+- **Confiança (Confidence - C):** Grau de segurança da equipe de que o valor de Impacto atribuído está correto e de que o requisito realmente entrega aquele montante de valor (Escala de 0,1 a 1,0).
 - **Esforço (Effort - E):** Complexidade estimada de implementação e carga técnica (Escala de 1 a 10).
 
 **Fórmula de Cálculo do ICE Score:**
 `Pontuação ICE = (Impacto × Confiança) / Esforço`
 
-Quanto maior a pontuação ICE, maior a prioridade da história para o negócio.
+Com base nos valores de Impacto e Esforço, os requisitos foram distribuídos em uma **matriz de priorização** com quatro quadrantes:
 
-**Faixas de decisão adotadas pela equipe:**
-- **ICE ≥ 1,50** → **Alta Prioridade (Núcleo do MVP)**
-- **ICE entre 1,00 e 1,49** → **Média Prioridade (Próximas iterações)**
-- **ICE < 1,00** → **Baixa Prioridade (Secundário/Futuro)**
+|  | **Baixo Esforço** | **Alto Esforço** |
+|---|---|---|
+| **Alto Impacto** | ⚡ **Quick Wins** — implementar primeiro | 🎯 **Strategic** — planejar com cuidado |
+| **Baixo Impacto** | 📥 **Fill In** — preencher quando houver folga | ⛔ **Avoid** — evitar ou postergar |
 
-A partir disso, foi gerada a seguinte tabela de priorização:
+A ordenação dentro de cada quadrante segue o **Score ICE** (decrescente).
 
-| US | Descrição | Impacto (I) | Confiança (C) | Esforço (E) | Score ICE | Prioridade Sugerida |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **US001.1** | Cadastro de Estudantes Universitários | 10 | 1,0 | 6 | 1,67 | Alta |
-| **US001.2** | Cadastro de Organizações Sociais | 10 | 1,0 | 3 | 3,33 | Alta |
-| **US001.3** | Autenticação de Usuários | 10 | 0,9 | 2 | 4,50 | Alta |
-| **US001.4** | Gestão de Perfil do Estudante | 10 | 0,8 | 6 | 1,33 | Média |
-| **US001.5** | Edição de Perfil Institucional da Organização | 10 | 0,8 | 6 | 1,33 | Média |
-| **US001.6** | Fluxo de Recuperação de Senha via E-mail | 6 | 0,8 | 8 | 0,60 | Baixa |
-| **US001.7** | Painel Administrativo para Moderação | 10 | 1,0 | 1 | 10,00 | Alta |
-| **US002.1** | Criação de Vagas de Voluntariado | 10 | 0,6 | 9 | 0,67 | Baixa |
-| **US002.1b** | Edição de Vagas de Voluntariado | 10 | 0,8 | 6 | 1,33 | Média |
-| **US002.1c** | Publicação de Vagas de Voluntariado | 10 | 1,0 | 2 | 5,00 | Alta |
-| **US002.1d** | Encerramento de Vagas de Voluntariado | 8 | 1,0 | 2 | 4,00 | Alta |
-| **US002.2** | Motor de Busca e Filtro de Vagas | 10 | 0,8 | 5 | 1,60 | Alta |
-| **US002.3** | Visualização de Detalhes da Vaga | 10 | 1,0 | 2 | 5,00 | Alta |
-| **US002.4** | Candidatura de Estudante em Vaga | 10 | 1,0 | 1 | 10,00 | Alta |
-| **US002.5** | Cancelamento de Candidatura pelo Estudante | 6 | 0,8 | 2 | 2,40 | Alta |
-| **US002.6** | Avaliação de Candidaturas pela Organização | 10 | 1,0 | 1 | 10,00 | Alta |
-| **US002.7** | Sistema de Notificações de Status | 6 | 0,8 | 2 | 2,40 | Alta |
-| **US003.1** | Listagem de Estudantes Aprovados | 10 | 1,0 | 2 | 5,00 | Alta |
-| **US003.2** | Registro de Presença e Ateste de Carga Horária | 7 | 1,0 | 3 | 2,33 | Alta |
-| **US003.3a** | Recebimento Automático de Certificado Digital | 10 | 1,0 | 7 | 1,43 | Média |
-| **US003.3b** | Exportação de Certificado Digital em PDF | 10 | 1,0 | 7 | 1,43 | Média |
-| **US003.4a** | Visualização de Histórico de Horas | 6 | 1,0 | 2 | 3,00 | Alta |
-| **US003.4b** | Download de Certificados Digitais | 6 | 1,0 | 2 | 3,00 | Alta |
-| **US003.5** | Portal Público de Validação de Certificados | 10 | 0,6 | 8 | 0,75 | Baixa |
+---
+
+### ⚡ Quick Wins (Alto Impacto, Baixo Esforço)
+
+| ID | Descrição | I | C | E | ICE |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **RF06** | Moderar organização | 10 | 1,0 | 1 | 10,00 |
+| **RF10** | Realizar candidatura | 10 | 1,0 | 1 | 10,00 |
+| **RF11** | Avaliar candidatura | 10 | 1,0 | 1 | 10,00 |
+| **RNF01** | Criptografia de senhas (bcrypt) | 10 | 1,0 | 1 | 10,00 |
+| **RNF04** | Interface responsiva (iOS e Android) | 10 | 1,0 | 1 | 10,00 |
+| **RF03** | Autenticar usuário | 10 | 1,0 | 2 | 5,00 |
+| **RF09** | Consultar vaga | 10 | 1,0 | 2 | 5,00 |
+| **RF13** | Listar aprovados | 10 | 1,0 | 2 | 5,00 |
+| **RF20** | Publicar oportunidade | 10 | 1,0 | 2 | 5,00 |
+| **RNF02** | Login em até 2 segundos | 10 | 0,9 | 2 | 4,50 |
+| **RNF05** | Busca em até 3 segundos | 10 | 0,9 | 2 | 4,50 |
+| **RNF06** | Suporte a 1.000 usuários simultâneos | 10 | 0,8 | 2 | 4,00 |
+| **RF21** | Encerrar oportunidade | 8 | 0,9 | 2 | 3,60 |
+| **RF02** | Cadastrar organização | 10 | 1,0 | 3 | 3,33 |
+| **RF16** | Consultar histórico | 6 | 1,0 | 2 | 3,00 |
+| **RNF09** | UUIDs para certificados | 10 | 0,6 | 2 | 3,00 |
+| **RF12** | Acompanhar candidatura | 6 | 0,8 | 2 | 2,40 |
+| **RF14** | Registrar frequência | 7 | 1,0 | 3 | 2,33 |
+| **RF08** | Buscar vaga | 10 | 0,8 | 5 | 1,60 |
+
+### 🎯 Strategic (Alto Impacto, Alto Esforço)
+
+| ID | Descrição | I | C | E | ICE |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **RF01** | Cadastrar estudante | 10 | 1,0 | 6 | 1,67 |
+| **RF04** | Gerenciar perfil | 10 | 1,0 | 6 | 1,67 |
+| **RF19** | Editar oportunidade | 10 | 1,0 | 6 | 1,67 |
+| **RF15** | Emitir certificado | 10 | 1,0 | 7 | 1,43 |
+| **RF18** | Criar oportunidade | 10 | 1,0 | 9 | 1,11 |
+| **RF17** | Validar certificado | 10 | 0,6 | 8 | 0,75 |
+| **RF05** | Recuperar senha | 6 | 0,8 | 8 | 0,60 |
+
+### ⛔ Avoid (Baixo Impacto, Alto Esforço)
+
+| ID | Descrição | I | C | E | ICE |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **RNF07** | Geração assíncrona de PDFs | 2 | 0,5 | 7 | 0,14 |
+
+### 📥 Fill In (Baixo Impacto, Baixo Esforço)
+
+| ID | Descrição | I | C | E | ICE |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **RNF03** | Validação de CNPJ | 5 | 1,0 | 1 | 5,00 |
+| **RNF08** | Imutabilidade de certificados | 4 | 0,7 | 4 | 0,70 |

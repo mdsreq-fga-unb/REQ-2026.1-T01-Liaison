@@ -77,3 +77,13 @@ A partir disso, foi gerada a seguinte tabela de priorização:
 | **US003.5** | Portal Público de Validação de Certificados | 10 | 0,6 | 8 | 0,75 | Baixa |
 | **US002.1** | Criação de Vagas de Voluntariado | 10 | 0,6 | 9 | 0,67 | Baixa |
 | **US001.6** | Fluxo de Recuperação de Senha via E-mail | 6 | 0,8 | 8 | 0,60 | Baixa |
+
+## 10.3 Anexos de Priorização
+
+Abaixo estão os documentos de apoio utilizados pela equipe durante as sessões de priorização:
+
+### Matriz de Priorização
+![Matriz de Priorização](assets/Matriz.pdf){ type="application/pdf" width="100%" height="800" }
+
+### Priorização MoSCoW
+![Priorização MoSCoW](assets/MoSCoW.pdf){ type="application/pdf" width="100%" height="800" }

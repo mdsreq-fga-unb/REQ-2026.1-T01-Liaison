@@ -53,27 +53,27 @@ A partir disso, foi gerada a seguinte tabela de priorização:
 
 | US | Descrição | Impacto (I) | Confiança (C) | Esforço (E) | Score ICE | Prioridade Sugerida |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **US001.1** | Cadastro de Estudantes Universitários | 10 | 1,0 | 6 | 1,67 | Alta |
-| **US001.2** | Cadastro de Organizações Sociais | 10 | 1,0 | 3 | 3,33 | Alta |
-| **US001.3** | Autenticação de Usuários | 10 | 0,9 | 2 | 4,50 | Alta |
-| **US001.4** | Gestão de Perfil do Estudante | 10 | 0,8 | 6 | 1,33 | Média |
-| **US001.5** | Edição de Perfil Institucional da Organização | 10 | 0,8 | 6 | 1,33 | Média |
-| **US001.6** | Fluxo de Recuperação de Senha via E-mail | 6 | 0,8 | 8 | 0,60 | Baixa |
 | **US001.7** | Painel Administrativo para Moderação | 10 | 1,0 | 1 | 10,00 | Alta |
-| **US002.1** | Criação de Vagas de Voluntariado | 10 | 0,6 | 9 | 0,67 | Baixa |
-| **US002.1b** | Edição de Vagas de Voluntariado | 10 | 0,8 | 6 | 1,33 | Média |
-| **US002.1c** | Publicação de Vagas de Voluntariado | 10 | 1,0 | 2 | 5,00 | Alta |
-| **US002.1d** | Encerramento de Vagas de Voluntariado | 8 | 1,0 | 2 | 4,00 | Alta |
-| **US002.2** | Motor de Busca e Filtro de Vagas | 10 | 0,8 | 5 | 1,60 | Alta |
-| **US002.3** | Visualização de Detalhes da Vaga | 10 | 1,0 | 2 | 5,00 | Alta |
 | **US002.4** | Candidatura de Estudante em Vaga | 10 | 1,0 | 1 | 10,00 | Alta |
-| **US002.5** | Cancelamento de Candidatura pelo Estudante | 6 | 0,8 | 2 | 2,40 | Alta |
 | **US002.6** | Avaliação de Candidaturas pela Organização | 10 | 1,0 | 1 | 10,00 | Alta |
-| **US002.7** | Sistema de Notificações de Status | 6 | 0,8 | 2 | 2,40 | Alta |
+| **US002.1c** | Publicação de Vagas de Voluntariado | 10 | 1,0 | 2 | 5,00 | Alta |
+| **US002.3** | Visualização de Detalhes da Vaga | 10 | 1,0 | 2 | 5,00 | Alta |
 | **US003.1** | Listagem de Estudantes Aprovados | 10 | 1,0 | 2 | 5,00 | Alta |
-| **US003.2** | Registro de Presença e Ateste de Carga Horária | 7 | 1,0 | 3 | 2,33 | Alta |
-| **US003.3a** | Recebimento Automático de Certificado Digital | 10 | 1,0 | 7 | 1,43 | Média |
-| **US003.3b** | Exportação de Certificado Digital em PDF | 10 | 1,0 | 7 | 1,43 | Média |
+| **US001.3** | Autenticação de Usuários | 10 | 0,9 | 2 | 4,50 | Alta |
+| **US002.1d** | Encerramento de Vagas de Voluntariado | 8 | 1,0 | 2 | 4,00 | Alta |
+| **US001.2** | Cadastro de Organizações Sociais | 10 | 1,0 | 3 | 3,33 | Alta |
 | **US003.4a** | Visualização de Histórico de Horas | 6 | 1,0 | 2 | 3,00 | Alta |
 | **US003.4b** | Download de Certificados Digitais | 6 | 1,0 | 2 | 3,00 | Alta |
+| **US002.5** | Cancelamento de Candidatura pelo Estudante | 6 | 0,8 | 2 | 2,40 | Alta |
+| **US002.7** | Sistema de Notificações de Status | 6 | 0,8 | 2 | 2,40 | Alta |
+| **US003.2** | Registro de Presença e Ateste de Carga Horária | 7 | 1,0 | 3 | 2,33 | Alta |
+| **US001.1** | Cadastro de Estudantes Universitários | 10 | 1,0 | 6 | 1,67 | Alta |
+| **US002.2** | Motor de Busca e Filtro de Vagas | 10 | 0,8 | 5 | 1,60 | Alta |
+| **US003.3a** | Recebimento Automático de Certificado Digital | 10 | 1,0 | 7 | 1,43 | Média |
+| **US003.3b** | Exportação de Certificado Digital em PDF | 10 | 1,0 | 7 | 1,43 | Média |
+| **US001.4** | Gestão de Perfil do Estudante | 10 | 0,8 | 6 | 1,33 | Média |
+| **US001.5** | Edição de Perfil Institucional da Organização | 10 | 0,8 | 6 | 1,33 | Média |
+| **US002.1b** | Edição de Vagas de Voluntariado | 10 | 0,8 | 6 | 1,33 | Média |
 | **US003.5** | Portal Público de Validação de Certificados | 10 | 0,6 | 8 | 0,75 | Baixa |
+| **US002.1** | Criação de Vagas de Voluntariado | 10 | 0,6 | 9 | 0,67 | Baixa |
+| **US001.6** | Fluxo de Recuperação de Senha via E-mail | 6 | 0,8 | 8 | 0,60 | Baixa |

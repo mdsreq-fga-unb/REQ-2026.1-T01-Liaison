@@ -1,5 +1,5 @@
 """
-Tests for the User model.
+Testes do modelo User.
 """
 
 import pytest
@@ -10,10 +10,10 @@ User = get_user_model()
 
 @pytest.mark.django_db
 class TestUserModel:
-    """Tests for the custom User model."""
+    """Testes do modelo User customizado."""
 
     def test_create_user_with_email(self):
-        """User can be created with email and password."""
+        """Usuario pode ser criado com email e senha."""
         user = User.objects.create_user(
             username="testuser",
             email="test@example.com",
@@ -24,26 +24,26 @@ class TestUserModel:
         assert user.check_password("securepassword123")
 
     def test_user_default_role_is_student(self):
-        """New users default to 'student' role."""
+        """Novos usuarios usam o role 'estudante' por padrao."""
         user = User.objects.create_user(
             username="student1",
             email="student@example.com",
             password="pass123",
         )
-        assert user.role == User.Role.STUDENT
+        assert user.role == User.Role.ESTUDANTE
 
     def test_user_role_organization(self):
-        """User can be created with organization role."""
+        """Usuario pode ser criado com role de organizacao."""
         user = User.objects.create_user(
             username="org1",
             email="org@example.com",
             password="pass123",
-            role=User.Role.ORGANIZATION,
+            role=User.Role.ORGANIZACAO,
         )
-        assert user.role == "organization"
+        assert user.role == "organizacao"
 
     def test_user_role_admin(self):
-        """User can be created with admin role."""
+        """Usuario pode ser criado com role admin."""
         user = User.objects.create_user(
             username="admin1",
             email="admin@example.com",
@@ -53,17 +53,17 @@ class TestUserModel:
         assert user.role == "admin"
 
     def test_user_str_representation(self):
-        """User str returns email and role."""
+        """__str__ retorna email e role."""
         user = User.objects.create_user(
             username="repr_user",
             email="repr@example.com",
             password="pass123",
-            role=User.Role.STUDENT,
+            role=User.Role.ESTUDANTE,
         )
-        assert str(user) == "repr@example.com (student)"
+        assert str(user) == "repr@example.com (estudante)"
 
     def test_user_id_is_uuid(self):
-        """User primary key is a UUID."""
+        """Chave primaria do usuario e UUID."""
         import uuid
 
         user = User.objects.create_user(
@@ -74,7 +74,7 @@ class TestUserModel:
         assert isinstance(user.id, uuid.UUID)
 
     def test_user_email_is_unique(self):
-        """Two users cannot share the same email."""
+        """Dois usuarios nao podem compartilhar o mesmo email."""
         from django.db import IntegrityError
 
         User.objects.create_user(
@@ -90,11 +90,11 @@ class TestUserModel:
             )
 
     def test_username_field_is_email(self):
-        """The USERNAME_FIELD is email."""
+        """USERNAME_FIELD e email."""
         assert User.USERNAME_FIELD == "email"
 
     def test_role_choices_are_valid(self):
-        """Role field accepts only valid choices."""
-        valid_roles = {"student", "organization", "admin"}
+        """Campo role aceita somente valores validos."""
+        valid_roles = {"estudante", "organizacao", "admin"}
         model_choices = {choice[0] for choice in User.Role.choices}
         assert model_choices == valid_roles

@@ -6,16 +6,29 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    """Admin configuration for the custom User model."""
+    """Configuracao do admin para o modelo User."""
 
-    list_display = ("email", "username", "role", "is_active", "is_staff", "date_joined")
+    list_display = (
+        "email",
+        "username",
+        "role",
+        "is_active",
+        "is_staff",
+        "date_joined",
+    )
     list_filter = ("role", "is_active", "is_staff")
     search_fields = ("email", "username", "first_name", "last_name")
     ordering = ("-date_joined",)
 
     fieldsets = BaseUserAdmin.fieldsets + (
-        ("Liaison", {"fields": ("role",)}),
+        (
+            "Liaison",
+            {"fields": ("role", "nome", "telefone", "matricula", "cnpj", "endereco")},
+        ),
     )
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
-        ("Liaison", {"fields": ("email", "role")}),
+        (
+            "Liaison",
+            {"fields": ("email", "role", "nome", "telefone", "matricula", "cnpj", "endereco")},
+        ),
     )

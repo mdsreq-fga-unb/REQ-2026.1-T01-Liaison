@@ -154,37 +154,6 @@ http://18.225.181.125/api/
 | 5432 | TCP | Security Group EC2 | PostgreSQL — EC2 → RDS |
 
 ---
-## Gerenciamento de Usuários no Servidor
-
-Os usuários do sistema são criados via terminal no servidor, não pelo admin Django.
-Isso se deve a uma incompatibilidade temporária entre Django 5.0.14 e Python 3.14 (ver issue #49).
-
-### Criar novo usuário superadmin
-
-```bash
-cd ~/liaison/backend
-source venv/bin/activate
-python manage.py createsuperuser
-```
-
-### Usuários criados em 23/05/2026
-
-| Membro | Email | Papel | Superuser |
-|---|---|---|---|
-| Henrique Fontenelle | fontenelle.dec@gmail.com | Analista de Requisitos | Sim |
-| Gustavo Cintra | cintra.gustavo@hotmail.com | Líder | Sim |
-| Luís Monteiro | monteiro.luis@aluno.unb.br | Backend | Sim |
-| Pedro Vargas | pedrofvargas10@gmail.com | Frontend | Sim |
-| Danilo Barros | danilosarmentobarros@gmail.com | QA | Sim |
-| Nicole Fernandes | nicolejovitafernandes@gmail.com | Frontend | Sim |
-
-### Resetar senha de um usuário
-
-```bash
-python manage.py changepassword email@dominio.com
-```
----
-
 
 ## Checklist de Encerramento (Fim do Semestre)
 

@@ -41,261 +41,175 @@ A numeração das User Stories segue o padrão `US<CP#>.<sequencial>`, vinculand
 
 ## 10.2 Priorização do Backlog
 
-A priorização de requisitos é um dos maiores desafios no desenvolvimento de produtos e projetos. Para lidar com essa complexidade, a equipe adotou um ecossistema de três frameworks utilizados em conjunto, formando um **Funil de Priorização** robusto que elimina o "achismo" e protege a equipe de armadilhas analíticas.
+A priorização adota um sistema de **três camadas sequenciais**: MoSCoW define a banda de negócio, ICE Score quantifica e desempata dentro de cada banda, e a Matriz Esforço × Valor posiciona cada item visualmente.
 
-### 10.2.1 O Funil de Priorização: MoSCoW + ICE Score + Matriz Esforço x Valor
+### 10.2.1 Metodologia de Priorização: MoSCoW → ICE Score → Matriz Esforço × Valor
 
-O segredo está na ordem de aplicação. MoSCoW, ICE Score e Matriz Esforço x Valor não são métodos concorrentes, mas sim **três peneiras sequenciais** com propósitos distintos e complementares.
+```
+ENTRADA (requisito novo ou em revisão)
+    │
+    ▼
+┌──────────────────────────────────┐
+│  CAMADA 1: MoSCoW                │  ← "Isso é vital ou é luxo?"
+│  MUST / SHOULD / COULD / WON'T  │
+│  WON'T → fecha/descarta         │
+└──────────────┬───────────────────┘
+               │ (MUST, SHOULD, COULD)
+               ▼
+┌──────────────────────────────────┐
+│  CAMADA 2: ICE Score             │  ← "Qual a nota numérica?"
+│  Impacto × Confiança × Facilidade│
+│  Ranking dentro de cada banda    │
+└──────────────┬───────────────────┘
+               │
+               ▼
+┌──────────────────────────────────┐
+│  CAMADA 3: Matriz Esforço × Valor│  ← "Em qual quadrante caiu?"
+│  QUICK WIN / PLAN / LATER / DROP │
+└──────────────┬───────────────────┘
+               │
+               ▼
+         FLUXO KANBAN
+```
 
-#### Passo 1: O Filtro de Negócio — MoSCoW
+**Trava fundamental do MoSCoW:** Um item COULD **nunca** entra no fluxo antes de um MUST, mesmo que o ICE Score do COULD seja numericamente maior. O MoSCoW é a trava de negócio; o ICE desempata dentro da mesma banda.
 
-Antes de qualquer análise quantitativa, o MoSCoW atua como "segurança da porta", estabelecendo o que é vital para o negócio:
+---
+
+#### Camada 1 - O Filtro de Negócio - MoSCoW
 
 - **Must have (Deve ter):** Inegociável. Sem isso, não há lançamento do produto.
 - **Should have (Deveria ter):** Importante, mas o produto sobrevive sem ele por um tempo.
-- **Could have (Poderia ter):** "Nice to have" — perfumaria ou luxo.
-- **Won't have (Não terá agora):** Ideias descartadas para este ciclo.
+- **Could have (Poderia ter):** "Nice to have" — agrega qualidade, pode ser postergado.
+- **Won't have (Não terá agora):** Descartado conscientemente para este ciclo.
 
-**Ação prática:** Congelam-se os "Won't have" e prioriza-se a alocação de tempo sempre respeitando a hierarquia. Um *Could have* jamais deve tirar o lugar de um *Must have*.
+---
 
-#### Passo 2: A Quantificação e Desempate — ICE Score
+#### Camada 2 - A Quantificação e Desempate - ICE Score
 
-Uma vez que os itens estão classificados no MoSCoW, aplica-se o ICE Score para desempatar os itens dentro de cada categoria (ex.: qual dos cinco *Must haves* faremos primeiro?). Cada requisito recebe uma nota nos três eixos:
+Cada requisito recebe uma nota nos três eixos:
 
-- **Impact (Impacto — I):** Quanto valor esse item gera para o negócio ou usuário? (Escala de 1 a 10)
-- **Confidence (Confiança — C):** Qual a certeza da equipe sobre essas estimativas? Dados comprovados geram alta confiança; suposições geram baixa confiança. (Escala de 0,1 a 1,0)
-- **Effort (Esforço — E):** Qual a complexidade estimada de implementação? Muito fácil = 1; Muito difícil = 10. (Escala de 1 a 10)
+- **Impact (Impacto — I):** Quanto valor esse item gera para o negócio ou usuário? (1 a 10)
+- **Confidence (Confiança — C):** Qual a certeza da equipe sobre essas estimativas? (1 a 10)
+- **Ease (Facilidade — E):** Qual a facilidade de implementação? 10 = muito fácil; 1 = muito difícil. (1 a 10)
 
-**Fórmula de cálculo:**
 ```
-ICE Score = (Impacto × Confiança) / Esforço
+ICE Score = Impacto × Confiança × Facilidade     (range: 1 a 1.000)
 ```
 
-O resultado numérico cria uma fila de trabalho lógica dentro de cada faixa do MoSCoW: itens com maior impacto e confiança, combinados com menor esforço, recebem as pontuações mais altas.
-
-#### Passo 3: A Visualização e Validação — Matriz Esforço x Valor
-
-Por fim, as notas de Impacto e Esforço são convertidas em coordenadas visuais para alinhar a equipe e os stakeholders:
-
-- **Eixo Vertical (Valor):** Nota de **Impacto (I)**.
-- **Eixo Horizontal (Esforço):** Nota de **Esforço (E)** — quanto maior o esforço, mais à direita o item aparece.
-
-|  | **Baixo Esforço**<br>(E ≤ 5) | **Alto Esforço**<br>(E ≥ 6) |
-|---|---|---|
-| **Alto Impacto**<br>(I ≥ 6) | **Quick Wins** — prioridade máxima de execução | **Major Projects** — precisam ser fatiados |
-| **Baixo Impacto**<br>(I ≤ 5) | **Fill-ins** — tarefas rápidas para preencher tempo ocioso | **Thankless Tasks** — poço de perda de tempo e dinheiro; descartar |
-
-> **Importante — Limitação do Funil:** O Funil de Priorização ordena os itens exclusivamente por valor estratégico (MoSCoW) e pela relação esforço/impacto (ICE + Matriz). Ele **não considera dependências técnicas ou de negócio** entre os itens. Cabe ao planejamento da execução (sprint planning) ajustar a sequência quando um item depende de outro. 
+| Dimensão | Zona Crítica (1–3 / 1–4 / 1–6) | Zona Média | Zona Ideal |
+| :--- | :--- | :--- | :--- |
+| **I — Impacto** | 1–6: afeta <50% dos usuários; sem impacto no ciclo extensão→certificado; sem risco de abandono da plataforma | 7–8: afeta >50% dos usuários OU é parte do ciclo extensão→certificado OU remove fricção que causa abandono do SaaS | 9–10: existencial — sem isso o SaaS não entrega o ciclo completo; OU diferencia o Liaison de planilhas/grupos de WhatsApp; OU previne risco crítico de credibilidade |
+| **C — Confiança** | 1–3: time nunca implementou nada similar; alto risco de retrabalho total; depende de infra ou integração não dominada pelo time | 4–6: tecnologia nova para o time estudante; documentação disponível, mas vai aprender errando; ~50% de chance de retrabalho parcial (ex.: Django Admin customizado, PDF estilizado, search multi-filtro, Celery/SMTP) | 7–10: tecnologia dominada em aula ou trivialmente verificável; CRUD Django/DRF padrão; algoritmos públicos; configuração nativa do framework |
+| **E — Facilidade** | 1–4: >18h — múltiplos sistemas, refatoração pesada, exige fatiamento (capacidade do time: 36h/semana — 6 devs × 1h/dia × 6 dias) | 5–7: 6–18h — 1 a 2 sistemas, cabe no fluxo do time | 8–10: <6h — trivial, 1 dev em até 1 semana, 1 sistema, risco zero |
 
 ---
 
-### 10.2.2 Passo 1 Aplicado — Classificação MoSCoW Inicial
+#### Camada 3 - A Visualização e Validação - Matriz Esforço × Valor
 
-Nesta etapa, **antes de qualquer cálculo numérico**, a equipe classificou os 29 requisitos exclusivamente por critério de negócio. A pergunta-guia foi: *"O produto funciona sem este item no lançamento?"* O resultado é uma decisão estratégica pura, sem interferência de esforço ou complexidade técnica.
-
-#### Must Have (Deve ter) — 18 itens
-
-Itens inegociáveis. Sem eles, a plataforma não entrega a proposta de valor mínima.
-
-| ID | Descrição | Justificativa de negócio |
+|  | **Alta Facilidade (E ≥ 5)** | **Baixa Facilidade (E ≤ 4)** |
 | :--- | :--- | :--- |
-| RF06 | Moderar organização | Única forma de garantir a legitimidade das organizações na plataforma; sem isso, não há confiança no sistema. |
-| RF10 | Realizar candidatura | Ato central da conexão estudante-vaga; sem candidatura, a plataforma não cumpre seu propósito. |
-| RF11 | Avaliar candidatura | Permite às organizações aprovarem ou recusarem inscrições; essencial para fechar o ciclo de engajamento. |
-| RNF01 | Criptografia de senhas (bcrypt) | Requisito de segurança obrigatório; armazenar senhas em texto plano é inaceitável em qualquer cenário. |
-| RNF04 | Interface responsiva (iOS e Android) | O público universitário acessa prioritariamente via smartphone; sem responsividade, o alcance é nulo. |
-| RF03 | Autenticar usuário | Porta de entrada para todos os perfis; sem login, não há sessão, perfil ou personalização. |
-| RF09 | Consultar vaga | O estudante precisa ver os detalhes da vaga antes de decidir se candidatar; informação insuficiente gera abandono. |
-| RF13 | Listar aprovados | A organização precisa saber quem são os voluntários confirmados para gerenciar presença e atividades. |
-| RF20 | Publicar oportunidade | A vaga criada precisa ficar visível; sem publicação, não há descoberta pelos estudantes. |
-| RF02 | Cadastrar organização | Sem organizações cadastradas, não há vagas publicadas; é um dos dois lados do marketplace. |
-| RF12 | Acompanhar candidatura | O estudante precisa saber o status da sua inscrição; a transparência reduz ansiedade e tickets de suporte. |
-| RF14 | Registrar frequência | A presença registrada pela ONG é a base de dados para emissão de certificados; sem ela, o certificado não tem lastro. |
-| RF01 | Cadastrar estudante | Sem estudantes cadastrados, não há candidatos; é o outro lado do marketplace. |
-| RF04 | Gerenciar perfil | Dados desatualizados prejudicam o matching e a comunicação; perfis completos aumentam a taxa de aprovação. |
-| RF19 | Editar oportunidade | Correções em vagas são inevitáveis; sem edição, a organização precisa excluir e recriar, gerando retrabalho. |
-| RF08 | Buscar vaga | A descoberta de oportunidades é o primeiro passo da jornada do estudante; sem busca, a navegação é inviável. |
-| RF15 | Emitir certificado | É a entrega de valor acadêmico concreto ao estudante; o certificado materializa o propósito do produto. |
-| RF18 | Criar oportunidade | Origem de todo o ciclo de vagas; sem criação, não há o que publicar, buscar ou gerenciar. |
+| **Alto Impacto (I ≥ 7)** | ⚡ **Quick Win** — prioridade máxima de execução | 📐 **Plan** — alto valor mas complexo; **fatiar** em sub-issues até E ≥ 5 |
+| **Baixo Impacto (I ≤ 6)** | ⏳ **Later** — fill-in; entra só se sobrar capacidade após Must + Should | 🗑️ **Drop** — descarte; fechar como descartada, salvo anomalia |
 
-#### Should Have (Deveria ter) — 6 itens
-
-Importantes para a qualidade do produto, mas o MVP sobrevive sem eles no lançamento inicial. Planejados para a segunda iteração de desenvolvimento.
-
-| ID | Descrição | Justificativa de negócio |
-| :--- | :--- | :--- |
-| RNF03 | Validação de CNPJ | Melhora a qualidade cadastral das organizações, mas não bloqueia o fluxo principal — a moderação humana (RF06) já atua como filtro. |
-| RNF02 | Login em até 2 segundos | Performance desejável, mas o MVP com volume controlado de usuários não sofrerá com lentidão crítica. |
-| RNF05 | Busca em até 3 segundos | Performance desejável; a busca funciona mesmo com tempo de resposta superior no MVP. |
-| RNF06 | Suporte a 1.000 usuários simultâneos | Escala é uma preocupação de crescimento, não de lançamento; o MVP opera com volume reduzido. |
-| RF21 | Encerrar oportunidade | Conveniência operacional para a ONG; a vaga pode expirar naturalmente por data sem o botão de encerramento. |
-| RF16 | Consultar histórico | Visualização consolidada de horas e certificados; cada certificado individual já serve como comprovante no MVP. |
-
-#### Could Have (Poderia ter) — 3 itens
-
-Funcionalidades desejáveis que agregam qualidade, mas podem ser postergadas sem comprometer o valor central.
-
-| ID | Descrição | Justificativa de negócio |
-| :--- | :--- | :--- |
-| RNF09 | UUIDs para certificados | Aumenta a segurança e a rastreabilidade dos certificados, mas o PDF já funciona com identificador sequencial no MVP. |
-| RF17 | Validar certificado | Portal público de validação agrega credibilidade para as IES, mas o MVP pode operar sem esse canal externo. |
-| RNF08 | Imutabilidade de certificados | Garante a integridade dos registros emitidos; importante, mas implementável como reforço pós-MVP. |
-
-#### Won't Have (Não terá agora) — 2 itens
-
-Ideias conscientemente descartadas para este ciclo. O baixo valor gerado não justifica o esforço.
-
-| ID | Descrição | Justificativa de negócio |
-| :--- | :--- | :--- |
-| RF05 | Recuperar senha | Fluxo auxiliar de suporte; no MVP, a recuperação pode ser tratada manualmente pela equipe ou por e-mail administrativo. |
-| RNF07 | Geração assíncrona de PDFs | Otimização de performance; a geração síncrona de PDFs atende perfeitamente o volume do MVP. |
+> **Limitação:** A matriz ordena itens por valor estratégico e relação facilidade/impacto, mas **não considera dependências técnicas ou de negócio** entre os itens. O planejamento do fluxo no KanbanXP ajusta a sequência quando um item depende de outro.
 
 ---
 
-### 10.2.3 Passos 2 e 3 Aplicados — ICE Score e Matriz Esforço x Valor
+### 10.2.2 Backlog Priorizado
 
-Com a classificação MoSCoW definida, a equipe atribuiu notas de Impacto (I), Confiança (C) e Esforço (E) aos 29 requisitos. Aplicando a fórmula `ICE = (I × C) / E`, cada item recebeu uma pontuação. Em seguida, os itens foram distribuídos na **Matriz Esforço x Valor** conforme os valores de Impacto (eixo vertical) e Esforço (eixo horizontal).
+Cada item foi classificado por critério de negócio (MoSCoW) e depois quantificado pelo ICE Score (`I × C × E`). A trava MoSCoW é absoluta: um COULD jamais entra no fluxo antes de um MUST, independente do ICE.
 
-Os quatro quadrantes resultantes estão apresentados abaixo, com ordenação por Score ICE decrescente.
-
-#### Quick Wins (Alto Impacto, Baixo Esforço) — 19 itens
-
-| ID | Descrição | I | C | E | ICE |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| RF06 | Moderar organização | 10 | 1,0 | 1 | 10,00 |
-| RF10 | Realizar candidatura | 10 | 1,0 | 1 | 10,00 |
-| RF11 | Avaliar candidatura | 10 | 1,0 | 1 | 10,00 |
-| RNF01 | Criptografia de senhas (bcrypt) | 10 | 1,0 | 1 | 10,00 |
-| RNF04 | Interface responsiva (iOS e Android) | 10 | 1,0 | 1 | 10,00 |
-| RF03 | Autenticar usuário | 10 | 1,0 | 2 | 5,00 |
-| RF09 | Consultar vaga | 10 | 1,0 | 2 | 5,00 |
-| RF13 | Listar aprovados | 10 | 1,0 | 2 | 5,00 |
-| RF20 | Publicar oportunidade | 10 | 1,0 | 2 | 5,00 |
-| RNF02 | Login em até 2 segundos | 10 | 0,9 | 2 | 4,50 |
-| RNF05 | Busca em até 3 segundos | 10 | 0,9 | 2 | 4,50 |
-| RNF06 | Suporte a 1.000 usuários simultâneos | 10 | 0,8 | 2 | 4,00 |
-| RF21 | Encerrar oportunidade | 8 | 0,9 | 2 | 3,60 |
-| RF02 | Cadastrar organização | 10 | 1,0 | 3 | 3,33 |
-| RF16 | Consultar histórico | 6 | 1,0 | 2 | 3,00 |
-| RNF09 | UUIDs para certificados | 10 | 0,6 | 2 | 3,00 |
-| RF12 | Acompanhar candidatura | 6 | 0,8 | 2 | 2,40 |
-| RF14 | Registrar frequência | 7 | 1,0 | 3 | 2,33 |
-| RF08 | Buscar vaga | 10 | 0,8 | 5 | 1,60 |
-
-#### Major Projects (Alto Impacto, Alto Esforço) — 7 itens
-
-| ID | Descrição | I | C | E | ICE |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| RF01 | Cadastrar estudante | 10 | 1,0 | 6 | 1,67 |
-| RF04 | Gerenciar perfil | 10 | 1,0 | 6 | 1,67 |
-| RF19 | Editar oportunidade | 10 | 1,0 | 6 | 1,67 |
-| RF15 | Emitir certificado | 10 | 1,0 | 7 | 1,43 |
-| RF18 | Criar oportunidade | 10 | 1,0 | 9 | 1,11 |
-| RF17 | Validar certificado | 10 | 0,6 | 8 | 0,75 |
-| RF05 | Recuperar senha | 6 | 0,8 | 8 | 0,60 |
-
-#### Fill-ins (Baixo Impacto, Baixo Esforço) — 2 itens
-
-| ID | Descrição | I | C | E | ICE |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| RNF03 | Validação de CNPJ | 5 | 1,0 | 1 | 5,00 |
-| RNF08 | Imutabilidade de certificados | 4 | 0,7 | 4 | 0,70 |
-
-#### Thankless Tasks (Baixo Impacto, Alto Esforço) — 1 item
-
-| ID | Descrição | I | C | E | ICE |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| RNF07 | Geração assíncrona de PDFs | 2 | 0,5 | 7 | 0,14 |
+> **Ordenação:** 1º) Banda MoSCoW. 2º) ICE decrescente. **A sequência real de implementação é definida pelo time no KanbanXP, respeitando MoSCoW + resolução das cadeias.**
+>
+> **Q** = Quadrante: ⚡ Quick Win, 📐 Plan, ⏳ Later, 🗑️ Drop. O **E** exibido é o valor final (E bruto − penalidade por dependência, cap −2). **Cadeia:** `A → B → C` = A depende de B → B depende de C. Número entre parênteses = prof. (itens únicos na cadeia). ⛔ = bloqueado pela trava MoSCoW.
 
 ---
 
-### 10.2.4 O Perigo do ICE "Cego" e Análise de Anomalias
+#### 🔴 Must Have - 19 itens (MVP)
+> Inegociáveis — sem eles, a plataforma não entrega a proposta de valor mínima.
 
-O maior cuidado que se deve ter com o ICE Score é que **a matemática não tem contexto de negócios**. Se aplicado isoladamente, o ICE pode levar a decisões equivocadas. É por isso que o **MoSCoW é a trava de segurança**: ele garante que itens vitais sejam feitos independentemente de terem um ICE Score temporariamente mais baixo devido à complexidade.
+| # | ID | Descrição | Q | I | C | E | ICE | Cadeia (prof.) |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| 1 | RNF01 | Criptografia de senhas (bcrypt) | ⚡ | 10 | 10 | 10 | **1.000** | — (0) |
+| 2 | RNF04 | Interface responsiva (iOS e Android) | ⚡ | 9 | 8 | 8 | **576** | — (0) |
+| 3 | RNF08 | Imutabilidade de certificados | ⚡ | 9 | 9 | 7 | **567** | RF15 → RF14 → RF13 → RF11 → RF10 → RF01, RF20 → RF18 (8) |
+| 4 | RF01 | Cadastrar estudante | ⚡ | 10 | 8 | 7 | **560** | — (0) |
+| 5 | RF09 | Consultar vaga | ⚡ | 8 | 9 | 7 | **504** | RF20 → RF18 (2) |
+| 6 | RF20 | Publicar oportunidade | ⚡ | 8 | 9 | 7 | **504** | RF18 (1) |
+| 7 | RF03 | Autenticar usuário | ⚡ | 8 | 8 | 7 | **448** | RF01, RF02 (2) |
+| 8 | RF02 | Cadastrar organização | ⚡ | 10 | 7 | 6 | **420** | — (0) |
+| 9 | RF10 | Realizar candidatura | ⚡ | 10 | 7 | 5 | **350** | RF01, RF20 → RF18 (3) |
+| 10 | RF18 | Criar oportunidade ⚠️ | ⚡ | 10 | 7 | 5 | **350** | — (0) |
+| 11 | RF04 | Gerenciar perfil | ⚡ | 7 | 8 | 6 | **336** | RF01 (1) |
+| 12 | RF19 | Editar oportunidade | ⚡ | 7 | 8 | 6 | **336** | RF18 (1) |
+| 13 | RF13 | Listar aprovados | ⚡ | 7 | 8 | 6 | **336** | RF11 → RF10 → RF01, RF20 → RF18 (5) |
+| 14 | RF12 | Acompanhar candidatura | ⚡ | 8 | 7 | 6 | **336** | RF10 → RF01, RF20 → RF18 (4) |
+| 15 | RF11 | Avaliar candidatura | ⚡ | 9 | 7 | 5 | **315** | RF10 → RF01, RF20 → RF18 (4) |
+| 16 | RF14 | Registrar frequência ⚠️ | 📐 | 9 | 7 | 4 | **252** | RF13 → RF11 → RF10 → RF01, RF20 → RF18 (6) |
+| 17 | RF06 | Moderar organização | ⚡ | 7 | 6 | 5 | **210** | RF02 (1) |
+| 18 | RF08 | Buscar vaga ⚠️ | 📐 | 9 | 6 | 3 | **162** | RF20 → RF18 (2) |
+| 19 | RF15 | Emitir certificado ⚠️ | 📐 | 10 | 5 | 3 | **150** | RF14 → RF13 → RF11 → RF10 → RF01, RF20 → RF18 (7) |
 
-Abaixo, a equipe analisou o backlog priorizado em busca de anomalias — situações em que os números brutos do ICE poderiam induzir a decisões erradas se não fossem interpretados com a lógica do Funil.
-
----
-
-#### A. Falsos Quick Wins — Itens para Discovery
-
-Itens que caíram no quadrante Quick Win (Alto Impacto, Baixo Esforço), mas cuja **Confiança é baixa** — sinal de que a equipe está estimando com base em suposições, não em dados.
-
-| ID | Descrição | I | C | E | ICE | Diagnóstico | Ação recomendada |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- | :--- |
-| **RNF09** | UUIDs para certificados | 10 | 0,6 | 2 | 3,00 | Baixa segurança nas estimativas (C=0,6). Sem dados concretos que sustentem I=10 e E=2. | Discovery (PoC) |
-| **RF08** | Buscar vaga | 10 | 0,8 | 5 | 1,60 | Certeza razoável (C=0,8), mas incerteza sobre performance com múltiplos filtros e volume de dados. | Discovery |
-
----
-
-#### B. Major Projects que Precisam de Fatiamento (Slicing)
-
-Itens de Alto Impacto e Alto Esforço que **não devem ser descartados**, mas sim quebrados em partes menores. O fatiamento transforma frações do projeto grande em Quick Wins viáveis, reduzindo risco e aumentando a Confiança.
-
-| ID | Descrição | I | C | E | ICE | Diagnóstico | Ação recomendada |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- | :--- |
-| **RF18** | Criar oportunidade | 10 | 1,0 | 9 | 1,11 | Item mais complexo (E=9). Formulário rico + validações + preview + publicação. | Fatiar |
-| **RF17** | Validar certificado | 10 | 0,6 | 8 | 0,75 | E=8 + C=0,6. Estimativas frágeis; cairia no esquecimento sem o Funil. | Discovery + fatiar. Após PoC do RNF09. |
-| **RF15** | Emitir certificado | 10 | 1,0 | 7 | 1,43 | Alta complexidade (E=7). PDF com dados dinâmicos, download e reemissão. | Fatiar |
-| **RF01** | Cadastrar estudante | 10 | 1,0 | 6 | 1,67 | Esforço E=6. Formulário + validações + upload + integração c/ autenticação. | Fatiar |
-| **RF04** | Gerenciar perfil | 10 | 1,0 | 6 | 1,67 | Dois contextos: perfil estudante e perfil organização. | Fatiar por persona |
-| **RF19** | Editar oportunidade | 10 | 1,0 | 6 | 1,67 | Depende de RF18 (reutiliza formulário de criação). | Fatiar após RF18 |
+> ⚠️ **Plan:** RF14 (E=4), RF08 (E=3, fatiar busca em básica + filtros + UX), RF15 (E=3, C=5 — spike técnico obrigatório antes de iniciar).
 
 ---
 
-#### C. Fill-in com ICE Elevado — Oportunidade Tática
+#### 🟡 Should Have - 6 itens
+> Importantes para a qualidade; o MVP sobrevive sem eles no lançamento inicial.
 
-Itens do quadrante Fill-in (Baixo Impacto, Baixo Esforço) que, por serem muito fáceis e bem conhecidos, obtiveram ICE superior a vários Must Have. A leitura correta é usá-los como "respiro" da equipe, sem desviar o foco do que é vital.
+| # | ID | Descrição | Q | I | C | E | ICE | Cadeia (prof.) |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| 20 | RNF03 | Validação de CNPJ | ⚡ | 5 | 9 | 9 | **405** | — (0) |
+| 21 | RF21 | Encerrar oportunidade | ⚡ | 6 | 8 | 7 | **336** | RF20 → RF18 (2) |
+| 22 | RNF02 | Login em até 2 segundos | ⏳ | 6 | 6 | 8 | **288** | — (0) |
+| 23 | RNF05 | Busca em até 3 segundos | ⏳ | 6 | 6 | 8 | **288** | — (0) |
+| 24 | RF16 | Consultar histórico | 📐 | 7 | 7 | 4 | **196** | RF15 → RF14 → RF13 → RF11 → RF10 → RF01, RF20 → RF18 (8) |
+| 25 | RNF06 | Suporte a 1.000 usuários simultâneos | 🗑️ | 4 | 4 | 7 | **112** | — (0) |
 
-| ID | Descrição | I | C | E | ICE | Diagnóstico | Ação recomendada |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- | :--- |
-| **RNF03** | Validação de CNPJ | 5 | 1,0 | 1 | 5,00 | ICE 5,00 > 14 Must Have. Tarefa trivial (E=1) e bem conhecida (C=1,0). | Filler |
+> ⚠️ **RNF02 e RNF05 (⏳ Later):** SLAs de performance são irrelevantes para MVP com volume controlado. Otimização sem baseline de produção não se justifica neste momento.
+>
+> ⚠️ **RNF06 (🗑️ Drop):** Escala para 1.000 usuários simultâneos é preocupação de crescimento, não de lançamento. Load testing é território desconhecido para o time.
 
 ---
 
-### 10.2.5 Backlog Final Priorizado (Funil Completo)
+#### 🟢 Could Have - 2 itens
+> Desejáveis — agregam qualidade mas podem ser postergados sem comprometer o valor central.
 
-A tabela abaixo é o resultado da aplicação completa do Funil de Priorização: **MoSCoW como ordenação primária + ICE Score como desempate dentro de cada faixa**, com as observações de anomalias incorporadas. Esta é a ordem de execução recomendada para o desenvolvimento do produto Liaison.
+| # | ID | Descrição | Q | I | C | E | ICE | Cadeia (prof.) |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| 26 | RNF09 | UUIDs para certificados | ⚡ | 8 | 5 | 6 | **240** | RF15 → ... → RF18 (8) |
+| 27 | RF17 | Validar certificado | 📐 | 6 | 5 | 4 | **120** | RF15 → ... → RF18 (8) |
 
-| # | ID | Descrição | MoSCoW | Quadrante | I | C | E | ICE | Observação |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| 1 | RF06 | Moderar organização | Must | Quick Win | 10 | 1,0 | 1 | 10,00 | |
-| 2 | RF10 | Realizar candidatura | Must | Quick Win | 10 | 1,0 | 1 | 10,00 | |
-| 3 | RF11 | Avaliar candidatura | Must | Quick Win | 10 | 1,0 | 1 | 10,00 | |
-| 4 | RNF01 | Criptografia de senhas (bcrypt) | Must | Quick Win | 10 | 1,0 | 1 | 10,00 | |
-| 5 | RNF04 | Interface responsiva (iOS e Android) | Must | Quick Win | 10 | 1,0 | 1 | 10,00 | |
-| 6 | RF03 | Autenticar usuário | Must | Quick Win | 10 | 1,0 | 2 | 5,00 | |
-| 7 | RF09 | Consultar vaga | Must | Quick Win | 10 | 1,0 | 2 | 5,00 | |
-| 8 | RF13 | Listar aprovados | Must | Quick Win | 10 | 1,0 | 2 | 5,00 | |
-| 9 | RF20 | Publicar oportunidade | Must | Quick Win | 10 | 1,0 | 2 | 5,00 | |
-| 10 | RF02 | Cadastrar organização | Must | Quick Win | 10 | 1,0 | 3 | 3,33 | |
-| 11 | RF12 | Acompanhar candidatura | Must | Quick Win | 6 | 0,8 | 2 | 2,40 | |
-| 12 | RF14 | Registrar frequência | Must | Quick Win | 7 | 1,0 | 3 | 2,33 | |
-| 13 | RF01 | Cadastrar estudante | Must | Major Project | 10 | 1,0 | 6 | 1,67 | Fatiar (ver 10.2.4-B) |
-| 14 | RF04 | Gerenciar perfil | Must | Major Project | 10 | 1,0 | 6 | 1,67 | Fatiar (ver 10.2.4-B) |
-| 15 | RF19 | Editar oportunidade | Must | Major Project | 10 | 1,0 | 6 | 1,67 | Fatiar (ver 10.2.4-B) |
-| 16 | RF08 | Buscar vaga | Must | Quick Win | 10 | 0,8 | 5 | 1,60 | Discovery (ver 10.2.4-A) |
-| 17 | RF15 | Emitir certificado | Must | Major Project | 10 | 1,0 | 7 | 1,43 | Fatiar (ver 10.2.4-B) |
-| 18 | RF18 | Criar oportunidade | Must | Major Project | 10 | 1,0 | 9 | 1,11 | Fatiar (ver 10.2.4-B) |
-| 19 | RNF03 | Validação de CNPJ | Should | Fill-in | 5 | 1,0 | 1 | 5,00 | Filler tático (ver 10.2.4-C) |
-| 20 | RNF02 | Login em até 2 segundos | Should | Quick Win | 10 | 0,9 | 2 | 4,50 | |
-| 21 | RNF05 | Busca em até 3 segundos | Should | Quick Win | 10 | 0,9 | 2 | 4,50 | |
-| 22 | RNF06 | Suporte a 1.000 usuários simultâneos | Should | Quick Win | 10 | 0,8 | 2 | 4,00 | |
-| 23 | RF21 | Encerrar oportunidade | Should | Quick Win | 8 | 0,9 | 2 | 3,60 | |
-| 24 | RF16 | Consultar histórico | Should | Quick Win | 6 | 1,0 | 2 | 3,00 | |
-| 25 | RNF09 | UUIDs para certificados | Could | Quick Win | 10 | 0,6 | 2 | 3,00 | Discovery (ver 10.2.4-A) |
-| 26 | RF17 | Validar certificado | Could | Major Project | 10 | 0,6 | 8 | 0,75 | Discovery + fatiar (ver 10.2.4-B) |
-| 27 | RNF08 | Imutabilidade de certificados | Could | Fill-in | 4 | 0,7 | 4 | 0,70 | |
-| 28 | RF05 | Recuperar senha | Won't | Major Project | 6 | 0,8 | 8 | 0,60 | |
-| 29 | RNF07 | Geração assíncrona de PDFs | Won't | Thankless Task | 2 | 0,5 | 7 | 0,14 | |
+---
 
-> **Leitura da tabela:** As posições #1 a #18 compõem o **MVP (Must Have)**. As posições #19 a #24 são os **Should Have**, previstos para a segunda iteração. As posições #25 a #27 são os **Could Have**, a serem executados conforme disponibilidade. As posições #28 e #29 são os **Won't Have**, descartados para este ciclo. Itens com observações possuem recomendações detalhadas na seção [10.2.4](#1024-o-perigo-do-ice-cego-e-analise-de-anomalias).
+#### ⚪ Won't Have - 2 itens
+> Descartados conscientemente para este ciclo; o valor gerado não justifica o esforço agora.
+
+| # | ID | Descrição | Q | I | C | E | ICE | Cadeia (prof.) |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| 28 | RF05 | Recuperar senha | ⚡ | 5 | 6 | 7 | **210** | — (0) |
+| 29 | RNF07 | Geração assíncrona de PDFs | ⏳ | 4 | 4 | 6 | **96** | — (0) |
+
+---
+
+### 10.2.3 Análise de Anomalias
+
+O ICE não tem contexto de negócio — o **MoSCoW é a trava de segurança**. Anomalias residuais após a priorização:
+
+| ID(s) | Anomalia | Risco | Ação |
+|:---|:---|:---:|:---|
+| **RF15** | C=5 — geração de PDF estilizado é território novo para o time. E=3 (📐 Plan). | Alto | Spike técnico com reportlab/weasyprint **antes** de iniciar |
+| **RF08** | C=6 — busca multi-filtro é o item mais complexo do backlog. E=3 (📐 Plan). | Alto | Fatiar: (1) busca básica, (2) filtros avançados, (3) UX mobile |
+| **RF18** | E=5 no limiar Quick Win/Plan. ~13h incluindo formulário multi-passo. | Médio | Fatiar: (1) modelo+endpoint, (2) formulário, (3) validações+publicação |
+| **RF10, RF11** | Must Have no limiar E=5. Dependem de RF01 e RF18 para serem puxados. | Médio | Garantir RF01 e RF18 concluídos antes de puxar RF10/RF11 |
+| **RNF06** | Should Have com ICE 112 (🗑️ Drop). Escala irrelevante para MVP. | Baixo | Revisitar quando base ativa > 100 usuários |
 
 ---
 
 ## 10.3 MVP (Minimum Viable Product)
 
-O MVP é composto pelos 18 itens classificados como **Must Have**, correspondentes às posições #1 a #18 da tabela consolidada acima. Este conjunto cobre os fluxos essenciais dos três perfis de usuário:
+O MVP é composto pelos 19 itens classificados como **Must Have**, correspondentes às posições #1 a #19 da tabela consolidada. Este conjunto cobre os fluxos essenciais dos três perfis de usuário:
 
 | Perfil | Fluxos cobertos pelo MVP |
 | :--- | :--- |
@@ -303,7 +217,7 @@ O MVP é composto pelos 18 itens classificados como **Must Have**, correspondent
 | **Organização** | Cadastro (com moderação), login, criação/edição/publicação de vagas, avaliação de candidaturas, registro de frequência |
 | **Administrador** | Moderação de cadastros de organizações |
 
-Total de itens no MVP: **18** (16 RFs + 2 RNFs).
+Total de itens no MVP: **19** (17 RFs + 2 RNFs).
 
 ## 10.4 Anexos de Priorização
 

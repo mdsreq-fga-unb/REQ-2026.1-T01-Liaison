@@ -51,16 +51,21 @@ nav:
   - Visão do Produto e Projeto:
       - Cenário e Negócio: projeto/cenario.md
       - Solução Proposta: projeto/solucao.md
+      - Intervenção Social: projeto/intervencao_social.md
       - Estratégias de Engenharia de Software: projeto/estrategias.md
       - Engenharia de Requisitos: projeto/requisitos.md
       - Cronograma e Entregas: projeto/cronograma.md
       - Interação entre Equipe e Cliente: projeto/interacao.md
       - Requisitos de Software: projeto/requisitos_software.md
+      - Definição de Pronto e Aceito: projeto/DoR_DoD.md
+      - Backlog do Produto: projeto/backlog_produto.md
       - Referências Bibliográficas: projeto/referencias.md
   - Lições Aprendidas:
-      - Unidade 1: projeto/licoes.md
+      - Unidade 1: projeto/licoes/unidade1.md
+      - Unidade 2: projeto/licoes/unidade2.md
   - Entregas:
       - Unidade 1: entregas/unidade1.md
+      - Unidade 2: entregas/unidade2.md
 
 extra_css:
   - stylesheets/extra.css
@@ -69,3 +74,7 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison
+
+plugins:
+  - search
+  - mkdocs-pdf

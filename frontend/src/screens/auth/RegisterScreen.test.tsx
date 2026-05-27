@@ -3,6 +3,13 @@ import React from 'react';
 
 import RegisterScreen from './RegisterScreen';
 
+// Mock da API
+jest.mock('../../services/api', () => ({
+  ...jest.requireActual('../../services/api'),
+  checkEmail: jest.fn().mockResolvedValue({ available: true }),
+  checkMatricula: jest.fn().mockResolvedValue({ available: true }),
+}));
+
 // Mock do contexto de autenticação
 const mockRegister = jest.fn();
 jest.mock('../../context/AuthContext', () => ({
@@ -38,7 +45,7 @@ describe('RegisterScreen', () => {
     expect(screen.getByText('Nome *')).toBeTruthy();
   });
 
-  it('advances to Step 3 after filling Step 2 data', () => {
+  it('advances to Step 3 after filling Step 2 data', async () => {
     render(<RegisterScreen />);
     // Step 1
     fireEvent.press(screen.getByTestId('radio-card-estudante'));
@@ -51,14 +58,15 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
     fireEvent.press(screen.getByText('Continuar'));
 
-    // Step 3 deve estar visível
-    expect(screen.getByText('Curso *')).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText('Curso *')).toBeTruthy();
+    });
   });
 
-  it('advances to Step 4 after filling Step 3 data', () => {
+  it('advances to Step 4 after filling Step 3 data', async () => {
     render(<RegisterScreen />);
     // Step 1
     fireEvent.press(screen.getByTestId('radio-card-estudante'));
@@ -71,16 +79,25 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
     fireEvent.press(screen.getByText('Continuar'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('input-curso')).toBeTruthy();
+    });
 
     // Step 3
     fireEvent.changeText(screen.getByTestId('input-curso'), 'Eng. Software');
     fireEvent.changeText(screen.getByTestId('input-matricula'), '20231234567');
+    fireEvent.press(screen.getByTestId('select-turno'));
+    fireEvent.press(screen.getByText('Matutino'));
+    fireEvent.changeText(screen.getByTestId('input-horas'), '360');
     fireEvent.press(screen.getByText('Continuar'));
 
     // Step 4 deve estar visível
-    expect(screen.getByText('Saúde')).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText('Saúde')).toBeTruthy();
+    });
   });
 
   it('calls register on Step 4 submit', async () => {
@@ -98,13 +115,24 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
     fireEvent.press(screen.getByText('Continuar'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('input-curso')).toBeTruthy();
+    });
 
     // Step 3
     fireEvent.changeText(screen.getByTestId('input-curso'), 'Eng. Software');
     fireEvent.changeText(screen.getByTestId('input-matricula'), '20231234567');
+    fireEvent.press(screen.getByTestId('select-turno'));
+    fireEvent.press(screen.getByText('Matutino'));
+    fireEvent.changeText(screen.getByTestId('input-horas'), '360');
     fireEvent.press(screen.getByText('Continuar'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Criar minha conta')).toBeTruthy();
+    });
 
     // Step 4
     fireEvent.press(screen.getByText('Criar minha conta'));
@@ -127,12 +155,23 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
     fireEvent.press(screen.getByText('Continuar'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('input-curso')).toBeTruthy();
+    });
 
     fireEvent.changeText(screen.getByTestId('input-curso'), 'Eng. Software');
     fireEvent.changeText(screen.getByTestId('input-matricula'), '20231234567');
+    fireEvent.press(screen.getByTestId('select-turno'));
+    fireEvent.press(screen.getByText('Matutino'));
+    fireEvent.changeText(screen.getByTestId('input-horas'), '360');
     fireEvent.press(screen.getByText('Continuar'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Criar minha conta')).toBeTruthy();
+    });
 
     fireEvent.press(screen.getByText('Criar minha conta'));
 
@@ -161,12 +200,23 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
     fireEvent.press(screen.getByText('Continuar'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('input-curso')).toBeTruthy();
+    });
 
     fireEvent.changeText(screen.getByTestId('input-curso'), 'Eng. Software');
     fireEvent.changeText(screen.getByTestId('input-matricula'), '20231234567');
+    fireEvent.press(screen.getByTestId('select-turno'));
+    fireEvent.press(screen.getByText('Matutino'));
+    fireEvent.changeText(screen.getByTestId('input-horas'), '360');
     fireEvent.press(screen.getByText('Continuar'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Criar minha conta')).toBeTruthy();
+    });
 
     fireEvent.press(screen.getByText('Criar minha conta'));
 

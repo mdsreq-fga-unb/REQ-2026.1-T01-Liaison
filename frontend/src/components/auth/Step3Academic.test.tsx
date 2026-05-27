@@ -73,8 +73,7 @@ describe('Step3Academic', () => {
     fireEvent.changeText(screen.getByTestId('input-curso'), 'Engenharia de Software');
     fireEvent.changeText(screen.getByTestId('input-matricula'), '20231234567');
 
-    const selectTriggers = screen.getAllByTestId('select-trigger');
-    fireEvent.press(selectTriggers[0]);
+    fireEvent.press(screen.getByTestId('select-turno'));
     fireEvent.press(screen.getByText('Matutino'));
 
     fireEvent.changeText(screen.getByTestId('input-horas'), '360');

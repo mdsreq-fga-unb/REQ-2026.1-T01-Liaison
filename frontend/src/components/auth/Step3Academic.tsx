@@ -145,7 +145,7 @@ export default function Step3Academic({ onContinue, initialData = {}, initialErr
         <Input testID="input-curso" label="Curso" required value={curso} onChangeText={(t) => { setCurso(t); if (t.trim()) clearError('curso'); }} placeholder="Ex: Engenharia de Software" error={errors.curso} />
 
         <View style={styles.twoCol}>
-          <View style={styles.halfCol}><Select label="Turno" required options={TURNOS} value={turno} onChange={(v) => { setTurno(v); clearError('turno'); }} placeholder="Selecione" error={errors.turno} /></View>
+          <View style={styles.halfCol}><Select testID="select-turno" label="Turno" required options={TURNOS} value={turno} onChange={(v) => { setTurno(v); clearError('turno'); }} placeholder="Selecione" error={errors.turno} /></View>
           <View style={styles.halfCol}><Select label="Ano de conclusão" options={ANO_CONCLUSAO} value={anoConclusao} onChange={setAnoConclusao} placeholder="Selecione" /></View>
         </View>
 

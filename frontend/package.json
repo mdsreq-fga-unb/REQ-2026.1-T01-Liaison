@@ -15,11 +15,19 @@
     "setupFilesAfterEnv": [
       "@testing-library/jest-native/extend-expect"
     ],
+    "moduleNameMapper": {
+      "\\.svg$": "<rootDir>/__mocks__/svgMock.tsx",
+      "@expo/vector-icons": "<rootDir>/__mocks__/@expo/vector-icons.tsx",
+      "react-native-keyboard-aware-scroll-view": "<rootDir>/__mocks__/react-native-keyboard-aware-scroll-view.tsx"
+    },
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
     ]
   },
   "dependencies": {
+    "@expo-google-fonts/dm-sans": "^0.4.2",
+    "@expo-google-fonts/playfair-display": "^0.4.2",
+    "@expo/vector-icons": "^15.1.1",
     "@react-navigation/bottom-tabs": "^7.16.0",
     "@react-navigation/native": "^7.2.4",
     "@react-navigation/native-stack": "^7.15.0",
@@ -28,8 +36,11 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
+    "react-native-svg": "^15.15.5",
+    "react-native-svg-transformer": "^1.5.3",
     "react-native-web": "^0.21.0"
   },
   "devDependencies": {

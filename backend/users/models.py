@@ -72,3 +72,45 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.email} ({self.role})"
+
+
+class StudentProfile(models.Model):
+    """Perfil do estudante universitário (1:1 com User)."""
+
+    TURNO_CHOICES = [
+        ("matutino", "Matutino"),
+        ("vespertino", "Vespertino"),
+        ("noturno", "Noturno"),
+        ("integral", "Integral"),
+    ]
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="student_profile",
+        primary_key=False,
+    )
+    universidade = models.CharField(max_length=200)
+    curso = models.CharField(max_length=200)
+    matricula = models.CharField(max_length=50, unique=True)
+    semestre_atual = models.SmallIntegerField(null=True, blank=True)
+    turno = models.CharField(
+        max_length=20,
+        choices=TURNO_CHOICES,
+        null=True,
+        blank=True,
+    )
+    ano_conclusao = models.SmallIntegerField(null=True, blank=True)
+    horas_extensao_exigidas = models.SmallIntegerField(null=True, blank=True)
+    interesses = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "users_studentprofile"
+        verbose_name = "Perfil de Estudante"
+        verbose_name_plural = "Perfis de Estudante"
+
+    def __str__(self):
+        nome = getattr(self.user, "nome", None) or self.user.email
+        return f"StudentProfile({nome} — {self.matricula})"

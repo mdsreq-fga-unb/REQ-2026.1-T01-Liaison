@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from users.views import UserViewSet
+from users.views import UserViewSet, check_email, check_matricula, student_register
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -31,6 +31,11 @@ urlpatterns = [
     # Autenticacao JWT
     path("api/v1/auth/token/", TokenObtainPairView.as_view(), name="token-obtain-pair"),
     path("api/v1/auth/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    # Registro de estudante
+    path("api/v1/auth/register/student/", student_register, name="student-register"),
+    # Verificacoes de unicidade
+    path("api/v1/auth/check-email/", check_email, name="check-email"),
+    path("api/v1/auth/check-matricula/", check_matricula, name="check-matricula"),
     path("api/v1/users/", user_list, name="user-list"),
     path("api/v1/users/<uuid:pk>/", user_detail, name="user-detail"),
 ]

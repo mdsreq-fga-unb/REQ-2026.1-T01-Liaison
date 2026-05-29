@@ -1,7 +1,16 @@
 from django.contrib.auth import get_user_model
-from rest_framework import permissions, viewsets
+from django.db import IntegrityError
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import UserSerializer
+from .serializers import (
+    EmailCheckSerializer,
+    MatriculaCheckSerializer,
+    StudentRegistrationSerializer,
+    UserSerializer,
+)
 
 User = get_user_model()
 
@@ -28,3 +37,86 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return [IsAdmin()]
         return [IsAdminOrSelf()]
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def student_register(request):
+    """
+    POST /api/v1/auth/register/student/
+    Cria User(role=estudante) + StudentProfile atomicamente.
+    Retorna user data + tokens no formato 201.
+    """
+    serializer = StudentRegistrationSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = serializer.save()
+    except IntegrityError as e:
+        error_detail = str(e)
+        if "email" in error_detail.lower() or "users_user_email_key" in error_detail.lower():
+            return Response({"email": ["Este e-mail já está em uso."]}, status=status.HTTP_400_BAD_REQUEST)
+        if "matricula" in error_detail.lower() or "studentprofile_matricula" in error_detail.lower():
+            return Response({"matricula": ["Esta matrícula já está em uso."]}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Erro ao criar conta. Dado duplicado."}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({"detail": "Erro interno do servidor."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # Generate JWT tokens
+    refresh = RefreshToken.for_user(user)
+
+    # Build student_profile data
+    profile = user.student_profile
+    profile_data = {
+        "universidade": profile.universidade,
+        "curso": profile.curso,
+        "matricula": profile.matricula,
+        "semestre_atual": profile.semestre_atual,
+        "turno": profile.turno,
+        "ano_conclusao": profile.ano_conclusao,
+        "horas_extensao_exigidas": profile.horas_extensao_exigidas,
+        "interesses": profile.interesses,
+    }
+
+    data = {
+        "id": str(user.id),
+        "email": user.email,
+        "nome": user.nome,
+        "role": user.role,
+        "student_profile": profile_data,
+        "tokens": {
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        },
+    }
+
+    return Response(data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def check_email(request):
+    """
+    POST /api/v1/auth/check-email/
+    Verifica se o email ja esta em uso.
+    Retorna 200 se disponivel, 400 se ja cadastrado.
+    """
+    serializer = EmailCheckSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"available": True})
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def check_matricula(request):
+    """
+    POST /api/v1/auth/check-matricula/
+    Verifica se a matricula ja esta em uso.
+    Retorna 200 se disponivel, 400 se ja cadastrada.
+    """
+    serializer = MatriculaCheckSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"available": True})

@@ -4,6 +4,7 @@
 .env.*.local
 .opencode
 .opencode/*
+PROJECTO_CONTEXT.md
 
 # Python
 __pycache__/

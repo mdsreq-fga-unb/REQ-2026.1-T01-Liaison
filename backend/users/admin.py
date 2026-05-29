@@ -23,12 +23,12 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
         (
             "Liaison",
-            {"fields": ("role", "nome", "telefone", "matricula", "cnpj", "endereco")},
+            {"fields": ("role", "nome")},
         ),
     )
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
         (
             "Liaison",
-            {"fields": ("email", "role", "nome", "telefone", "matricula", "cnpj", "endereco")},
+            {"fields": ("email", "role", "nome")},
         ),
     )

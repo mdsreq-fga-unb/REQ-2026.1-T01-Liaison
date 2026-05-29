@@ -3,7 +3,6 @@ import re
 
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
 from django.db import models
 
 
@@ -28,13 +27,6 @@ def validar_cnpj(value: str):
         raise ValidationError("CNPJ invalido.")
 
 
-telefone_validator = RegexValidator(
-    # valida o formato do telefone
-    regex=r"^\(\d{2}\) \d \d{4}-\d{4}$",
-    message="Telefone deve estar no formato (xx) x xxxx-xxxx.",
-)
-
-
 class User(AbstractUser):
     class Role(models.TextChoices):
         ESTUDANTE = "estudante", "Estudante"
@@ -45,16 +37,6 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
 
     nome = models.CharField(max_length=120)
-    telefone = models.CharField(max_length=16, validators=[telefone_validator])
-    matricula = models.CharField(max_length=50, blank=True, null=True)
-
-    cnpj = models.CharField(
-        max_length=14,
-        blank=True,
-        null=True,
-        validators=[validar_cnpj],
-    )
-    endereco = models.CharField(max_length=255, blank=True, null=True)
 
     role = models.CharField(
         max_length=20,

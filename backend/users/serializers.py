@@ -20,10 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
             "username",
             "password",
             "nome",
-            "telefone",
-            "matricula",
-            "cnpj",
-            "endereco",
             "role",
         ]
         read_only_fields = ["id"]
@@ -35,18 +31,8 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-        role = attrs.get("role") or getattr(self.instance, "role", None)
-
-        if role == User.Role.ESTUDANTE:
-            if not attrs.get("matricula") and not getattr(self.instance, "matricula", None):
-                raise serializers.ValidationError({"matricula": "Matricula obrigatoria para estudante."})
-
-        if role == User.Role.ORGANIZACAO:
-            if not attrs.get("cnpj") and not getattr(self.instance, "cnpj", None):
-                raise serializers.ValidationError({"cnpj": "CNPJ obrigatorio para organizacao."})
-            if not attrs.get("endereco") and not getattr(self.instance, "endereco", None):
-                raise serializers.ValidationError({"endereco": "Endereco obrigatorio para organizacao."})
-
+        # Role validation is handled by model field choices.
+        # Organization-specific validation (cnpj, endereco) will be in OrganizationProfile (future issue).
         return attrs
 
     def create(self, validated_data):
@@ -91,7 +77,6 @@ class StudentRegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True, required=True)
     nome = serializers.CharField(required=True, max_length=120)
-    telefone = serializers.CharField(required=False, allow_blank=True, allow_null=True, default=None)
 
     # StudentProfile fields
     universidade = serializers.CharField(required=True, max_length=200)
@@ -158,7 +143,6 @@ class StudentRegistrationSerializer(serializers.Serializer):
         email = validated_data["email"]
         password = validated_data["password"]
         nome = validated_data["nome"]
-        telefone = validated_data.get("telefone")
 
         # Create User
         username = email.split("@")[0]
@@ -175,8 +159,6 @@ class StudentRegistrationSerializer(serializers.Serializer):
             nome=nome,
             role=User.Role.ESTUDANTE,
         )
-        if telefone:
-            user.telefone = telefone
         user.set_password(password)
         user.save()
 

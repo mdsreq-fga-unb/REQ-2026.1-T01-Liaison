@@ -98,6 +98,22 @@ class TestUserModel:
         model_choices = {choice[0] for choice in User.Role.choices}
         assert model_choices == valid_roles
 
+    def test_user_does_not_have_matricula_field(self):
+        """User NAO deve ter campo matricula (agora no StudentProfile)."""
+        assert not hasattr(User, "matricula"), "User nao deve ter campo matricula"
+
+    def test_user_does_not_have_cnpj_field(self):
+        """User NAO deve ter campo cnpj (sera movido para OrganizationProfile)."""
+        assert not hasattr(User, "cnpj"), "User nao deve ter campo cnpj"
+
+    def test_user_does_not_have_endereco_field(self):
+        """User NAO deve ter campo endereco (sera movido para OrganizationProfile)."""
+        assert not hasattr(User, "endereco"), "User nao deve ter campo endereco"
+
+    def test_user_does_not_have_telefone_field(self):
+        """User NAO deve ter campo telefone (sera movido para profile)."""
+        assert not hasattr(User, "telefone"), "User nao deve ter campo telefone"
+
 
 @pytest.mark.django_db
 class TestStudentProfileModel:

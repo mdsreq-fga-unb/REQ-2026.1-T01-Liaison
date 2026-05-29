@@ -15,8 +15,6 @@ def _user_payload(**overrides):
         "username": "aluno1",
         "password": "senha123",
         "nome": "Aluno Teste",
-        "telefone": "(61) 9 9999-9999",
-        "matricula": "202312345",
         "role": "estudante",
     }
     data.update(overrides)
@@ -36,7 +34,6 @@ def admin_user(db):
         password="adminpass123",
         role=User.Role.ADMIN,
         nome="Admin",
-        telefone="(61) 9 8888-7777",
     )
 
 
@@ -48,19 +45,6 @@ class TestUserCRUD:
         data = response.json()
         assert data["email"] == "aluno@example.com"
         assert data["role"] == "estudante"
-
-    def test_create_user_organizacao_exige_cnpj_endereco(self, api_client):
-        payload = _user_payload(
-            email="org@example.com",
-            username="org1",
-            role="organizacao",
-            matricula=None,
-        )
-        response = api_client.post("/api/v1/users/", payload, format="json")
-        assert response.status_code == 400
-        data = response.json()
-        assert "cnpj" in data
-        assert "endereco" in data
 
     def test_list_users_so_admin(self, api_client, admin_user):
         api_client.force_authenticate(user=admin_user)
@@ -74,8 +58,6 @@ class TestUserCRUD:
             password="pass123",
             role=User.Role.ESTUDANTE,
             nome="User",
-            telefone="(61) 9 7777-6666",
-            matricula="202399999",
         )
         api_client.force_authenticate(user=user)
         response = api_client.get("/api/v1/users/")
@@ -88,8 +70,6 @@ class TestUserCRUD:
             password="pass123",
             role=User.Role.ESTUDANTE,
             nome="User Dois",
-            telefone="(61) 9 6666-5555",
-            matricula="202388888",
         )
         api_client.force_authenticate(user=user)
         response = api_client.get(f"/api/v1/users/{user.id}/")

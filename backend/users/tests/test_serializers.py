@@ -15,7 +15,6 @@ def _valid_payload(**overrides):
         "email": "ana.souza@unb.br",
         "password": "Senha123",
         "nome": "Ana Souza",
-        "telefone": "(61) 9 1234-5678",
         "universidade": "Universidade de Brasília",
         "curso": "Engenharia de Software",
         "matricula": "20231234567",
@@ -96,7 +95,6 @@ class TestStudentRegistrationSerializerValid:
         payload.pop("turno", None)
         payload.pop("ano_conclusao", None)
         payload.pop("horas_extensao_exigidas", None)
-        payload.pop("telefone", None)
 
         serializer = StudentRegistrationSerializer(data=payload)
         assert serializer.is_valid(), serializer.errors

@@ -34,7 +34,6 @@ def _student_payload(**overrides):
         "email": "ana.souza@unb.br",
         "password": "Senha123",
         "nome": "Ana Souza",
-        "telefone": "(61) 9 1234-5678",
         "universidade": "Universidade de Brasília",
         "curso": "Engenharia de Software",
         "matricula": "20231234567",

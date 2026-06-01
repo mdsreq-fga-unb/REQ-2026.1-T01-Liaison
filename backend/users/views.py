@@ -4,8 +4,10 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import (
+    CustomTokenObtainPairSerializer,
     EmailCheckSerializer,
     MatriculaCheckSerializer,
     StudentRegistrationSerializer,
@@ -25,6 +27,12 @@ class IsAdminOrSelf(permissions.BasePermission):
         if request.user.is_authenticated and request.user.role == User.Role.ADMIN:
             return True
         return request.user.is_authenticated and obj.id == request.user.id
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+    permission_classes = [permissions.AllowAny]
+
 
 
 class UserViewSet(viewsets.ModelViewSet):

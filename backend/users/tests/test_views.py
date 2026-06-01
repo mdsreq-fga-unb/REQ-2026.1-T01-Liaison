@@ -75,7 +75,7 @@ class TestJWTAuthentication:
         """Credenciais validas retornam access e refresh."""
         create_user(email="jwt@example.com", password="jwtpass123")
         response = api_client.post(
-            "/api/v1/auth/token/",
+            "/api/v1/auth/login/",
             {"email": "jwt@example.com", "password": "jwtpass123"},
             format="json",
         )
@@ -88,7 +88,7 @@ class TestJWTAuthentication:
         """Senha errada retorna HTTP 401."""
         create_user(email="wrong@example.com", password="correctpass")
         response = api_client.post(
-            "/api/v1/auth/token/",
+            "/api/v1/auth/login/",
             {"email": "wrong@example.com", "password": "wrongpass"},
             format="json",
         )
@@ -97,7 +97,7 @@ class TestJWTAuthentication:
     def test_obtain_token_nonexistent_user_returns_401(self, api_client):
         """Usuario inexistente retorna HTTP 401."""
         response = api_client.post(
-            "/api/v1/auth/token/",
+            "/api/v1/auth/login/",
             {"email": "nobody@example.com", "password": "anypass"},
             format="json",
         )
@@ -107,7 +107,7 @@ class TestJWTAuthentication:
         """Refresh valido retorna novo access."""
         create_user(email="refresh@example.com", password="refreshpass")
         obtain_resp = api_client.post(
-            "/api/v1/auth/token/",
+            "/api/v1/auth/login/",
             {"email": "refresh@example.com", "password": "refreshpass"},
             format="json",
         )

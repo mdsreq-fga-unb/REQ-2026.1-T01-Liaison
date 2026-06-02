@@ -89,3 +89,4 @@ android/.gradle/
 
 # Docker
 .dockerignore
+*.pem

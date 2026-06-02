@@ -56,6 +56,8 @@ LOCAL_IP=<ip-do-servidor>
 
 Solicitar os valores reais ao @HenriqueFontenelle.
 
+> Variáveis adicionais do armazenamento de mídia (S3) estão documentadas na seção **Armazenamento de Mídia (Amazon S3)**.
+
 ---
 
 ## Como Conectar ao Servidor
@@ -72,6 +74,53 @@ ssh -i liaison-key.pem ubuntu@18.225.181.125
 
 > A chave `liaison-key.pem` está sob custódia do @HenriqueFontenelle.  
 > Permissão necessária: `chmod 400 liaison-key.pem`
+
+---
+
+## Armazenamento de Mídia (Amazon S3)
+
+Arquivos enviados por usuários (fotos de perfil, comprovantes, certificados) são armazenados no Amazon S3. Os arquivos estáticos continuam sendo servidos localmente pelo Nginx.
+
+### Recursos AWS
+
+| Recurso | Valor |
+|---|---|
+| Bucket | `liaison-media-2026` (região us-east-2) |
+| Object Ownership | ACLs disabled (Bucket owner enforced) |
+| Acesso público | Leitura via bucket policy (`s3:GetObject`) |
+| Usuário IAM | `liaison-s3-user` (permissão AmazonS3FullAccess) |
+
+### Configuração
+
+O S3 é ativado pela flag `USE_S3` no `.env`. Sem ela (ambiente local de desenvolvimento), o Django usa o sistema de arquivos. **Nunca commite os valores reais.**
+
+```env
+USE_S3=True
+AWS_ACCESS_KEY_ID=<access-key-do-iam>
+AWS_SECRET_ACCESS_KEY=<secret-key-do-iam>
+AWS_STORAGE_BUCKET_NAME=liaison-media-2026
+```
+
+Solicitar os valores reais ao @HenriqueFontenelle.
+
+### Dependências
+
+Adicionadas ao `requirements.txt`: `django-storages>=1.14` e `boto3`.
+
+### Bucket Policy (leitura pública)
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "PublicRead",
+    "Effect": "Allow",
+    "Principal": "*",
+    "Action": "s3:GetObject",
+    "Resource": "arn:aws:s3:::liaison-media-2026/*"
+  }]
+}
+```
 
 ---
 
@@ -154,6 +203,7 @@ http://18.225.181.125/api/
 | 5432 | TCP | Security Group EC2 | PostgreSQL — EC2 → RDS |
 
 ---
+
 ## Gerenciamento de Usuários no Servidor
 
 Os usuários do sistema são criados via terminal no servidor, não pelo admin Django.
@@ -183,8 +233,8 @@ python manage.py createsuperuser
 ```bash
 python manage.py changepassword email@dominio.com
 ```
----
 
+---
 
 ## Checklist de Encerramento (Fim do Semestre)
 
@@ -192,6 +242,8 @@ Executar **obrigatoriamente** ao final do projeto para garantir $0 de cobrança:
 
 - [ ] Terminar instância EC2 → EC2 → Instances → Instance State → **Terminate**
 - [ ] Deletar RDS `liaison-db` → RDS → Databases → **Delete** (sem snapshot final)
+- [ ] Esvaziar e deletar bucket S3 `liaison-media-2026` → S3 → **Empty** → **Delete**
+- [ ] Deletar usuário IAM `liaison-s3-user` → IAM → Users → **Delete**
 - [ ] Verificar $0,00 em Billing → Cost Explorer
 - [ ] Encerrar conta AWS → Account Settings → **Close Account**
 
@@ -208,4 +260,4 @@ Executar **obrigatoriamente** ao final do projeto para garantir $0 de cobrança:
 
 ---
 
-*Última atualização: 23/05/2026 — @HenriqueFontenelle*
+*Última atualização: 02/06/2026 — @HenriqueFontenelle*

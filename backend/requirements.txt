@@ -5,6 +5,11 @@ django-cors-headers>=4.3
 psycopg2-binary>=2.9
 python-decouple>=3.8
 
+
+# Storage (S3)
+django-storages>=1.14
+boto3>=1.34
+
 # Testing
 pytest>=8.0
 pytest-django>=4.8

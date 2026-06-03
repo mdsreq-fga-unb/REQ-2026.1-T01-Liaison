@@ -14,57 +14,35 @@ import { ApiError, checkEmail } from '../../services/api';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
+import { extractFieldErrors } from '../../utils/errors';
+import { isStrongPassword, isValidEmail } from '../../utils/validators';
 
 export interface Step2Data {
-  nome?: string;
-  sobrenome?: string;
-  email?: string;
+  nome: string;
+  sobrenome: string;
+  email: string;
   universidade?: string;
   semestre_atual?: number | null;
   password?: string;
   termos?: boolean;
 }
 
-export interface Step2PersonalDataProps {
+interface Step2PersonalDataProps {
   onContinue: (data: Step2Data) => void;
+  onBack?: () => void;
   initialData?: Partial<Step2Data>;
   initialErrors?: Record<string, string>;
-  onBack?: () => void;
 }
 
 const UNIVERSIDADES = [
-  { label: 'UnB - Universidade de Brasília', value: 'Universidade de Brasília' },
-  { label: 'Outra', value: 'Outra' },
+  { label: 'Universidade de Brasília (UnB)', value: 'unb' },
+  { label: 'Outra', value: 'outra' },
 ];
 
 const SEMESTRES = Array.from({ length: 12 }, (_, i) => ({
-  label: `${i + 1}º semestre`,
+  label: `${i + 1}º Semestre`,
   value: String(i + 1),
 }));
-
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function isStrongPassword(password: string): boolean {
-  const hasLength = password.length >= 8;
-  const hasLetters = /[a-zA-Z]/.test(password);
-  const hasNumbers = /[0-9]/.test(password);
-  return hasLength && hasLetters && hasNumbers;
-}
-
-function extractFieldErrors(error: unknown): Record<string, string> {
-  if (!(error instanceof ApiError)) return {};
-  const data = error.data as Record<string, unknown>;
-  if (!data || typeof data !== 'object') return {};
-  const fieldErrors: Record<string, string> = {};
-  for (const [field, messages] of Object.entries(data)) {
-    if (field === 'detail') continue;
-    const msg = Array.isArray(messages) ? messages[0] : String(messages);
-    fieldErrors[field] = msg;
-  }
-  return fieldErrors;
-}
 
 export default function Step2PersonalData({
   onContinue,

@@ -8,9 +8,9 @@ import Step2PersonalData, { Step2Data } from '../../components/auth/Step2Persona
 import Step3Academic, { Step3Data } from '../../components/auth/Step3Academic';
 import Step4Interests from '../../components/auth/Step4Interests';
 import { useAuth } from '../../context/AuthContext';
-import { ApiError } from '../../services/api';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
+import { extractFieldErrors } from '../../utils/errors';
 
 type FormData = {
   role?: string;
@@ -45,36 +45,10 @@ const STEP3_FIELDS = [
   'matricula',
 ];
 
-function extractFieldErrors(
-  error: unknown,
-): { errors: Record<string, string>; targetStep: number } | null {
-  if (!(error instanceof ApiError)) return null;
-
-  const data = error.data as Record<string, unknown>;
-  if (!data || typeof data !== 'object') return null;
-
-  const fieldErrors: Record<string, string> = {};
-
-  for (const [field, messages] of Object.entries(data)) {
-    if (field === 'detail') {
-      fieldErrors['_general'] = String(messages);
-      continue;
-    }
-    const msg = Array.isArray(messages) ? messages[0] : String(messages);
-    fieldErrors[field] = msg;
-  }
-
-  if (Object.keys(fieldErrors).length === 0) return null;
-
-  const targetStep = Object.keys(fieldErrors).some((f) =>
-    STEP2_FIELDS.includes(f),
-  )
-    ? 2
-    : Object.keys(fieldErrors).some((f) => STEP3_FIELDS.includes(f))
-      ? 3
-      : 4;
-
-  return { errors: fieldErrors, targetStep };
+function getTargetStep(fieldErrors: Record<string, string>): number {
+  if (Object.keys(fieldErrors).some((f) => STEP2_FIELDS.includes(f))) return 2;
+  if (Object.keys(fieldErrors).some((f) => STEP3_FIELDS.includes(f))) return 3;
+  return 4;
 }
 
 export default function RegisterScreen() {
@@ -108,10 +82,12 @@ export default function RegisterScreen() {
     const finalData = { ...formData, ...data };
     setIsLoading(true);
     setErrorBanner(null);
+
+    const nome = [finalData.nome, finalData.sobrenome]
+      .filter(Boolean)
+      .join(' ');
+
     try {
-      const nome = [finalData.nome, finalData.sobrenome]
-        .filter(Boolean)
-        .join(' ');
       await studentRegister({
         email: finalData.email!,
         password: finalData.password!,
@@ -123,13 +99,12 @@ export default function RegisterScreen() {
         turno: (finalData.turno as any) ?? null,
         ano_conclusao: finalData.ano_conclusao ?? null,
         horas_extensao_exigidas: finalData.horas_extensao_exigidas ?? null,
-        interesses: finalData.interesses ?? [],
       });
     } catch (error) {
-      const parsed = extractFieldErrors(error);
-      if (parsed) {
-        setInitialErrors(parsed.errors);
-        setStep(parsed.targetStep);
+      const fieldErrors = extractFieldErrors(error);
+      if (Object.keys(fieldErrors).length > 0) {
+        setInitialErrors(fieldErrors);
+        setStep(getTargetStep(fieldErrors));
       } else {
         setErrorBanner('Erro ao criar conta. Tente novamente.');
       }

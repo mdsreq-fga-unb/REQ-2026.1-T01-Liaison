@@ -9,6 +9,8 @@ from .serializers import (
     EmailCheckSerializer,
     MatriculaCheckSerializer,
     StudentRegistrationSerializer,
+    OrganizationRegistrationSerializer,
+    OrganizationProfileSerializer,
     UserSerializer,
 )
 
@@ -120,3 +122,48 @@ def check_matricula(request):
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response({"available": True})
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def organization_register(request):
+    """
+    POST /api/v1/auth/register/organization/
+    Cria User(role=organizacao) + OrganizationProfile atomicamente.
+    Retorna user data + tokens no formato 201.
+    """
+    serializer = OrganizationRegistrationSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = serializer.save()
+    except IntegrityError as e:
+        error_detail = str(e)
+        if "email" in error_detail.lower() or "users_user_email_key" in error_detail.lower():
+            return Response({"email": ["Este e-mail já está em uso."]}, status=status.HTTP_400_BAD_REQUEST)
+        if "cnpj" in error_detail.lower() or "organizationprofile_cnpj" in error_detail.lower():
+            return Response({"cnpj": ["Este CNPJ já está cadastrado."]}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Erro ao criar conta. Dado duplicado."}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception:
+        return Response({"detail": "Erro interno do servidor."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # Gera os tokens JWT
+    refresh = RefreshToken.for_user(user)
+
+    # Constrói os dados do profile
+    profile_data = OrganizationProfileSerializer(user.organization_profile).data
+
+    data = {
+        "id": str(user.id),
+        "email": user.email,
+        "nome": user.nome,
+        "role": user.role,
+        "organization_profile": profile_data,
+        "tokens": {
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        },
+    }
+
+    return Response(data, status=status.HTTP_201_CREATED)

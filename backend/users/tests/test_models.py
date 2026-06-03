@@ -8,6 +8,8 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 
+from users.models import OrganizationProfile
+
 User = get_user_model()
 
 
@@ -340,3 +342,32 @@ class TestStudentProfileModel:
             matricula="MAT008",
         )
         assert profile.updated_at is not None
+
+@pytest.mark.django_db
+class TestOrganizationProfileModel:
+    """Testes do modelo OrganizationProfile."""
+
+    def _make_user(self, email="org@teste.com", nome="Org Teste"):
+        return User.objects.create_user(
+            username=email.split("@")[0],
+            email=email,
+            password="testpassword123",
+            nome=nome,
+            role=User.Role.ORGANIZACAO,
+        )
+
+    def test_create_organization_profile(self):
+        user = self._make_user()
+        profile = OrganizationProfile.objects.create(
+            user=user,
+            cnpj="12345678000195",
+            razao_social="Organizacao Social Teste",
+            nome_fantasia="ONG Teste",
+            telefone="11999999999",
+            nome_responsavel="Responsavel Teste",
+            status="pending",
+        )
+        assert profile.user == user
+        assert profile.cnpj == "12345678000195"
+        assert profile.status == "pending"
+        assert str(profile) == "OrganizationProfile(Org Teste — 12345678000195)"

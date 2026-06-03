@@ -60,7 +60,7 @@ def student_register(request):
         if "matricula" in error_detail.lower() or "studentprofile_matricula" in error_detail.lower():
             return Response({"matricula": ["Esta matrícula já está em uso."]}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"detail": "Erro ao criar conta. Dado duplicado."}, status=status.HTTP_400_BAD_REQUEST)
-    except Exception as e:
+    except Exception:
         return Response({"detail": "Erro interno do servidor."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # Generate JWT tokens

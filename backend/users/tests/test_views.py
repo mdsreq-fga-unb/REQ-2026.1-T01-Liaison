@@ -4,7 +4,6 @@ Testes das views: health check, autenticacao JWT e registro de estudante.
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from rest_framework.test import APIClient
 
 User = get_user_model()
@@ -305,7 +304,7 @@ class TestStudentRegisterEndpoint:
 
     def test_weak_password_error_field_is_password(self, api_client):
         """Erro de senha fraca aponta para campo 'password'."""
-        response = api_client.post(
+        api_client.post(
             self.ENDPOINT,
             _student_payload(password="semletras12345"),
             format="json",

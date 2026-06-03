@@ -12,9 +12,11 @@ jest.mock('../../services/api', () => ({
 
 // Mock do contexto de autenticação
 const mockStudentRegister = jest.fn();
+const mockOrganizationRegister = jest.fn();
 jest.mock('../../context/AuthContext', () => ({
   useAuth: () => ({
     studentRegister: mockStudentRegister,
+    organizationRegister: mockOrganizationRegister,
     isAuthenticated: false,
     isLoading: false,
   }),
@@ -35,6 +37,39 @@ describe('RegisterScreen', () => {
   it('renders Step 1 initially', () => {
     render(<RegisterScreen />);
     expect(screen.getByText(/como você vai usar/i)).toBeTruthy();
+  });
+
+  it('advances to Step 2 (Org) after selecting Organização and pressing Continuar', () => {
+    render(<RegisterScreen />);
+    fireEvent.press(screen.getByTestId('radio-card-organizacao'));
+    fireEvent.press(screen.getByTestId('button-touchable'));
+    // Step 2 Org deve estar visível
+    expect(screen.getByText(/dados da instituição/i)).toBeTruthy();
+  });
+
+  it('calls organizationRegister and shows confirmation after filling Step 2 Org', async () => {
+    mockOrganizationRegister.mockResolvedValueOnce({ success: true });
+
+    render(<RegisterScreen />);
+    fireEvent.press(screen.getByTestId('radio-card-organizacao'));
+    fireEvent.press(screen.getByTestId('button-touchable'));
+
+    // Step 2 Org
+    fireEvent.changeText(screen.getByTestId('input-cnpj'), '52.210.871/0001-33');
+    fireEvent.changeText(screen.getByTestId('input-razao-social'), 'Org Teste SA');
+    fireEvent.changeText(screen.getByTestId('input-email'), 'contato@org.com');
+    fireEvent.changeText(screen.getByTestId('input-telefone'), '(11) 99999-9999');
+    fireEvent.changeText(screen.getByTestId('input-nome-responsavel'), 'Responsável');
+    fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123!');
+    fireEvent.press(screen.getByTestId('checkbox'));
+    
+    fireEvent.press(screen.getByText('Continuar'));
+
+    await waitFor(() => {
+      expect(mockOrganizationRegister).toHaveBeenCalled();
+      expect(screen.getByText('Cadastro realizado!')).toBeTruthy();
+      expect(screen.getByText('Aguardando aprovação')).toBeTruthy();
+    });
   });
 
   it('advances to Step 2 after selecting Estudante and pressing Continuar', () => {
@@ -58,7 +93,7 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
+    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {
@@ -79,7 +114,7 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
+    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {
@@ -115,7 +150,7 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
+    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {
@@ -155,7 +190,7 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
+    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {
@@ -200,7 +235,7 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-senha'), 'Senha123');
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
+    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {

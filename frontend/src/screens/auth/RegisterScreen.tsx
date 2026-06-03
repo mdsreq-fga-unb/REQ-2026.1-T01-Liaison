@@ -79,7 +79,7 @@ function extractFieldErrors(
 
 export default function RegisterScreen() {
   const navigation = useNavigation<any>();
-  const { register } = useAuth();
+  const { studentRegister } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -112,7 +112,7 @@ export default function RegisterScreen() {
       const nome = [finalData.nome, finalData.sobrenome]
         .filter(Boolean)
         .join(' ');
-      await register({
+      await studentRegister({
         email: finalData.email!,
         password: finalData.password!,
         nome,

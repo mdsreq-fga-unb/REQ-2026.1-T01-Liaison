@@ -15,6 +15,16 @@ export interface StudentRegisterPayload {
   interesses?: string[];
 }
 
+export type OrganizationRegisterPayload = {
+  email: string;
+  password: string;
+  cnpj: string;
+  razao_social: string;
+  nome_fantasia?: string;
+  telefone: string;
+  nome_responsavel: string;
+};
+
 export interface StudentRegisterResponse {
   id: string;
   email: string;
@@ -35,6 +45,25 @@ export interface StudentRegisterResponse {
     refresh: string;
   };
 }
+
+export type OrganizationRegisterResponse = {
+  id: string;
+  email: string;
+  nome: string;
+  role: string;
+  organization_profile: {
+    cnpj: string;
+    razao_social: string;
+    nome_fantasia: string;
+    telefone: string;
+    nome_responsavel: string;
+    status: string;
+  };
+  tokens: {
+    access: string;
+    refresh: string;
+  };
+};
 
 export class ApiError extends Error {
   data: unknown;
@@ -72,6 +101,32 @@ export async function studentRegister(
   }
 
   return data as StudentRegisterResponse;
+}
+
+export async function organizationRegister(
+  payload: OrganizationRegisterPayload,
+): Promise<OrganizationRegisterResponse> {
+  const url = apiUrl('/auth/register/organization/');
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new ApiError(
+      `Registration failed with status ${response.status}`,
+      data,
+      response.status,
+    );
+  }
+
+  return data as OrganizationRegisterResponse;
 }
 
 export async function checkEmail(

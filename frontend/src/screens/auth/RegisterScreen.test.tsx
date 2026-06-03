@@ -11,10 +11,10 @@ jest.mock('../../services/api', () => ({
 }));
 
 // Mock do contexto de autenticação
-const mockRegister = jest.fn();
+const mockStudentRegister = jest.fn();
 jest.mock('../../context/AuthContext', () => ({
   useAuth: () => ({
-    register: mockRegister,
+    studentRegister: mockStudentRegister,
     isAuthenticated: false,
     isLoading: false,
   }),
@@ -101,7 +101,7 @@ describe('RegisterScreen', () => {
   });
 
   it('calls register on Step 4 submit', async () => {
-    mockRegister.mockResolvedValueOnce({ success: true });
+    mockStudentRegister.mockResolvedValueOnce({ success: true });
 
     render(<RegisterScreen />);
     // Step 1
@@ -138,12 +138,12 @@ describe('RegisterScreen', () => {
     fireEvent.press(screen.getByText('Criar minha conta'));
 
     await waitFor(() => {
-      expect(mockRegister).toHaveBeenCalled();
+      expect(mockStudentRegister).toHaveBeenCalled();
     });
   });
 
   it('passes complete form data to register function', async () => {
-    mockRegister.mockResolvedValueOnce({ success: true });
+    mockStudentRegister.mockResolvedValueOnce({ success: true });
 
     render(<RegisterScreen />);
     fireEvent.press(screen.getByTestId('radio-card-estudante'));
@@ -176,7 +176,7 @@ describe('RegisterScreen', () => {
     fireEvent.press(screen.getByText('Criar minha conta'));
 
     await waitFor(() => {
-      expect(mockRegister).toHaveBeenCalledWith(
+      expect(mockStudentRegister).toHaveBeenCalledWith(
         expect.objectContaining({
           email: 'ana@unb.br',
           nome: expect.stringContaining('Ana'),
@@ -188,7 +188,7 @@ describe('RegisterScreen', () => {
   });
 
   it('shows loading state during registration', async () => {
-    mockRegister.mockImplementation(() => new Promise(() => {}));
+    mockStudentRegister.mockImplementation(() => new Promise(() => {}));
 
     render(<RegisterScreen />);
     fireEvent.press(screen.getByTestId('radio-card-estudante'));

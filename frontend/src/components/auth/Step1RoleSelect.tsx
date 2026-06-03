@@ -60,7 +60,6 @@ export default function Step1RoleSelect({ onContinue }: Step1RoleSelectProps) {
           description="Quero publicar vagas de voluntariado e gerenciar participantes."
           selected={selectedRole === 'organizacao'}
           onPress={() => setSelectedRole('organizacao')}
-          disabled
           icon={<OrgIcon width={24} height={24} />}
           badge="PARA ONGS E PROJETOS"
           badgeColor={colors.brand.gold}

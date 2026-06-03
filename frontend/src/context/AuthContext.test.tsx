@@ -23,12 +23,12 @@ function TestConsumer() {
 
 // Componente auxiliar para testar o register
 function RegisterConsumer({ onRegister }: { onRegister: () => void }) {
-  const { register } = useAuth();
+  const { studentRegister } = useAuth();
   return (
     <Text
       testID="register-btn"
       onPress={() =>
-        register({
+        studentRegister({
           email: 'ana@unb.br',
           password: 'Senha123',
           nome: 'Ana Souza',

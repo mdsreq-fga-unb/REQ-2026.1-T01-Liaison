@@ -57,14 +57,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await organizationRegister(payload);
-      setUser({
-        id: response.id,
-        email: response.email,
-        nome: response.nome,
-        role: response.role,
-      });
-      setAccessToken(response.tokens.access);
-      setRefreshToken(response.tokens.refresh);
+      // Removed auto-login (setUser, setAccessToken, setRefreshToken) 
+      // because organizations are created with 'pending' status and require approval.
       return response;
     } finally {
       setIsLoading(false);

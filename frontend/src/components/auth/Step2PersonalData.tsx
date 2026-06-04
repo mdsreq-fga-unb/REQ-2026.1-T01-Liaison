@@ -96,7 +96,33 @@ export default function Step2PersonalData({
   async function handleContinue() {
     const localValid = validate();
 
-    if (!localValid) return;
+    // Verifica unicidade do email SEMPRE que o formato for válido,
+    // independente de outros campos terem erros locais.
+    let serverValid = true;
+    if (isValidEmail(email.trim())) {
+      setIsChecking(true);
+      try {
+        await checkEmail(email.trim());
+        setServerErrors((prev) => {
+          const next = { ...prev };
+          delete next.email;
+          return next;
+        });
+      } catch (error) {
+        serverValid = false;
+        const fieldErrors = extractFieldErrors(error);
+        setServerErrors((prev) => ({
+          ...prev,
+          ...(Object.keys(fieldErrors).length > 0
+            ? fieldErrors
+            : { email: 'Erro ao verificar e-mail. Tente novamente.' }),
+        }));
+      } finally {
+        setIsChecking(false);
+      }
+    }
+
+    if (!localValid || !serverValid) return;
 
     onContinue({ nome: nome.trim(), sobrenome: sobrenome.trim(), email: email.trim(), universidade: universidade ?? undefined, semestre_atual: semestre ? Number(semestre) : null, password, termos });
   }

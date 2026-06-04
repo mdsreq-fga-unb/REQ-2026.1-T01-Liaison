@@ -120,31 +120,7 @@ export default function Step2OrgData({
   async function handleContinue() {
     const localValid = validate();
 
-    let serverValid = true;
-    if (isValidEmail(email.trim())) {
-      setIsChecking(true);
-      try {
-        await checkEmail(email.trim());
-        setServerErrors((prev) => {
-          const next = { ...prev };
-          delete next.email;
-          return next;
-        });
-      } catch (error) {
-        serverValid = false;
-        const fieldErrors = extractFieldErrors(error);
-        setServerErrors((prev) => ({
-          ...prev,
-          ...(Object.keys(fieldErrors).length > 0
-            ? fieldErrors
-            : { email: 'Erro ao verificar e-mail. Tente novamente.' }),
-        }));
-      } finally {
-        setIsChecking(false);
-      }
-    }
-
-    if (!localValid || !serverValid) return;
+    if (!localValid) return;
 
     onContinue({
       cnpj: cnpj.replace(/\D/g, ''),

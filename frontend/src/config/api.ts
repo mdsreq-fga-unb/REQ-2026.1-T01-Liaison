@@ -18,7 +18,7 @@
  */
 
 export const API_BASE_URL: string =
-  process.env["EXPO_PUBLIC_API_BASE_URL"] ?? "http://localhost:8000/api/v1";
+  process.env["EXPO_PUBLIC_API_URL"] ?? "http://localhost:8000/api/v1";
 
 /**
  * Helper to build a full API endpoint URL.

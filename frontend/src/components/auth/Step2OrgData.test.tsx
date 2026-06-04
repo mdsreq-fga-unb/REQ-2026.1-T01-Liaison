@@ -52,8 +52,8 @@ describe('Step2OrgData', () => {
   it('formats CNPJ as user types', () => {
     render(<Step2OrgData {...defaultProps} />);
     const cnpjInput = screen.getByTestId('input-cnpj');
-    fireEvent.changeText(cnpjInput, '12345678000199');
-    expect(cnpjInput.props.value).toBe('12.345.678/0001-99');
+    fireEvent.changeText(cnpjInput, '52210871000133');
+    expect(cnpjInput.props.value).toBe('52.210.871/0001-33');
   });
 
   it('formats phone as user types', () => {
@@ -67,7 +67,7 @@ describe('Step2OrgData', () => {
     const onContinue = jest.fn();
     render(<Step2OrgData onContinue={onContinue} initialData={{}} />);
 
-    fireEvent.changeText(screen.getByTestId('input-cnpj'), '12345678000199');
+    fireEvent.changeText(screen.getByTestId('input-cnpj'), '52210871000133');
     fireEvent.changeText(screen.getByTestId('input-razao-social'), 'Org Social');
     fireEvent.changeText(screen.getByTestId('input-email'), 'contato@org.br');
     fireEvent.changeText(screen.getByTestId('input-telefone'), '61988887777');
@@ -79,7 +79,7 @@ describe('Step2OrgData', () => {
 
     await waitFor(() => {
       expect(onContinue).toHaveBeenCalledWith({
-        cnpj: '12345678000199',
+        cnpj: '52210871000133',
         razao_social: 'Org Social',
         nome_fantasia: undefined,
         email: 'contato@org.br',

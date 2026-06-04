@@ -15,7 +15,7 @@ import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
 import { extractFieldErrors } from '../../utils/errors';
 import { formatCNPJ, formatPhone } from '../../utils/formatters';
-import { isStrongPassword, isValidEmail } from '../../utils/validators';
+import { isStrongPassword, isValidCNPJ, isValidEmail } from '../../utils/validators';
 
 export interface OrgStep2Data {
   cnpj: string;
@@ -55,6 +55,13 @@ export default function Step2OrgData({
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
   const [isChecking, setIsChecking] = useState(false);
 
+  // Sincroniza initialErrors do componente pai (ex: erros de validação do backend após submit)
+  React.useEffect(() => {
+    if (initialErrors && Object.keys(initialErrors).length > 0) {
+      setLocalErrors(initialErrors);
+    }
+  }, [initialErrors]);
+
   const errors: Record<string, string> = { ...serverErrors, ...localErrors };
   const hasErrors = Object.keys(errors).length > 0;
 
@@ -62,8 +69,8 @@ export default function Step2OrgData({
     const newErrors: Record<string, string> = {};
     if (!cnpj.trim()) {
       newErrors.cnpj = 'CNPJ é obrigatório';
-    } else if (cnpj.replace(/\D/g, '').length !== 14) {
-      newErrors.cnpj = 'CNPJ inválido (deve ter 14 dígitos)';
+    } else if (!isValidCNPJ(cnpj)) {
+      newErrors.cnpj = 'CNPJ inválido';
     }
 
     if (!razaoSocial.trim()) newErrors.razao_social = 'Razão Social é obrigatória';

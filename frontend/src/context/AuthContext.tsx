@@ -4,6 +4,9 @@ import {
   StudentRegisterPayload,
   StudentRegisterResponse,
   studentRegister,
+  OrganizationRegisterPayload,
+  OrganizationRegisterResponse,
+  organizationRegister,
 } from '../services/api';
 
 export interface AuthUser {
@@ -19,7 +22,8 @@ interface AuthContextValue {
   user: AuthUser | null;
   accessToken: string | null;
   refreshToken: string | null;
-  register: (payload: StudentRegisterPayload) => Promise<StudentRegisterResponse>;
+  studentRegister: (payload: StudentRegisterPayload) => Promise<StudentRegisterResponse>;
+  organizationRegister: (payload: OrganizationRegisterPayload) => Promise<OrganizationRegisterResponse>;
   logout: () => void;
 }
 
@@ -31,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  async function register(payload: StudentRegisterPayload): Promise<StudentRegisterResponse> {
+  async function handleStudentRegister(payload: StudentRegisterPayload): Promise<StudentRegisterResponse> {
     setIsLoading(true);
     try {
       const response = await studentRegister(payload);
@@ -43,6 +47,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       setAccessToken(response.tokens.access);
       setRefreshToken(response.tokens.refresh);
+      return response;
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleOrganizationRegister(payload: OrganizationRegisterPayload): Promise<OrganizationRegisterResponse> {
+    setIsLoading(true);
+    try {
+      const response = await organizationRegister(payload);
+      // Removed auto-login (setUser, setAccessToken, setRefreshToken) 
+      // because organizations are created with 'pending' status and require approval.
       return response;
     } finally {
       setIsLoading(false);
@@ -61,7 +77,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     accessToken,
     refreshToken,
-    register,
+    studentRegister: handleStudentRegister,
+    organizationRegister: handleOrganizationRegister,
     logout,
   };
 

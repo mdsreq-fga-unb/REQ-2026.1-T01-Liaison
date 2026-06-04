@@ -4,7 +4,6 @@ Testes das views: health check, autenticacao JWT e registro de estudante.
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from rest_framework.test import APIClient
 
 User = get_user_model()
@@ -305,7 +304,7 @@ class TestStudentRegisterEndpoint:
 
     def test_weak_password_error_field_is_password(self, api_client):
         """Erro de senha fraca aponta para campo 'password'."""
-        response = api_client.post(
+        api_client.post(
             self.ENDPOINT,
             _student_payload(password="semletras12345"),
             format="json",
@@ -345,3 +344,63 @@ class TestStudentRegisterEndpoint:
         response = api_client.post(self.ENDPOINT, payload, format="json")
         assert response.status_code == 400
         assert "universidade" in response.json()
+
+def _organization_payload(**overrides):
+    """Retorna payload valido para registro de organizacao."""
+    data = {
+        "email": "org@teste.com",
+        "password": "StrongPassword123!",
+        "razao_social": "Organizacao Teste SA",
+        "nome_fantasia": "ONG Teste",
+        "cnpj": "52210871000133",  # CNPJ válido para teste
+        "telefone": "11999999999",
+        "nome_responsavel": "Responsavel Teste"
+    }
+    data.update(overrides)
+    return data
+
+
+@pytest.mark.django_db
+class TestOrganizationRegisterEndpoint:
+    """Testes do POST /api/v1/auth/register/organization/"""
+
+    ENDPOINT = "/api/v1/auth/register/organization/"
+
+    def test_register_organization_success(self, api_client):
+        """Registro valido retorna HTTP 201."""
+        response = api_client.post(self.ENDPOINT, _organization_payload(), format="json")
+        print("RESPONSE DATA:", response.json())
+        assert response.status_code == 201
+        data = response.json()
+        assert data["email"] == "org@teste.com"
+        assert data["role"] == "organizacao"
+        assert "organization_profile" in data
+        assert data["organization_profile"]["cnpj"] == "52210871000133"
+        assert data["organization_profile"]["status"] == "pending"
+        assert "tokens" in data
+        assert "access" in data["tokens"]
+
+    def test_register_organization_invalid_cnpj(self, api_client):
+        """CNPJ invalido retorna HTTP 400."""
+        payload = _organization_payload(cnpj="11111111111111")
+        response = api_client.post(self.ENDPOINT, payload, format="json")
+        assert response.status_code == 400
+        assert "cnpj" in response.json()
+
+    def test_register_organization_duplicate_email(self, api_client):
+        """Email duplicado retorna HTTP 400."""
+        api_client.post(self.ENDPOINT, _organization_payload(), format="json")
+        response = api_client.post(
+            self.ENDPOINT,
+            _organization_payload(cnpj="00000000000191"),  # Outro CNPJ
+            format="json",
+        )
+        assert response.status_code == 400
+        assert "email" in response.json()
+
+    def test_register_organization_weak_password(self, api_client):
+        """Senha fraca retorna HTTP 400."""
+        payload = _organization_payload(password="123")
+        response = api_client.post(self.ENDPOINT, payload, format="json")
+        assert response.status_code == 400
+        assert "password" in response.json()

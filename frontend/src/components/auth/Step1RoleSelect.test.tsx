@@ -49,10 +49,15 @@ describe('Step1RoleSelect', () => {
     expect(onContinue).toHaveBeenCalledWith('estudante');
   });
 
-  it('Organização card shows as disabled/not-implemented', () => {
-    render(<Step1RoleSelect onContinue={() => {}} />);
+  it('Organização card is enabled and can be selected', () => {
+    const onContinue = jest.fn();
+    render(<Step1RoleSelect onContinue={onContinue} />);
     const orgCard = screen.getByTestId('radio-card-organizacao');
-    expect(orgCard.props.accessibilityState?.disabled).toBe(true);
+    expect(orgCard.props.accessibilityState?.disabled).toBeFalsy();
+
+    fireEvent.press(orgCard);
+    fireEvent.press(screen.getByTestId('button-touchable'));
+    expect(onContinue).toHaveBeenCalledWith('organizacao');
   });
 
   it('renders "Voltar" link', () => {

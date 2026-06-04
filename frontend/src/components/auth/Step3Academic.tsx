@@ -12,6 +12,7 @@ import { ApiError, checkMatricula } from '../../services/api';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
+import { extractFieldErrors } from '../../utils/errors';
 
 export interface Step3Data {
   curso?: string; turno?: string | null; ano_conclusao?: number | null;
@@ -31,19 +32,6 @@ const TURNOS = [
 ];
 const currentYear = new Date().getFullYear();
 const ANO_CONCLUSAO = Array.from({ length: 10 }, (_, i) => ({ label: String(currentYear + i), value: String(currentYear + i) }));
-
-function extractFieldErrors(error: unknown): Record<string, string> {
-  if (!(error instanceof ApiError)) return {};
-  const data = error.data as Record<string, unknown>;
-  if (!data || typeof data !== 'object') return {};
-  const fieldErrors: Record<string, string> = {};
-  for (const [field, messages] of Object.entries(data)) {
-    if (field === 'detail') continue;
-    const msg = Array.isArray(messages) ? messages[0] : String(messages);
-    fieldErrors[field] = msg;
-  }
-  return fieldErrors;
-}
 
 export default function Step3Academic({ onContinue, initialData = {}, initialErrors, onBack }: Step3AcademicProps) {
   const navigation = useNavigation<any>();

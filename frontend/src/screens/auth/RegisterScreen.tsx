@@ -4,13 +4,15 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Step1RoleSelect from '../../components/auth/Step1RoleSelect';
+import Step2OrgData from '../../components/auth/Step2OrgData';
+import Step3OrgConfirmation from '../../components/auth/Step3OrgConfirmation';
 import Step2PersonalData, { Step2Data } from '../../components/auth/Step2PersonalData';
 import Step3Academic, { Step3Data } from '../../components/auth/Step3Academic';
 import Step4Interests from '../../components/auth/Step4Interests';
 import { useAuth } from '../../context/AuthContext';
-import { ApiError } from '../../services/api';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
+import { extractFieldErrors } from '../../utils/errors';
 
 type FormData = {
   role?: string;
@@ -27,6 +29,11 @@ type FormData = {
   matricula?: string;
   interesses?: string[];
   termos?: boolean;
+  cnpj?: string;
+  razao_social?: string;
+  nome_fantasia?: string;
+  telefone?: string;
+  nome_responsavel?: string;
 };
 
 const STEP2_FIELDS = [
@@ -45,46 +52,21 @@ const STEP3_FIELDS = [
   'matricula',
 ];
 
-function extractFieldErrors(
-  error: unknown,
-): { errors: Record<string, string>; targetStep: number } | null {
-  if (!(error instanceof ApiError)) return null;
-
-  const data = error.data as Record<string, unknown>;
-  if (!data || typeof data !== 'object') return null;
-
-  const fieldErrors: Record<string, string> = {};
-
-  for (const [field, messages] of Object.entries(data)) {
-    if (field === 'detail') {
-      fieldErrors['_general'] = String(messages);
-      continue;
-    }
-    const msg = Array.isArray(messages) ? messages[0] : String(messages);
-    fieldErrors[field] = msg;
-  }
-
-  if (Object.keys(fieldErrors).length === 0) return null;
-
-  const targetStep = Object.keys(fieldErrors).some((f) =>
-    STEP2_FIELDS.includes(f),
-  )
-    ? 2
-    : Object.keys(fieldErrors).some((f) => STEP3_FIELDS.includes(f))
-      ? 3
-      : 4;
-
-  return { errors: fieldErrors, targetStep };
+function getTargetStep(fieldErrors: Record<string, string>): number {
+  if (Object.keys(fieldErrors).some((f) => STEP2_FIELDS.includes(f))) return 2;
+  if (Object.keys(fieldErrors).some((f) => STEP3_FIELDS.includes(f))) return 3;
+  return 4;
 }
 
 export default function RegisterScreen() {
   const navigation = useNavigation<any>();
-  const { register } = useAuth();
+  const { studentRegister, organizationRegister } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({});
   const [isLoading, setIsLoading] = useState(false);
   const [initialErrors, setInitialErrors] = useState<Record<string, string>>({});
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [orgConfirmation, setOrgConfirmation] = useState(false);
 
   function handleStep1Continue(role: string) {
     setFormData((prev) => ({ ...prev, role }));
@@ -104,15 +86,46 @@ export default function RegisterScreen() {
     setStep(4);
   }
 
+  async function handleOrgFinish(data: any) {
+    const finalData = { ...formData, ...data };
+    setIsLoading(true);
+    setErrorBanner(null);
+
+    try {
+      await organizationRegister({
+        email: finalData.email!,
+        password: finalData.password!,
+        cnpj: finalData.cnpj!,
+        razao_social: finalData.razao_social!,
+        nome_fantasia: finalData.nome_fantasia,
+        telefone: finalData.telefone!,
+        nome_responsavel: finalData.nome_responsavel!,
+      });
+      setOrgConfirmation(true);
+    } catch (error) {
+      const fieldErrors = extractFieldErrors(error);
+      if (Object.keys(fieldErrors).length > 0) {
+        setInitialErrors(fieldErrors);
+        setStep(2); // Os dados da ONG estão todos no passo 2
+      } else {
+        setErrorBanner('Erro ao criar conta. Tente novamente.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function handleStep4Finish(data: FormData & { interesses: string[] }) {
     const finalData = { ...formData, ...data };
     setIsLoading(true);
     setErrorBanner(null);
+
+    const nome = [finalData.nome, finalData.sobrenome]
+      .filter(Boolean)
+      .join(' ');
+
     try {
-      const nome = [finalData.nome, finalData.sobrenome]
-        .filter(Boolean)
-        .join(' ');
-      await register({
+      await studentRegister({
         email: finalData.email!,
         password: finalData.password!,
         nome,
@@ -123,13 +136,12 @@ export default function RegisterScreen() {
         turno: (finalData.turno as any) ?? null,
         ano_conclusao: finalData.ano_conclusao ?? null,
         horas_extensao_exigidas: finalData.horas_extensao_exigidas ?? null,
-        interesses: finalData.interesses ?? [],
       });
     } catch (error) {
-      const parsed = extractFieldErrors(error);
-      if (parsed) {
-        setInitialErrors(parsed.errors);
-        setStep(parsed.targetStep);
+      const fieldErrors = extractFieldErrors(error);
+      if (Object.keys(fieldErrors).length > 0) {
+        setInitialErrors(fieldErrors);
+        setStep(getTargetStep(fieldErrors));
       } else {
         setErrorBanner('Erro ao criar conta. Tente novamente.');
       }
@@ -145,11 +157,32 @@ export default function RegisterScreen() {
       </View>
     ) : null;
 
+  if (orgConfirmation) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <Step3OrgConfirmation onHome={() => navigation.navigate('Login')} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       {banner}
       {step === 1 && <Step1RoleSelect onContinue={handleStep1Continue} />}
-      {step === 2 && (
+
+      {step === 2 && formData.role === 'organizacao' && (
+        <Step2OrgData
+          onContinue={handleOrgFinish}
+          onBack={() => {
+            setStep(1);
+            setInitialErrors({});
+          }}
+          initialData={formData}
+          initialErrors={initialErrors}
+        />
+      )}
+
+      {step === 2 && formData.role === 'estudante' && (
         <Step2PersonalData
           onContinue={handleStep2Continue}
           onBack={() => {
@@ -168,7 +201,8 @@ export default function RegisterScreen() {
           initialErrors={initialErrors}
         />
       )}
-      {step === 3 && (
+
+      {step === 3 && formData.role === 'estudante' && (
         <Step3Academic
           onContinue={handleStep3Continue}
           onBack={() => {
@@ -185,7 +219,8 @@ export default function RegisterScreen() {
           initialErrors={initialErrors}
         />
       )}
-      {step === 4 && (
+
+      {step === 4 && formData.role === 'estudante' && (
         <Step4Interests
           onFinish={handleStep4Finish}
           onBack={(interests) => {

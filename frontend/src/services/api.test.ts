@@ -1,4 +1,4 @@
-import { studentRegister } from './api';
+import { studentRegister, organizationRegister } from './api';
 
 // Mock global fetch
 global.fetch = jest.fn();
@@ -160,5 +160,82 @@ describe('api.studentRegister', () => {
     mockFetch.mockRejectedValueOnce(new Error('Network request failed'));
 
     await expect(studentRegister(VALID_PAYLOAD)).rejects.toThrow('Network request failed');
+  });
+});
+
+const ORG_PAYLOAD = {
+  email: 'contato@ong.org',
+  password: 'Senha123',
+  cnpj: '12.345.678/0001-90',
+  razao_social: 'ONG Exemplo',
+  nome_fantasia: 'ONG Exemplo',
+  telefone: '(61) 3333-4444',
+  nome_responsavel: 'João Responsável',
+};
+
+const ORG_SUCCESS_RESPONSE = {
+  id: 'uuid-456',
+  email: 'contato@ong.org',
+  nome: 'João Responsável',
+  role: 'organizacao',
+  organization_profile: {
+    cnpj: '12.345.678/0001-90',
+    razao_social: 'ONG Exemplo',
+    nome_fantasia: 'ONG Exemplo',
+    telefone: '(61) 3333-4444',
+    nome_responsavel: 'João Responsável',
+    status: 'pending',
+  },
+  tokens: {
+    access: 'eyJaccess...',
+    refresh: 'eyJrefresh...',
+  },
+};
+
+describe('api.organizationRegister', () => {
+  beforeEach(() => {
+    mockFetch.mockClear();
+  });
+
+  it('calls the correct endpoint', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ORG_SUCCESS_RESPONSE,
+    });
+
+    await organizationRegister(ORG_PAYLOAD);
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain('/api/v1/auth/register/organization/');
+  });
+
+  it('uses POST method', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ORG_SUCCESS_RESPONSE,
+    });
+
+    await organizationRegister(ORG_PAYLOAD);
+
+    const [, options] = mockFetch.mock.calls[0];
+    expect(options.method).toBe('POST');
+  });
+
+  it('serializes payload as JSON body', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ORG_SUCCESS_RESPONSE,
+    });
+
+    await organizationRegister(ORG_PAYLOAD);
+
+    const [, options] = mockFetch.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.email).toBe(ORG_PAYLOAD.email);
+    expect(body.cnpj).toBe(ORG_PAYLOAD.cnpj);
   });
 });

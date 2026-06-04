@@ -96,3 +96,40 @@ class StudentProfile(models.Model):
     def __str__(self):
         nome = getattr(self.user, "nome", None) or self.user.email
         return f"StudentProfile({nome} — {self.matricula})"
+
+class OrganizationProfile(models.Model):
+    """Perfil da organização social (1:1 com User)."""
+
+    STATUS_CHOICES = [
+        ("pending", "Pendente"),
+        ("approved", "Aprovada"),
+        ("rejected", "Rejeitada"),
+    ]
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="organization_profile",
+        primary_key=False,
+    )
+    cnpj = models.CharField(max_length=18, unique=True, validators=[validar_cnpj])
+    razao_social = models.CharField(max_length=200)
+    nome_fantasia = models.CharField(max_length=200, blank=True)
+    telefone = models.CharField(max_length=20)
+    nome_responsavel = models.CharField(max_length=150)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "users_organizationprofile"
+        verbose_name = "Perfil de Organização"
+        verbose_name_plural = "Perfis de Organização"
+
+    def __str__(self):
+        nome = getattr(self.user, "nome", None) or self.user.email
+        return f"OrganizationProfile({nome} — {self.cnpj})"

@@ -368,6 +368,9 @@ class TestOrganizationRegisterEndpoint:
 
     def test_register_organization_success(self, api_client):
         """Registro valido retorna HTTP 201."""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
         response = api_client.post(self.ENDPOINT, _organization_payload(), format="json")
         print("RESPONSE DATA:", response.json())
         assert response.status_code == 201
@@ -377,8 +380,10 @@ class TestOrganizationRegisterEndpoint:
         assert "organization_profile" in data
         assert data["organization_profile"]["cnpj"] == "52210871000133"
         assert data["organization_profile"]["status"] == "pending"
-        assert "tokens" in data
-        assert "access" in data["tokens"]
+        assert "tokens" not in data
+        
+        user = User.objects.get(email="org@teste.com")
+        assert user.is_active is False
 
     def test_register_organization_invalid_cnpj(self, api_client):
         """CNPJ invalido retorna HTTP 400."""

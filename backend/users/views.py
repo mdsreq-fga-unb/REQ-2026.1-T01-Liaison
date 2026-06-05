@@ -148,9 +148,6 @@ def organization_register(request):
     except Exception:
         return Response({"detail": "Erro interno do servidor."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # Gera os tokens JWT
-    refresh = RefreshToken.for_user(user)
-
     # Constrói os dados do profile
     profile_data = OrganizationProfileSerializer(user.organization_profile).data
 
@@ -160,10 +157,6 @@ def organization_register(request):
         "nome": user.nome,
         "role": user.role,
         "organization_profile": profile_data,
-        "tokens": {
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-        },
     }
 
     return Response(data, status=status.HTTP_201_CREATED)

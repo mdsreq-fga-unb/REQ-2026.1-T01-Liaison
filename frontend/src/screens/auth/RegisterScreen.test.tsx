@@ -208,6 +208,9 @@ describe('RegisterScreen', () => {
       expect(screen.getByText('Criar minha conta')).toBeTruthy();
     });
 
+    fireEvent.press(screen.getByText('Meio Ambiente'));
+    fireEvent.press(screen.getByText('Tecnologia'));
+
     fireEvent.press(screen.getByText('Criar minha conta'));
 
     await waitFor(() => {
@@ -217,6 +220,7 @@ describe('RegisterScreen', () => {
           nome: expect.stringContaining('Ana'),
           curso: 'Eng. Software',
           matricula: '20231234567',
+          interesses: ['meio_ambiente', 'tecnologia'],
         }),
       );
     });

@@ -110,7 +110,7 @@ describe('Step2PersonalData', () => {
     fireEvent.press(screen.getByTestId('checkbox'));
     // select universidade
     fireEvent.press(screen.getByTestId('select-universidade'));
-    fireEvent.press(screen.getByText('UnB - Universidade de Brasília'));
+    fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
 
     fireEvent.press(screen.getByText('Continuar'));
     await waitFor(() => {

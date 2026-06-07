@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 // Mock do serviço de API
 jest.mock('../services/api', () => ({
   studentRegister: jest.fn(),
+  organizationRegister: jest.fn(),
 }));
 
 // Componente auxiliar para testar o hook
@@ -23,12 +24,12 @@ function TestConsumer() {
 
 // Componente auxiliar para testar o register
 function RegisterConsumer({ onRegister }: { onRegister: () => void }) {
-  const { register } = useAuth();
+  const { studentRegister } = useAuth();
   return (
     <Text
       testID="register-btn"
       onPress={() =>
-        register({
+        studentRegister({
           email: 'ana@unb.br',
           password: 'Senha123',
           nome: 'Ana Souza',
@@ -40,6 +41,28 @@ function RegisterConsumer({ onRegister }: { onRegister: () => void }) {
       }
     >
       Register
+    </Text>
+  );
+}
+
+// Componente auxiliar para testar o register de ONG
+function OrgRegisterConsumer({ onRegister }: { onRegister: () => void }) {
+  const { organizationRegister } = useAuth();
+  return (
+    <Text
+      testID="org-register-btn"
+      onPress={() =>
+        organizationRegister({
+          email: 'ong@example.com',
+          password: 'Senha123',
+          cnpj: '12.345.678/0001-90',
+          razao_social: 'ONG Test',
+          telefone: '61999999999',
+          nome_responsavel: 'João',
+        }).then(onRegister)
+      }
+    >
+      Register Org
     </Text>
   );
 }
@@ -184,5 +207,44 @@ describe('AuthContext', () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => render(<TestConsumer />)).toThrow();
     consoleError.mockRestore();
+  });
+
+  it('does NOT set isAuthenticated to true after organization registration (pending approval)', async () => {
+    const { organizationRegister } = require('../services/api');
+    organizationRegister.mockResolvedValueOnce({
+      id: 'uuid-456',
+      email: 'ong@example.com',
+      nome: 'ONG Test',
+      role: 'organizacao',
+      tokens: { access: 'org-access-token', refresh: 'org-refresh-token' },
+      organization_profile: {
+        cnpj: '12.345.678/0001-90',
+        razao_social: 'ONG Test',
+        nome_fantasia: '',
+        telefone: '61999999999',
+        nome_responsavel: 'João',
+        status: 'pending',
+      },
+    });
+
+    const onRegister = jest.fn();
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+        <OrgRegisterConsumer onRegister={onRegister} />
+      </AuthProvider>,
+    );
+
+    await act(async () => {
+      screen.getByTestId('org-register-btn').props.onPress();
+    });
+
+    await waitFor(() => {
+      expect(organizationRegister).toHaveBeenCalledTimes(1);
+    });
+
+    expect(screen.getByTestId('auth-state').props.children).toBe('unauthenticated');
+    expect(screen.getByTestId('user-state').props.children).toBe('no-user');
   });
 });

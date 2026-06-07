@@ -1,11 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from rest_framework import serializers
+import re
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import StudentProfile
+from .models import StudentProfile, OrganizationProfile
 
 User = get_user_model()
 
@@ -213,3 +214,94 @@ class MatriculaCheckSerializer(serializers.Serializer):
         if StudentProfile.objects.filter(matricula=value).exists():
             raise serializers.ValidationError("Esta matrícula já está em uso.")
         return value
+
+
+class OrganizationProfileSerializer(serializers.Serializer):
+    """Serializer read-only para retornar dados do OrganizationProfile na resposta."""
+    cnpj = serializers.CharField()
+    razao_social = serializers.CharField()
+    nome_fantasia = serializers.CharField()
+    telefone = serializers.CharField()
+    nome_responsavel = serializers.CharField()
+    status = serializers.CharField()
+
+class OrganizationRegistrationSerializer(serializers.Serializer):
+    """
+    Serializer para registro de organização.
+    Cria User + OrganizationProfile atomicamente.
+    """
+    # Campos do User
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True, required=True)
+    
+    # Campos do Profile (O nome da Organização mapeia para 'nome' conceitualmente, mas usamos razao_social)
+    cnpj = serializers.CharField(required=True, max_length=18)
+    razao_social = serializers.CharField(required=True, max_length=200)
+    nome_fantasia = serializers.CharField(required=False, max_length=200, allow_blank=True)
+    telefone = serializers.CharField(required=True, max_length=20)
+    nome_responsavel = serializers.CharField(required=True, max_length=150)
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Este e-mail já está em uso.")
+        return value
+
+    def validate_password(self, value):
+        try:
+            validate_password(value)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(list(e.messages))
+        return value
+
+    def validate_cnpj(self, value):
+        from .models import validar_cnpj
+        if not value or not value.strip():
+            raise serializers.ValidationError("Este campo é obrigatório.")
+        
+        # aplica validação
+        try:
+            validar_cnpj(value)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(e.message)
+            
+        cnpj_numeros = re.sub(r"\D", "", value)
+        
+        if OrganizationProfile.objects.filter(cnpj=cnpj_numeros).exists():
+            raise serializers.ValidationError("Este CNPJ já está cadastrado.")
+        return cnpj_numeros
+
+    @transaction.atomic
+    def save(self, **kwargs):
+        validated_data = self.validated_data
+        email = validated_data["email"]
+        password = validated_data["password"]
+
+        # Cria o User
+        username = email.split("@")[0]
+        base_username = username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        user = User(
+            email=email,
+            username=username,
+            nome=validated_data.get("nome_fantasia") or validated_data["razao_social"],
+            role=User.Role.ORGANIZACAO,
+        )
+        user.set_password(password)
+        user.save()
+
+        # Cria o OrganizationProfile
+        OrganizationProfile.objects.create(
+            user=user,
+            cnpj=validated_data["cnpj"],
+            razao_social=validated_data["razao_social"],
+            nome_fantasia=validated_data.get("nome_fantasia", ""),
+            telefone=validated_data["telefone"],
+            nome_responsavel=validated_data["nome_responsavel"],
+            status="pending"
+        )
+
+        return user

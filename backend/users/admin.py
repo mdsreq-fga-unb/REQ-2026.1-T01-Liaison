@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import User
+from .models import OrganizationProfile, User
 
 
 @admin.register(User)
@@ -32,3 +32,10 @@ class UserAdmin(BaseUserAdmin):
             {"fields": ("email", "role", "nome")},
         ),
     )
+
+@admin.register(OrganizationProfile)
+class OrganizationProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "cnpj", "razao_social", "status")
+    search_fields = ("user__email", "cnpj", "razao_social")
+    list_filter = ("status",)
+

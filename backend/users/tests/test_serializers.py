@@ -4,7 +4,6 @@ Testes do StudentRegistrationSerializer.
 
 import pytest
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -45,7 +44,7 @@ class TestStudentRegistrationSerializerValid:
 
         serializer = StudentRegistrationSerializer(data=_valid_payload())
         assert serializer.is_valid(), serializer.errors
-        result = serializer.save()
+        serializer.save()
         assert User.objects.filter(email="ana.souza@unb.br").exists()
 
     def test_valid_payload_creates_student_profile(self):

@@ -517,6 +517,39 @@ class TestStudentProfileUpdateSerializer:
         assert not serializer.is_valid()
         assert "interesses" in serializer.errors
 
+    def test_matricula_duplicate_rejected(self):
+        """T1.2 — Rejeita matrícula já em uso por outro estudante."""
+        _student1 = _make_student(email="aluno1@teste.com", matricula="M001")
+        student2 = _make_student(email="aluno2@teste.com", matricula="M002")
+        serializer = StudentProfileUpdateSerializer(
+            student2.student_profile,
+            data={"matricula": "M001"},
+            partial=True,
+        )
+        assert not serializer.is_valid()
+        assert "matricula" in serializer.errors
+
+    def test_matricula_unchanged_allowed(self):
+        """T1.2 — Permite manter a mesma matrícula (sem self-conflict)."""
+        student = _make_student(matricula="M123")
+        serializer = StudentProfileUpdateSerializer(
+            student.student_profile,
+            data={"matricula": "M123"},
+            partial=True,
+        )
+        assert serializer.is_valid(), serializer.errors
+
+    def test_update_without_matricula_valid(self):
+        """T1.2 — PATCH parcial sem campo matrícula é válido."""
+        student = _make_student()
+        serializer = StudentProfileUpdateSerializer(
+            student.student_profile,
+            data={"universidade": "USP"},
+            partial=True,
+        )
+        assert serializer.is_valid(), serializer.errors
+
+
 # ────────────────────────────────────────────────────────────
 # Upload Serializers (T2.26 / T2.27)
 # ────────────────────────────────────────────────────────────

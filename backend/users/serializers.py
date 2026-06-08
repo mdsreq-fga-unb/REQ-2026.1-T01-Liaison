@@ -437,6 +437,12 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Máximo de 3 interesses permitidos.")
         return value
 
+    def validate_matricula(self, value):
+        """Matrícula deve ser única entre todos os estudantes."""
+        if value and StudentProfile.objects.filter(matricula=value).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError("Esta matrícula já está em uso.")
+        return value
+
     def update(self, instance, validated_data):
         user_data = validated_data.pop("user", {})
         # Não permite alterar email

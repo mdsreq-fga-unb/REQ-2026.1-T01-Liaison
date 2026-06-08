@@ -24,6 +24,13 @@ from users.views import (
     GalleryUploadView,
     GalleryDeleteView,
     ChangePasswordView,
+    OrganizationProfileView,
+    OrganizationProfileUpdateView,
+    OrgLogoUploadView,
+    OrgBannerUploadView,
+    OrgGalleryUploadView,
+    OrgGalleryDeleteView,
+    OrgChangePasswordView,
 )
 
 @api_view(["GET"])
@@ -64,6 +71,14 @@ urlpatterns = [
     path("api/v1/students/me/gallery/", GalleryUploadView.as_view(), name="student-gallery-upload"),
     path("api/v1/students/me/gallery/<uuid:photo_id>/", GalleryDeleteView.as_view(), name="student-gallery-delete"),
     path("api/v1/students/me/change-password/", ChangePasswordView.as_view(), name="student-change-password"),
+    # Perfil da organização
+    path("api/v1/organizations/me/", OrganizationProfileView.as_view(), name="org-profile-detail"),
+    path("api/v1/organizations/me/update/", OrganizationProfileUpdateView.as_view(), name="org-profile-update"),
+    path("api/v1/organizations/me/logo/", OrgLogoUploadView.as_view(), name="org-logo-upload"),
+    path("api/v1/organizations/me/banner/", OrgBannerUploadView.as_view(), name="org-banner-upload"),
+    path("api/v1/organizations/me/gallery/", OrgGalleryUploadView.as_view(), name="org-gallery-upload"),
+    path("api/v1/organizations/me/gallery/<uuid:photo_id>/", OrgGalleryDeleteView.as_view(), name="org-gallery-delete"),
+    path("api/v1/organizations/me/change-password/", OrgChangePasswordView.as_view(), name="org-change-password"),
 ]
 
 # Serve media files in development (DEBUG=True only)

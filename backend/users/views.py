@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import StudentProfile, StudentGalleryPhoto
+from .models import StudentProfile, StudentGalleryPhoto, OrgGalleryPhoto, OrganizationProfile
 from .serializers import (
     CustomTokenObtainPairSerializer,
     EmailCheckSerializer,
@@ -25,6 +25,13 @@ from .serializers import (
     GalleryUploadSerializer,
     GalleryPhotoSerializer,
     ChangePasswordSerializer,
+    OrganizationProfileDetailSerializer,
+    OrganizationProfileUpdateSerializer,
+    OrgLogoUploadSerializer,
+    OrgBannerUploadSerializer,
+    OrgGalleryUploadSerializer,
+    OrgGalleryPhotoSerializer,
+    OrgChangePasswordSerializer,
 )
 
 User = get_user_model()
@@ -346,6 +353,180 @@ class ChangePasswordView(APIView):
 
     def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save(user=request.user)
+        return Response({"detail": "Senha alterada com sucesso."})
+
+
+# ────────────────────────────────────────────────────────────
+# Organization Profile Views
+# ────────────────────────────────────────────────────────────
+
+
+class IsOrganizacao(permissions.BasePermission):
+    """Permite apenas usuários com role 'organizacao'."""
+
+    def has_permission(self, request, view):
+        return (
+            request.user.is_authenticated
+            and request.user.role == User.Role.ORGANIZACAO
+        )
+
+
+def _get_org_profile(user):
+    """Helper: obtém o OrganizationProfile do usuário ou retorna None."""
+    try:
+        return user.organization_profile
+    except OrganizationProfile.DoesNotExist:
+        return None
+
+
+class OrganizationProfileView(APIView):
+    """GET /api/v1/organizations/me/ — perfil completo da organização."""
+
+    permission_classes = [permissions.IsAuthenticated, IsOrganizacao]
+
+    def get(self, request):
+        profile = _get_org_profile(request.user)
+        if not profile:
+            return Response(
+                {"detail": "Perfil de organização não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = OrganizationProfileDetailSerializer(
+            profile, context={"request": request}
+        )
+        return Response(serializer.data)
+
+
+class OrganizationProfileUpdateView(APIView):
+    """PATCH /api/v1/organizations/me/update/ — atualiza dados do perfil."""
+
+    permission_classes = [permissions.IsAuthenticated, IsOrganizacao]
+
+    def patch(self, request):
+        profile = _get_org_profile(request.user)
+        if not profile:
+            return Response(
+                {"detail": "Perfil de organização não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = OrganizationProfileUpdateSerializer(
+            profile, data=request.data, partial=True
+        )
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        updated_profile = serializer.save()
+        detail_serializer = OrganizationProfileDetailSerializer(
+            updated_profile, context={"request": request}
+        )
+        return Response(detail_serializer.data)
+
+
+class OrgLogoUploadView(APIView):
+    """POST /api/v1/organizations/me/logo/ — upload de logo."""
+
+    permission_classes = [permissions.IsAuthenticated, IsOrganizacao]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        profile = _get_org_profile(request.user)
+        if not profile:
+            return Response(
+                {"detail": "Perfil de organização não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = OrgLogoUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        profile.logo = serializer.validated_data["logo"]
+        profile.save()
+        logo_url = (
+            request.build_absolute_uri(profile.logo.url)
+            if profile.logo
+            else None
+        )
+        return Response({"logo_url": logo_url})
+
+
+class OrgBannerUploadView(APIView):
+    """POST /api/v1/organizations/me/banner/ — upload de banner."""
+
+    permission_classes = [permissions.IsAuthenticated, IsOrganizacao]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        profile = _get_org_profile(request.user)
+        if not profile:
+            return Response(
+                {"detail": "Perfil de organização não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = OrgBannerUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        profile.banner = serializer.validated_data["banner"]
+        profile.save()
+        banner_url = (
+            request.build_absolute_uri(profile.banner.url)
+            if profile.banner
+            else None
+        )
+        return Response({"banner_url": banner_url})
+
+
+class OrgGalleryUploadView(APIView):
+    """POST /api/v1/organizations/me/gallery/ — upload de fotos na galeria."""
+
+    permission_classes = [permissions.IsAuthenticated, IsOrganizacao]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        profile = _get_org_profile(request.user)
+        if not profile:
+            return Response(
+                {"detail": "Perfil de organização não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = OrgGalleryUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        photos = serializer.create(
+            serializer.validated_data, organization_profile=profile
+        )
+        result = OrgGalleryPhotoSerializer(
+            photos, many=True, context={"request": request}
+        ).data
+        return Response(result, status=status.HTTP_201_CREATED)
+
+
+class OrgGalleryDeleteView(APIView):
+    """DELETE /api/v1/organizations/me/gallery/<photo_id>/ — remove foto da galeria."""
+
+    permission_classes = [permissions.IsAuthenticated, IsOrganizacao]
+
+    def delete(self, request, photo_id):
+        profile = _get_org_profile(request.user)
+        if not profile:
+            return Response(
+                {"detail": "Perfil de organização não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        photo = get_object_or_404(
+            OrgGalleryPhoto, id=photo_id, organization_profile=profile
+        )
+        photo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class OrgChangePasswordView(APIView):
+    """POST /api/v1/organizations/me/change-password/ — altera senha."""
+
+    permission_classes = [permissions.IsAuthenticated, IsOrganizacao]
+
+    def post(self, request):
+        serializer = OrgChangePasswordSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save(user=request.user)

@@ -148,6 +148,14 @@ class OrganizationProfile(models.Model):
         choices=STATUS_CHOICES,
         default="pending",
     )
+    # New fields — US1.5
+    logo = models.ImageField(upload_to="org_logos/", blank=True, null=True)
+    banner = models.ImageField(upload_to="org_banners/", blank=True, null=True)
+    mission = models.TextField(blank=True, default="", max_length=300)
+    full_description = models.TextField(blank=True, default="", max_length=2000)
+    areas_de_atuacao = models.JSONField(default=list, blank=True)
+    site = models.URLField(blank=True, default="")
+    endereco = models.TextField(blank=True, default="", max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -159,3 +167,25 @@ class OrganizationProfile(models.Model):
     def __str__(self):
         nome = getattr(self.user, "nome", None) or self.user.email
         return f"OrganizationProfile({nome} — {self.cnpj})"
+
+
+class OrgGalleryPhoto(models.Model):
+    """Foto da galeria da organização."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization_profile = models.ForeignKey(
+        OrganizationProfile,
+        on_delete=models.CASCADE,
+        related_name="gallery_photos",
+    )
+    image = models.ImageField(upload_to="org_gallery/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "users_orggalleryphoto"
+        verbose_name = "Foto da Galeria (Org)"
+        verbose_name_plural = "Fotos da Galeria (Org)"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"OrgGalleryPhoto({self.id})"

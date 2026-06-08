@@ -1,5 +1,5 @@
 """
-Validadores customizados de senha para o sistema Liaison.
+Validadores customizados de senha e upload de imagens para o sistema Liaison.
 """
 
 from django.core.exceptions import ValidationError
@@ -23,3 +23,23 @@ class LettersAndNumbersValidator:
 
     def get_help_text(self):
         return "Sua senha deve conter letras e números."
+
+
+def validate_image_file_extension(value):
+    """Valida que a imagem tem extensao JPEG ou PNG."""
+    ext = value.name.rsplit(".", 1)[-1].lower()
+    if ext not in ("jpg", "jpeg", "png"):
+        raise ValidationError(
+            "Tipo de arquivo não suportado. Use JPEG ou PNG.",
+            code="invalid_image_extension",
+        )
+
+
+def validate_image_file_size(value):
+    """Valida que a imagem nao excede 5 MB."""
+    max_size = 5 * 1024 * 1024  # 5 MB
+    if value.size > max_size:
+        raise ValidationError(
+            "O arquivo de imagem não pode exceder 5 MB.",
+            code="image_too_large",
+        )

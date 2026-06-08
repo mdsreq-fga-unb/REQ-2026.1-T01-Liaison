@@ -81,37 +81,41 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 # DATABASE_URL is read from .env (local) or set by docker-compose (Container).
-# No hardcoded fallback — fails fast if missing.
-_db_url = config("DATABASE_URL")
+# For testing, fall back to SQLite in memory.
+_db_url = config("DATABASE_URL", default=None)
 
 # Parse DATABASE_URL manually for compatibility
 import re  # noqa: E402
 
-_db_match = re.match(
-    r"postgres(?:ql)?://(?P<user>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)/(?P<name>.+)",
-    _db_url,
-)
+if _db_url:
+    _db_match = re.match(
+        r"postgres(?:ql)?://(?P<user>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)/(?P<name>.+)",
+        _db_url,
+    )
 
-if _db_match:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": _db_match.group("name"),
-            "USER": _db_match.group("user"),
-            "PASSWORD": _db_match.group("password"),
-            "HOST": _db_match.group("host"),
-            "PORT": _db_match.group("port"),
+    if _db_match:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": _db_match.group("name"),
+                "USER": _db_match.group("user"),
+                "PASSWORD": _db_match.group("password"),
+                "HOST": _db_match.group("host"),
+                "PORT": _db_match.group("port"),
+            }
         }
-    }
+    else:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": ":memory:",
+            }
+        }
 else:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "liaison",
-            "USER": "postgres",
-            "PASSWORD": "postgres",
-            "HOST": "localhost",
-            "PORT": "5432",
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
         }
     }
 

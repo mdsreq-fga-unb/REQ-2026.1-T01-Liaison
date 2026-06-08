@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from rest_framework import serializers
 import re
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import StudentProfile, OrganizationProfile
 
@@ -55,6 +56,22 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = self.user
+
+        if not user.is_active:
+            raise serializers.ValidationError("E-mail ou senha inválidos.")
+
+        data["role"] = user.role
+        data["nome"] = user.nome
+        data["id"] = str(user.id)
+
+        return data
+
 
 
 class StudentProfileSerializer(serializers.Serializer):

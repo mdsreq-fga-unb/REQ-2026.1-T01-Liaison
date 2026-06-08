@@ -72,6 +72,7 @@ export default function Step2PersonalData({
     if (!email.trim()) { newErrors.email = 'E-mail é obrigatório'; }
     else if (!isValidEmail(email)) { newErrors.email = 'E-mail inválido'; }
     if (!universidade) newErrors.universidade = 'Universidade é obrigatória';
+    if (!semestre) newErrors.semestre = 'Semestre é obrigatório';
     if (!password) { newErrors.password = 'Senha é obrigatória'; }
     else if (!isStrongPassword(password)) { newErrors.password = 'Senha fraca: use 8+ caracteres com letras e números'; }
     setLocalErrors(newErrors);
@@ -169,7 +170,16 @@ export default function Step2PersonalData({
             <Select label="Universidade" required options={UNIVERSIDADES} value={universidade} onChange={(v) => { setUniversidade(v); clearError('universidade'); }} placeholder="Selecione" error={errors.universidade} testID="select-universidade" />
           </View>
           <View style={styles.halfCol}>
-            <Select label="Semestre atual" options={SEMESTRES} value={semestre} onChange={setSemestre} placeholder="Selecione" />
+            <Select
+              label="Semestre atual"
+              required
+              options={SEMESTRES}
+              value={semestre}
+              onChange={(v) => { setSemestre(v); clearError('semestre'); }}
+              placeholder="Selecione"
+              error={errors.semestre}
+              testID="select-semestre"
+            />
           </View>
         </View>
 

@@ -1,15 +1,47 @@
-from django.contrib.auth import get_user_model
+from datetime import datetime
+
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from rest_framework import serializers
 import re
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import StudentProfile, OrganizationProfile, StudentGalleryPhoto
 from .validators import validate_image_file_extension, validate_image_file_size, LettersAndNumbersValidator
 
 User = get_user_model()
+
+
+def _validate_semestre_atual(value):
+    """Valida que semestre_atual esta entre 1 e 12 (inclusive)."""
+    if value is None:
+        raise serializers.ValidationError("Este campo é obrigatório.")
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise serializers.ValidationError("Informe um número inteiro válido.")
+    if value < 1 or value > 12:
+        raise serializers.ValidationError(
+            "Semestre atual deve estar entre 1 e 12."
+        )
+    return value
+
+
+def _validate_ano_conclusao(value):
+    """Valida que ano_conclusao esta entre 2020 e (ano atual + 10)."""
+    if value is None:
+        raise serializers.ValidationError("Este campo é obrigatório.")
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise serializers.ValidationError("Informe um número inteiro válido.")
+    current_year = datetime.now().year
+    min_year = 2020
+    max_year = current_year + 10
+    if value < min_year or value > max_year:
+        raise serializers.ValidationError(
+            f"Ano de conclusão deve estar entre {min_year} e {max_year}."
+        )
+    return value
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -60,7 +92,56 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    cnpj = serializers.CharField(required=False, write_only=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make email optional — allows login via CNPJ without email field
+        self.fields[self.username_field].required = False
+
     def validate(self, attrs):
+        cnpj_raw = attrs.get("cnpj")
+
+        if cnpj_raw:
+            # ── Login via CNPJ (organizacao) ──
+            cnpj = re.sub(r"\D", "", cnpj_raw)
+
+            try:
+                org = OrganizationProfile.objects.get(cnpj=cnpj)
+            except OrganizationProfile.DoesNotExist:
+                raise serializers.ValidationError("CNPJ ou senha inválidos.")
+
+            if not org.user.is_active:
+                raise serializers.ValidationError("CNPJ ou senha inválidos.")
+
+            if org.status != "approved":
+                raise serializers.ValidationError(
+                    "Organização pendente de aprovação. Aguarde a análise do administrador."
+                )
+
+            # Authenticate using the org's user email
+            authenticate_kwargs = {
+                "username": org.user.email,
+                "password": attrs.get("password", ""),
+            }
+            user = authenticate(**authenticate_kwargs)
+
+            if user is None or not user.is_active:
+                raise serializers.ValidationError("CNPJ ou senha inválidos.")
+
+            self.user = user
+
+            data = {}
+            refresh = RefreshToken.for_user(user)
+            data["access"] = str(refresh.access_token)
+            data["refresh"] = str(refresh)
+            data["role"] = user.role
+            data["nome"] = user.nome
+            data["id"] = str(user.id)
+
+            return data
+
+        # ── Login via email (estudante) — existing behaviour ──
         data = super().validate(attrs)
         user = self.user
 
@@ -101,7 +182,7 @@ class StudentRegistrationSerializer(serializers.Serializer):
     universidade = serializers.CharField(required=True, max_length=200)
     curso = serializers.CharField(required=True, max_length=200)
     matricula = serializers.CharField(required=True, max_length=50)
-    semestre_atual = serializers.IntegerField(required=False, allow_null=True, default=None)
+    semestre_atual = serializers.IntegerField(required=True, allow_null=False)
     turno = serializers.ChoiceField(
         choices=["matutino", "vespertino", "noturno", "integral"],
         required=False,
@@ -109,7 +190,7 @@ class StudentRegistrationSerializer(serializers.Serializer):
         allow_blank=True,
         default=None,
     )
-    ano_conclusao = serializers.IntegerField(required=False, allow_null=True, default=None)
+    ano_conclusao = serializers.IntegerField(required=True, allow_null=False)
     horas_extensao_exigidas = serializers.IntegerField(required=False, allow_null=True, default=None)
     interesses = serializers.ListField(
         child=serializers.CharField(),
@@ -150,6 +231,12 @@ class StudentRegistrationSerializer(serializers.Serializer):
         if StudentProfile.objects.filter(matricula=value).exists():
             raise serializers.ValidationError("Esta matrícula já está em uso.")
         return value
+
+    def validate_semestre_atual(self, value):
+        return _validate_semestre_atual(value)
+
+    def validate_ano_conclusao(self, value):
+        return _validate_ano_conclusao(value)
 
     def validate_interesses(self, value):
         if len(value) > 3:
@@ -425,12 +512,23 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
 
     nome = serializers.CharField(source="user.nome", required=False, max_length=120)
     email = serializers.EmailField(source="user.email", required=False)
+    # semestre_atual e ano_conclusao são obrigatórios no perfil acadêmico
+    # (exigem validação de range, não podem ser null no serializer embora
+    # o model aceite null para retrocompatibilidade com dados legados).
+    semestre_atual = serializers.IntegerField(required=True, allow_null=False)
+    ano_conclusao = serializers.IntegerField(required=True, allow_null=False)
 
     def validate_email(self, value):
         """Email nao pode ser alterado por este endpoint."""
         if self.instance and value != self.instance.user.email:
             raise serializers.ValidationError("Este campo não pode ser alterado.")
         return value
+
+    def validate_semestre_atual(self, value):
+        return _validate_semestre_atual(value)
+
+    def validate_ano_conclusao(self, value):
+        return _validate_ano_conclusao(value)
 
     def validate_interesses(self, value):
         if value and len(value) > 3:

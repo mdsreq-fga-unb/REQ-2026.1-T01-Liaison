@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "storages",
     # Local apps
     "users",
     "opportunities",
@@ -191,3 +192,26 @@ CORS_ALLOWED_ORIGINS = config(
     cast=Csv(),
 )
 CORS_ALLOW_CREDENTIALS = True
+
+# ─── S3 Storage (mídia de usuários) ───────────────────────────
+# Ativado só quando USE_S3=True (servidor de produção). Em ambiente
+# local, sem a flag, o Django usa o storage padrão (sistema de arquivos).
+USE_S3 = config("USE_S3", default=False, cast=bool)
+
+if USE_S3:
+    STORAGES = {
+        "default": {"BACKEND": "storages.backends.s3.S3Storage"},
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        },
+    }
+    AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default="liaison-media-2026")
+    AWS_S3_REGION_NAME = "us-east-2"
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = False
+
+
+

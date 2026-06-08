@@ -11,16 +11,45 @@ import OrgTabIcon from '../../../assets/login_org_tab_icon.svg';
 
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import { useAuth } from '../../context/AuthContext';
+import { ApiError } from '../../services/api';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
 export default function LoginScreen() {
   const navigation = useNavigation<any>();
+  const { handleLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [lembrar, setLembrar] = useState(false);
   const [activeTab, setActiveTab] = useState<'estudante' | 'organizacao'>('estudante');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function handleEntrar() {
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    try {
+      await handleLogin(email, senha);
+      // On success, navigation happens automatically via RootNavigator
+      // (isAuthenticated becomes true → role-based stack renders)
+    } catch (e) {
+      if (e instanceof ApiError) {
+        if (e.status === 401) {
+          setErrorMessage('E-mail ou senha inválidos');
+        } else {
+          setErrorMessage('Erro de conexão');
+        }
+      } else if (e instanceof TypeError || (e as Error).message?.includes('Network')) {
+        setErrorMessage('Erro de conexão');
+      } else {
+        setErrorMessage('Erro ao realizar login. Tente novamente.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <View style={styles.root}>
@@ -165,7 +194,19 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <Button title="Entrar" onPress={() => {}} testID="button-entrar" />
+        {errorMessage && (
+          <View testID="login-error" style={styles.errorBanner}>
+            <Ionicons name="information-circle" size={16} color={colors.neutral.white} />
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        )}
+
+        <Button
+          title="Entrar"
+          onPress={handleEntrar}
+          loading={isSubmitting}
+          testID="button-entrar"
+        />
 
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
@@ -326,4 +367,22 @@ const styles = StyleSheet.create({
 
   securityNotice: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   securityText: { fontFamily: 'DMSans_400Regular', fontSize: 11, lineHeight: 17.6, color: colors.text.secondary },
+
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#d32f2f',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
+  errorText: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 13,
+    lineHeight: 20.8,
+    color: colors.neutral.white,
+  },
 });

@@ -1,5 +1,54 @@
 import { apiUrl } from '../config/api';
 
+// ── Profile API Types ──────────────────────────────────────────────
+
+export interface GalleryPhoto {
+  id: string;
+  image_url: string;
+  created_at: string;
+}
+
+export interface StatsData {
+  total_hours_completed: number;
+  total_hours_required: number;
+  total_events: number;
+}
+
+export interface EventData {
+  category: string;
+  title: string;
+  organization: string;
+  date: string;
+  status: 'concluído' | 'em_andamento';
+  hours: number;
+}
+
+export interface ProfileData {
+  id: string;
+  email: string;
+  nome: string;
+  universidade: string;
+  curso: string;
+  matricula: string;
+  semestre_atual: number | null;
+  turno: string | null;
+  ano_conclusao: number | null;
+  horas_extensao_exigidas: number | null;
+  interesses: string[];
+  bio: string;
+  avatar_url: string | null;
+  banner_url: string | null;
+  gallery: GalleryPhoto[];
+  stats: StatsData;
+  events: EventData[];
+}
+
+export interface UploadFile {
+  uri: string;
+  name: string;
+  type: string;
+}
+
 export interface StudentRegisterPayload {
   email: string;
   password: string;
@@ -60,6 +109,19 @@ export type OrganizationRegisterResponse = {
     status: string;
   };
 };
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  access: string;
+  refresh: string;
+  role: string;
+  nome: string;
+  id: string;
+}
 
 export class ApiError extends Error {
   data: unknown;
@@ -207,4 +269,260 @@ export async function checkMatricula(
   }
 
   return data as { available: boolean };
+}
+
+export async function login(payload: LoginPayload): Promise<LoginResponse> {
+  const url = apiUrl('/auth/login/');
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new ApiError('Login failed', data, response.status);
+  }
+
+  return data as LoginResponse;
+}
+
+/**
+ * Refresh expired access token using the stored refresh token.
+ * POST /auth/token/refresh/ — backend uses simplejwt with rotating tokens.
+ * Returns new { access, refresh } pair on success.
+ */
+export async function refreshAccessToken(
+  refreshToken: string,
+): Promise<{ access: string; refresh: string }> {
+  const url = apiUrl('/auth/token/refresh/');
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh: refreshToken }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new ApiError('Token refresh failed', data, response.status);
+  }
+
+  return data as { access: string; refresh: string };
+}
+
+/**
+ * Create authorization headers for an authenticated request.
+ * Use with fetch() to attach Bearer token.
+ *
+ * @example
+ *   fetch(url, { headers: authHeaders(token), body: ... })
+ */
+export function authHeaders(token: string): Record<string, string> {
+  return {
+    'Authorization': `Bearer ${token}`,
+  };
+}
+
+/**
+ * Perform an authenticated fetch request.
+ * Automatically attaches the Bearer token and JSON content-type.
+ * Useful as a convenience wrapper for protected API endpoints.
+ */
+export async function fetchWithAuth(
+  url: string,
+  token: string,
+  options: RequestInit = {},
+): Promise<Response> {
+  return fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(token),
+      ...(options.headers as Record<string, string> | undefined),
+    },
+  });
+}
+
+// ── Profile API Functions ──────────────────────────────────────────
+
+/**
+ * Fetch the authenticated student's profile data.
+ * GET /students/me/
+ */
+export async function getStudentProfile(token: string): Promise<ProfileData> {
+  const url = apiUrl('/students/me/');
+  const response = await fetch(url, {
+    headers: { ...authHeaders(token) },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to fetch profile', data, response.status);
+  }
+  return data as ProfileData;
+}
+
+/**
+ * Update the authenticated student's profile.
+ * PATCH /students/me/update/
+ */
+export async function updateStudentProfile(
+  token: string,
+  data: Partial<ProfileData>,
+): Promise<ProfileData> {
+  const url = apiUrl('/students/me/update/');
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(token),
+    },
+    body: JSON.stringify(data),
+  });
+  const responseData = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to update profile', responseData, response.status);
+  }
+  return responseData as ProfileData;
+}
+
+/**
+ * Upload a new avatar image for the student.
+ * POST /students/me/avatar/ (multipart/form-data)
+ */
+export async function uploadAvatar(
+  token: string,
+  file: UploadFile,
+): Promise<{ avatar_url: string }> {
+  const url = apiUrl('/students/me/avatar/');
+  const formData = new FormData();
+  formData.append('avatar', {
+    uri: file.uri,
+    name: file.name,
+    type: file.type,
+  } as any);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to upload avatar', data, response.status);
+  }
+  return data as { avatar_url: string };
+}
+
+/**
+ * Upload a new banner image for the student.
+ * POST /students/me/banner/ (multipart/form-data)
+ */
+export async function uploadBanner(
+  token: string,
+  file: UploadFile,
+): Promise<{ banner_url: string }> {
+  const url = apiUrl('/students/me/banner/');
+  const formData = new FormData();
+  formData.append('banner', {
+    uri: file.uri,
+    name: file.name,
+    type: file.type,
+  } as any);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to upload banner', data, response.status);
+  }
+  return data as { banner_url: string };
+}
+
+/**
+ * Upload multiple gallery photos.
+ * POST /students/me/gallery/ (multipart/form-data)
+ */
+export async function uploadGalleryPhotos(
+  token: string,
+  files: UploadFile[],
+): Promise<GalleryPhoto[]> {
+  const url = apiUrl('/students/me/gallery/');
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append('images', {
+      uri: file.uri,
+      name: file.name,
+      type: file.type,
+    } as any);
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to upload gallery photos', data, response.status);
+  }
+  return data as GalleryPhoto[];
+}
+
+/**
+ * Delete a gallery photo by ID.
+ * DELETE /students/me/gallery/{photoId}/
+ */
+export async function deleteGalleryPhoto(
+  token: string,
+  photoId: string,
+): Promise<void> {
+  const url = apiUrl(`/students/me/gallery/${photoId}/`);
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: authHeaders(token),
+  });
+  if (!response.ok) {
+    let data: unknown;
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+    throw new ApiError('Failed to delete gallery photo', data, response.status);
+  }
+}
+
+/**
+ * Change the authenticated student's password.
+ * POST /students/me/change-password/
+ */
+export async function changePassword(
+  token: string,
+  newPassword: string,
+  confirmPassword: string,
+): Promise<{ detail: string }> {
+  const url = apiUrl('/students/me/change-password/');
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(token),
+    },
+    body: JSON.stringify({
+      new_password: newPassword,
+      confirm_password: confirmPassword,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to change password', data, response.status);
+  }
+  return data as { detail: string };
 }

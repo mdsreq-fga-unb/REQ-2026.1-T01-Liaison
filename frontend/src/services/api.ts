@@ -111,7 +111,8 @@ export type OrganizationRegisterResponse = {
 };
 
 export interface LoginPayload {
-  email: string;
+  email?: string;
+  cnpj?: string;
   password: string;
 }
 
@@ -120,6 +121,7 @@ export interface LoginResponse {
   refresh: string;
   role: string;
   nome: string;
+  email: string;
   id: string;
 }
 
@@ -523,6 +525,222 @@ export async function changePassword(
   const data = await response.json();
   if (!response.ok) {
     throw new ApiError('Failed to change password', data, response.status);
+  }
+  return data as { detail: string };
+}
+
+// ── Organization Profile API Types ─────────────────────────────────
+
+export interface OrgGalleryPhoto {
+  id: string;
+  image_url: string;
+  created_at: string;
+}
+
+export interface OrgStatsData {
+  total_events: number;
+  total_volunteers: number;
+  rating: number;
+}
+
+export interface OrgProfileData {
+  id: string;
+  email: string;
+  nome: string;
+  cnpj: string;
+  razao_social: string;
+  nome_fantasia: string;
+  telefone: string;
+  nome_responsavel: string;
+  mission: string;
+  full_description: string;
+  areas_de_atuacao: string[];
+  site: string;
+  endereco: string;
+  logo_url: string | null;
+  banner_url: string | null;
+  gallery: OrgGalleryPhoto[];
+  stats: OrgStatsData;
+  events: [];
+  open_positions: [];
+}
+
+// ── Organization Profile API Functions ─────────────────────────────
+
+/**
+ * Fetch the authenticated organization's profile data.
+ * GET /organizations/me/
+ */
+export async function getOrgProfile(token: string): Promise<OrgProfileData> {
+  const url = apiUrl('/organizations/me/');
+  const response = await fetch(url, {
+    headers: { ...authHeaders(token) },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to fetch org profile', data, response.status);
+  }
+  return data as OrgProfileData;
+}
+
+/**
+ * Update the authenticated organization's profile.
+ * PATCH /organizations/me/update/
+ */
+export async function updateOrgProfile(
+  token: string,
+  data: Partial<OrgProfileData>,
+): Promise<OrgProfileData> {
+  const url = apiUrl('/organizations/me/update/');
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(token),
+    },
+    body: JSON.stringify(data),
+  });
+  const responseData = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to update org profile', responseData, response.status);
+  }
+  return responseData as OrgProfileData;
+}
+
+/**
+ * Upload a new logo for the organization.
+ * POST /organizations/me/logo/ (multipart/form-data)
+ */
+export async function uploadOrgLogo(
+  token: string,
+  file: UploadFile,
+): Promise<{ logo_url: string }> {
+  const url = apiUrl('/organizations/me/logo/');
+  const formData = new FormData();
+  formData.append('logo', {
+    uri: file.uri,
+    name: file.name,
+    type: file.type,
+  } as any);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to upload org logo', data, response.status);
+  }
+  return data as { logo_url: string };
+}
+
+/**
+ * Upload a new banner for the organization.
+ * POST /organizations/me/banner/ (multipart/form-data)
+ */
+export async function uploadOrgBanner(
+  token: string,
+  file: UploadFile,
+): Promise<{ banner_url: string }> {
+  const url = apiUrl('/organizations/me/banner/');
+  const formData = new FormData();
+  formData.append('banner', {
+    uri: file.uri,
+    name: file.name,
+    type: file.type,
+  } as any);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to upload org banner', data, response.status);
+  }
+  return data as { banner_url: string };
+}
+
+/**
+ * Upload multiple gallery photos for the organization.
+ * POST /organizations/me/gallery/ (multipart/form-data)
+ */
+export async function uploadOrgGallery(
+  token: string,
+  files: UploadFile[],
+): Promise<OrgGalleryPhoto[]> {
+  const url = apiUrl('/organizations/me/gallery/');
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append('images', {
+      uri: file.uri,
+      name: file.name,
+      type: file.type,
+    } as any);
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to upload org gallery', data, response.status);
+  }
+  return data as OrgGalleryPhoto[];
+}
+
+/**
+ * Delete an organization gallery photo by ID.
+ * DELETE /organizations/me/gallery/{photoId}/
+ */
+export async function deleteOrgGalleryPhoto(
+  token: string,
+  photoId: string,
+): Promise<void> {
+  const url = apiUrl(`/organizations/me/gallery/${photoId}/`);
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: authHeaders(token),
+  });
+  if (!response.ok) {
+    let errorData: unknown;
+    try {
+      errorData = await response.json();
+    } catch {
+      errorData = null;
+    }
+    throw new ApiError('Failed to delete org gallery photo', errorData, response.status);
+  }
+}
+
+/**
+ * Change the authenticated organization's password.
+ * POST /organizations/me/change-password/
+ */
+export async function changeOrgPassword(
+  token: string,
+  newPassword: string,
+  confirmPassword: string,
+): Promise<{ detail: string }> {
+  const url = apiUrl('/organizations/me/change-password/');
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(token),
+    },
+    body: JSON.stringify({
+      new_password: newPassword,
+      confirm_password: confirmPassword,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to change org password', data, response.status);
   }
   return data as { detail: string };
 }

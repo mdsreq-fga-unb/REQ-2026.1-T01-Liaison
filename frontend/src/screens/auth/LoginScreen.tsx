@@ -13,6 +13,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { useAuth } from '../../context/AuthContext';
 import { ApiError } from '../../services/api';
+import { formatCNPJ } from '../../utils/formatters';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
@@ -20,6 +21,7 @@ export default function LoginScreen() {
   const navigation = useNavigation<any>();
   const { handleLogin } = useAuth();
   const [email, setEmail] = useState('');
+  const [cnpj, setCnpj] = useState('');
   const [senha, setSenha] = useState('');
   const [lembrar, setLembrar] = useState(false);
   const [activeTab, setActiveTab] = useState<'estudante' | 'organizacao'>('estudante');
@@ -31,13 +33,19 @@ export default function LoginScreen() {
     setErrorMessage(null);
     setIsSubmitting(true);
     try {
-      await handleLogin(email, senha);
+      if (activeTab === 'organizacao') {
+        await handleLogin(cnpj, senha, 'cnpj');
+      } else {
+        await handleLogin(email, senha, 'email');
+      }
       // On success, navigation happens automatically via RootNavigator
       // (isAuthenticated becomes true → role-based stack renders)
     } catch (e) {
       if (e instanceof ApiError) {
-        if (e.status === 401) {
-          setErrorMessage('E-mail ou senha inválidos');
+        if (e.status === 403) {
+          setErrorMessage('Organização pendente de aprovação. Aguarde a análise do administrador.');
+        } else if (e.status === 401) {
+          setErrorMessage(activeTab === 'organizacao' ? 'CNPJ ou senha inválidos' : 'E-mail ou senha inválidos');
         } else {
           setErrorMessage('Erro de conexão');
         }
@@ -49,6 +57,10 @@ export default function LoginScreen() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function handleCnpjChange(value: string) {
+    setCnpj(formatCNPJ(value));
   }
 
   return (
@@ -119,7 +131,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             testID="tab-estudante"
             style={[styles.tab, activeTab === 'estudante' && styles.tabActive]}
-            onPress={() => setActiveTab('estudante')}
+            onPress={() => { setActiveTab('estudante'); setErrorMessage(null); }}
             activeOpacity={0.7}
           >
             <View style={styles.tabInner}>
@@ -130,7 +142,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             testID="tab-organizacao"
             style={[styles.tab, activeTab === 'organizacao' && styles.tabActive]}
-            onPress={() => setActiveTab('organizacao')}
+            onPress={() => { setActiveTab('organizacao'); setErrorMessage(null); }}
             activeOpacity={0.7}
           >
             <View style={styles.tabInner}>
@@ -140,16 +152,26 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Email */}
+        {/* Email or CNPJ */}
         <Text style={styles.fieldLabel}>
-          E-mail institucional <Text style={styles.fieldLabelAsterisk}>*</Text>
+          {activeTab === 'organizacao' ? 'CNPJ' : 'E-mail institucional'} <Text style={styles.fieldLabelAsterisk}>*</Text>
         </Text>
-        <Input
-          label="" value={email} onChangeText={setEmail}
-          keyboardType="email-address" autoCapitalize="none"
-          placeholder="seu@email.edu.br" placeholderTextColor={colors.text.secondary}
-          testID="input-email" hideLabel style={styles.inputNoMargin}
-        />
+        {activeTab === 'organizacao' ? (
+          <Input
+            label="" value={cnpj} onChangeText={handleCnpjChange}
+            keyboardType="numeric" autoCapitalize="none"
+            placeholder="00.000.000/0000-00" placeholderTextColor={colors.text.secondary}
+            testID="input-cnpj" hideLabel style={styles.inputNoMargin}
+            maxLength={18}
+          />
+        ) : (
+          <Input
+            label="" value={email} onChangeText={setEmail}
+            keyboardType="email-address" autoCapitalize="none"
+            placeholder="seu@email.edu.br" placeholderTextColor={colors.text.secondary}
+            testID="input-email" hideLabel style={styles.inputNoMargin}
+          />
+        )}
 
         {/* Password */}
         <Text style={styles.fieldLabel}>

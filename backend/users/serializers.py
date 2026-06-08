@@ -289,6 +289,7 @@ class OrganizationRegistrationSerializer(serializers.Serializer):
             username=username,
             nome=validated_data.get("nome_fantasia") or validated_data["razao_social"],
             role=User.Role.ORGANIZACAO,
+            is_active=False,
         )
         user.set_password(password)
         user.save()

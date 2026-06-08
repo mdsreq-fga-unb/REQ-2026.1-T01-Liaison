@@ -59,10 +59,6 @@ export type OrganizationRegisterResponse = {
     nome_responsavel: string;
     status: string;
   };
-  tokens: {
-    access: string;
-    refresh: string;
-  };
 };
 
 export class ApiError extends Error {

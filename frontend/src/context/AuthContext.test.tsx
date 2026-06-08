@@ -216,7 +216,6 @@ describe('AuthContext', () => {
       email: 'ong@example.com',
       nome: 'ONG Test',
       role: 'organizacao',
-      tokens: { access: 'org-access-token', refresh: 'org-refresh-token' },
       organization_profile: {
         cnpj: '12.345.678/0001-90',
         razao_social: 'ONG Test',

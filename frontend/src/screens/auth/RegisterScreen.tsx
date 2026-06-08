@@ -136,6 +136,7 @@ export default function RegisterScreen() {
         turno: (finalData.turno as any) ?? null,
         ano_conclusao: finalData.ano_conclusao ?? null,
         horas_extensao_exigidas: finalData.horas_extensao_exigidas ?? null,
+        interesses: finalData.interesses ?? [],
       });
     } catch (error) {
       const fieldErrors = extractFieldErrors(error);

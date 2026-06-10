@@ -8,7 +8,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenRefreshView
-from users.views import UserViewSet, CustomTokenObtainPairView, check_email, check_matricula, student_register, organization_register
+from users.views import (
+    UserViewSet,
+    CustomTokenObtainPairView,
+    check_email,
+    check_matricula,
+    student_register,
+    organization_register,
+    AdminOrganizationViewSet,
+)
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -40,4 +48,25 @@ urlpatterns = [
     path("api/v1/auth/check-matricula/", check_matricula, name="check-matricula"),
     path("api/v1/users/", user_list, name="user-list"),
     path("api/v1/users/<uuid:pk>/", user_detail, name="user-detail"),
+    # Endpoints de verificação e moderação de organizações 
+    path(
+        "api/v1/admin/organizations/",
+        AdminOrganizationViewSet.as_view({"get": "list"}),
+        name="admin-organization-list",
+    ),
+    path(
+        "api/v1/admin/organizations/<uuid:pk>/approve/",
+        AdminOrganizationViewSet.as_view({"post": "approve"}),
+        name="admin-organization-approve",
+    ),
+    path(
+        "api/v1/admin/organizations/<uuid:pk>/reject/",
+        AdminOrganizationViewSet.as_view({"post": "reject"}),
+        name="admin-organization-reject",
+    ),
+    path(
+        "api/v1/admin/organizations/<uuid:pk>/request-info/",
+        AdminOrganizationViewSet.as_view({"post": "request_info"}),
+        name="admin-organization-request-info",
+    ),
 ]

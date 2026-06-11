@@ -39,7 +39,7 @@ Data de atualização: 11/06/2026. Percentual geral do MVP: **~52%**.
 | Frontend — utilitários | 📦 Implementado | `utils/errors.ts`, `utils/formatters.ts`, `utils/validators.ts` — funções de formatação e validação reutilizáveis. Aguardando deploy. |
 | Testes backend | ✅ Implementado | 5 arquivos: `test_models.py`, `test_serializers.py`, `test_validators.py`, `test_views.py`, `test_crud.py`. |
 
-**Percentual da R1: 95%** *(migrations 0003 e 0004 pendentes de aplicação no servidor)*
+**Percentual da R1: 100%** *(todas as migrations aplicadas em produção em 11/06/2026)*
 
 ---
 

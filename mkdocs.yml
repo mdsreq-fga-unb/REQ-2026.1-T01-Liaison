@@ -59,6 +59,7 @@ nav:
       - Requisitos de Software: projeto/requisitos_software.md
       - Definição de Pronto e Aceito: projeto/DoR_DoD.md
       - Backlog do Produto: projeto/backlog_produto.md
+      - Rastreabilidade Integrada: projeto/rastreabilidade.md
       - Referências Bibliográficas: projeto/referencias.md
   - Lições Aprendidas:
       - Unidade 1: projeto/licoes/unidade1.md

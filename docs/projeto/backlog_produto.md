@@ -219,6 +219,16 @@ O MVP é composto pelos 19 itens classificados como **Must Have**, correspondent
 
 Total de itens no MVP: **19** (17 RFs + 2 RNFs).
 
+### Nota sobre o RF17 — Validar certificado
+
+O RF17 (Validar certificado) foi intencionalmente excluído do MVP por duas razões complementares:
+
+**1. Dependência técnica sequencial:** A validação pública de certificados pressupõe que certificados já existam na base de dados. O RF17 só agrega valor real após o RF15 (Emitir certificado) estar consolidado em produção e com volume suficiente de certificados emitidos. Incluí-lo no MVP seria antecipar uma funcionalidade sem base de dados para sustentá-la.
+
+**2. Priorização pelo ICE Score:** O RF17 obteve ICE Score de 0,75 — o menor entre os requisitos do CP03 — reflexo da Confiança baixa (0,6) atribuída pela equipe diante da incerteza sobre o volume de uso da validação pública na fase inicial. O Esforço estimado (8) é alto para um primeiro ciclo.
+
+**Reclassificação proposta:** O RF17 permanece como **Should Have** e será incorporado na **Release R4** (14/07/2026), imediatamente após a estabilização do RF15. A presença do RNF09 (UUIDs para certificados) já no MVP garante que a infraestrutura de validação estará pronta quando o RF17 for implementado — os certificados emitidos no MVP já conterão os códigos únicos necessários para a validação futura.
+
 ## 10.4 Anexos de Priorização
 
 Abaixo estão os documentos de apoio utilizados pela equipe durante as sessões de priorização:

@@ -3,10 +3,13 @@ import React from 'react';
 
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
+import PasswordRecoveryScreen from '../screens/auth/PasswordRecoveryScreen';
+
 
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
+  PasswordRecovery: undefined;
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
@@ -19,6 +22,7 @@ export default function AuthStack() {
     >
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="PasswordRecovery" component={PasswordRecoveryScreen} />
     </Stack.Navigator>
   );
 }

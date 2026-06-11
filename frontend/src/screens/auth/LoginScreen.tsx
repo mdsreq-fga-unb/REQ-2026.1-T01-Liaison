@@ -160,7 +160,7 @@ export default function LoginScreen() {
             </View>
             <Text style={styles.checkboxLabel}>Lembrar de mim</Text>
           </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="link">
+          <TouchableOpacity accessibilityRole="link" onPress={() => navigation.navigate('PasswordRecovery')}>
             <Text style={styles.forgotLink}>Esqueci minha senha</Text>
           </TouchableOpacity>
         </View>

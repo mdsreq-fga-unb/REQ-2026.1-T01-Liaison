@@ -3,12 +3,13 @@ Configuracao de rotas do projeto Liaison.
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from users.views import UserViewSet, check_email, check_matricula, student_register, organization_register
+from opportunities.views import MyOpportunitiesList
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -40,4 +41,6 @@ urlpatterns = [
     path("api/v1/auth/check-matricula/", check_matricula, name="check-matricula"),
     path("api/v1/users/", user_list, name="user-list"),
     path("api/v1/users/<uuid:pk>/", user_detail, name="user-detail"),
+    path("api/v1/organizations/me/opportunities/", MyOpportunitiesList.as_view(), name="my-opportunities"),
+    path("api/v1/opportunities/", include("opportunities.urls")),
 ]

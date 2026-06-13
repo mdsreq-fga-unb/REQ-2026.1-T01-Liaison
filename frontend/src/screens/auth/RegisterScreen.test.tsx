@@ -94,6 +94,8 @@ describe('RegisterScreen', () => {
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
     fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByTestId('select-semestre'));
+    fireEvent.press(screen.getByText('5º Semestre'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {
@@ -115,6 +117,8 @@ describe('RegisterScreen', () => {
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
     fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByTestId('select-semestre'));
+    fireEvent.press(screen.getByText('5º Semestre'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {
@@ -126,6 +130,9 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-matricula'), '20231234567');
     fireEvent.press(screen.getByTestId('select-turno'));
     fireEvent.press(screen.getByText('Matutino'));
+    fireEvent.press(screen.getByTestId('select-ano-conclusao'));
+    const currentYear = new Date().getFullYear();
+    fireEvent.press(screen.getByText(String(currentYear + 2)));
     fireEvent.changeText(screen.getByTestId('input-horas'), '360');
     fireEvent.press(screen.getByText('Continuar'));
 
@@ -151,6 +158,8 @@ describe('RegisterScreen', () => {
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
     fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByTestId('select-semestre'));
+    fireEvent.press(screen.getByText('5º Semestre'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {
@@ -162,6 +171,9 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-matricula'), '20231234567');
     fireEvent.press(screen.getByTestId('select-turno'));
     fireEvent.press(screen.getByText('Matutino'));
+    fireEvent.press(screen.getByTestId('select-ano-conclusao'));
+    const currentYear = new Date().getFullYear();
+    fireEvent.press(screen.getByText(String(currentYear + 2)));
     fireEvent.changeText(screen.getByTestId('input-horas'), '360');
     fireEvent.press(screen.getByText('Continuar'));
 
@@ -191,6 +203,8 @@ describe('RegisterScreen', () => {
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
     fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByTestId('select-semestre'));
+    fireEvent.press(screen.getByText('5º Semestre'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {
@@ -201,6 +215,9 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-matricula'), '20231234567');
     fireEvent.press(screen.getByTestId('select-turno'));
     fireEvent.press(screen.getByText('Matutino'));
+    fireEvent.press(screen.getByTestId('select-ano-conclusao'));
+    const currentYear2 = new Date().getFullYear();
+    fireEvent.press(screen.getByText(String(currentYear2 + 2)));
     fireEvent.changeText(screen.getByTestId('input-horas'), '360');
     fireEvent.press(screen.getByText('Continuar'));
 
@@ -240,6 +257,8 @@ describe('RegisterScreen', () => {
     fireEvent.press(screen.getByTestId('checkbox'));
     fireEvent.press(screen.getByTestId('select-universidade'));
     fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    fireEvent.press(screen.getByTestId('select-semestre'));
+    fireEvent.press(screen.getByText('5º Semestre'));
     fireEvent.press(screen.getByText('Continuar'));
 
     await waitFor(() => {
@@ -250,6 +269,9 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByTestId('input-matricula'), '20231234567');
     fireEvent.press(screen.getByTestId('select-turno'));
     fireEvent.press(screen.getByText('Matutino'));
+    fireEvent.press(screen.getByTestId('select-ano-conclusao'));
+    const currentYear = new Date().getFullYear();
+    fireEvent.press(screen.getByText(String(currentYear + 2)));
     fireEvent.changeText(screen.getByTestId('input-horas'), '360');
     fireEvent.press(screen.getByText('Continuar'));
 

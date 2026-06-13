@@ -2,6 +2,8 @@
 Configuracao de rotas do projeto Liaison.
 """
 
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from rest_framework.decorators import api_view, permission_classes
@@ -15,6 +17,13 @@ from users.views import (
     check_matricula,
     student_register,
     organization_register,
+    StudentProfileView,
+    StudentProfileUpdateView,
+    AvatarUploadView,
+    BannerUploadView,
+    GalleryUploadView,
+    GalleryDeleteView,
+    ChangePasswordView,
     AdminOrganizationViewSet,
 )
 
@@ -48,7 +57,15 @@ urlpatterns = [
     path("api/v1/auth/check-matricula/", check_matricula, name="check-matricula"),
     path("api/v1/users/", user_list, name="user-list"),
     path("api/v1/users/<uuid:pk>/", user_detail, name="user-detail"),
-    # Endpoints de verificação e moderação de organizações 
+    # Perfil do estudante
+    path("api/v1/students/me/", StudentProfileView.as_view(), name="student-profile-detail"),
+    path("api/v1/students/me/update/", StudentProfileUpdateView.as_view(), name="student-profile-update"),
+    path("api/v1/students/me/avatar/", AvatarUploadView.as_view(), name="student-avatar-upload"),
+    path("api/v1/students/me/banner/", BannerUploadView.as_view(), name="student-banner-upload"),
+    path("api/v1/students/me/gallery/", GalleryUploadView.as_view(), name="student-gallery-upload"),
+    path("api/v1/students/me/gallery/<uuid:photo_id>/", GalleryDeleteView.as_view(), name="student-gallery-delete"),
+    path("api/v1/students/me/change-password/", ChangePasswordView.as_view(), name="student-change-password"),
+    # Endpoints de verificação e moderação de organizações
     path(
         "api/v1/admin/organizations/",
         AdminOrganizationViewSet.as_view({"get": "list"}),
@@ -70,3 +87,7 @@ urlpatterns = [
         name="admin-organization-request-info",
     ),
 ]
+
+# Serve media files in development (DEBUG=True only)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

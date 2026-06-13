@@ -1,14 +1,47 @@
-from django.contrib.auth import get_user_model
+from datetime import datetime
+
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from rest_framework import serializers
 import re
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import StudentProfile, OrganizationProfile, AdminActionLog
+from .models import StudentProfile, OrganizationProfile, StudentGalleryPhoto, AdminActionLog
+from .validators import validate_image_file_extension, validate_image_file_size, LettersAndNumbersValidator
 
 User = get_user_model()
+
+
+def _validate_semestre_atual(value):
+    """Valida que semestre_atual esta entre 1 e 12 (inclusive)."""
+    if value is None:
+        raise serializers.ValidationError("Este campo é obrigatório.")
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise serializers.ValidationError("Informe um número inteiro válido.")
+    if value < 1 or value > 12:
+        raise serializers.ValidationError(
+            "Semestre atual deve estar entre 1 e 12."
+        )
+    return value
+
+
+def _validate_ano_conclusao(value):
+    """Valida que ano_conclusao esta entre 2020 e (ano atual + 10)."""
+    if value is None:
+        raise serializers.ValidationError("Este campo é obrigatório.")
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise serializers.ValidationError("Informe um número inteiro válido.")
+    current_year = datetime.now().year
+    min_year = 2020
+    max_year = current_year + 10
+    if value < min_year or value > max_year:
+        raise serializers.ValidationError(
+            f"Ano de conclusão deve estar entre {min_year} e {max_year}."
+        )
+    return value
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -59,7 +92,56 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    cnpj = serializers.CharField(required=False, write_only=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make email optional — allows login via CNPJ without email field
+        self.fields[self.username_field].required = False
+
     def validate(self, attrs):
+        cnpj_raw = attrs.get("cnpj")
+
+        if cnpj_raw:
+            # ── Login via CNPJ (organizacao) ──
+            cnpj = re.sub(r"\D", "", cnpj_raw)
+
+            try:
+                org = OrganizationProfile.objects.get(cnpj=cnpj)
+            except OrganizationProfile.DoesNotExist:
+                raise serializers.ValidationError("CNPJ ou senha inválidos.")
+
+            if not org.user.is_active:
+                raise serializers.ValidationError("CNPJ ou senha inválidos.")
+
+            if org.status != "approved":
+                raise serializers.ValidationError(
+                    "Organização pendente de aprovação. Aguarde a análise do administrador."
+                )
+
+            # Authenticate using the org's user email
+            authenticate_kwargs = {
+                "username": org.user.email,
+                "password": attrs.get("password", ""),
+            }
+            user = authenticate(**authenticate_kwargs)
+
+            if user is None or not user.is_active:
+                raise serializers.ValidationError("CNPJ ou senha inválidos.")
+
+            self.user = user
+
+            data = {}
+            refresh = RefreshToken.for_user(user)
+            data["access"] = str(refresh.access_token)
+            data["refresh"] = str(refresh)
+            data["role"] = user.role
+            data["nome"] = user.nome
+            data["id"] = str(user.id)
+
+            return data
+
+        # ── Login via email (estudante) — existing behaviour ──
         data = super().validate(attrs)
         user = self.user
 
@@ -100,7 +182,7 @@ class StudentRegistrationSerializer(serializers.Serializer):
     universidade = serializers.CharField(required=True, max_length=200)
     curso = serializers.CharField(required=True, max_length=200)
     matricula = serializers.CharField(required=True, max_length=50)
-    semestre_atual = serializers.IntegerField(required=False, allow_null=True, default=None)
+    semestre_atual = serializers.IntegerField(required=True, allow_null=False)
     turno = serializers.ChoiceField(
         choices=["matutino", "vespertino", "noturno", "integral"],
         required=False,
@@ -108,7 +190,7 @@ class StudentRegistrationSerializer(serializers.Serializer):
         allow_blank=True,
         default=None,
     )
-    ano_conclusao = serializers.IntegerField(required=False, allow_null=True, default=None)
+    ano_conclusao = serializers.IntegerField(required=True, allow_null=False)
     horas_extensao_exigidas = serializers.IntegerField(required=False, allow_null=True, default=None)
     interesses = serializers.ListField(
         child=serializers.CharField(),
@@ -149,6 +231,12 @@ class StudentRegistrationSerializer(serializers.Serializer):
         if StudentProfile.objects.filter(matricula=value).exists():
             raise serializers.ValidationError("Esta matrícula já está em uso.")
         return value
+
+    def validate_semestre_atual(self, value):
+        return _validate_semestre_atual(value)
+
+    def validate_ano_conclusao(self, value):
+        return _validate_ano_conclusao(value)
 
     def validate_interesses(self, value):
         if len(value) > 3:
@@ -328,3 +416,239 @@ class OrganizationRegistrationSerializer(serializers.Serializer):
         )
 
         return user
+
+
+# ────────────────────────────────────────────────────────────
+# Gallery Photo Serializer
+# ────────────────────────────────────────────────────────────
+
+
+class GalleryPhotoSerializer(serializers.ModelSerializer):
+    """Serializer para uma foto da galeria."""
+
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StudentGalleryPhoto
+        fields = ["id", "image_url", "created_at"]
+        read_only_fields = ["id", "image_url", "created_at"]
+
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+        if request and obj.image:
+            return request.build_absolute_uri(obj.image.url)
+        return None
+
+
+# ────────────────────────────────────────────────────────────
+# Student Profile Detail (GET /students/me/)
+# ────────────────────────────────────────────────────────────
+
+
+class StudentProfileDetailSerializer(serializers.ModelSerializer):
+    """Serializer completo do perfil do estudante (read-only)."""
+
+    id = serializers.CharField(source="user.id", read_only=True)
+    email = serializers.CharField(source="user.email", read_only=True)
+    nome = serializers.CharField(source="user.nome", read_only=True)
+    avatar_url = serializers.SerializerMethodField()
+    banner_url = serializers.SerializerMethodField()
+    gallery = serializers.SerializerMethodField()
+    stats = serializers.SerializerMethodField()
+    events = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StudentProfile
+        fields = [
+            "id",
+            "email",
+            "nome",
+            "universidade",
+            "curso",
+            "matricula",
+            "semestre_atual",
+            "turno",
+            "ano_conclusao",
+            "horas_extensao_exigidas",
+            "interesses",
+            "avatar_url",
+            "banner_url",
+            "bio",
+            "gallery",
+            "stats",
+            "events",
+        ]
+
+    def get_avatar_url(self, obj):
+        request = self.context.get("request")
+        if request and obj.avatar:
+            return request.build_absolute_uri(obj.avatar.url)
+        return None
+
+    def get_banner_url(self, obj):
+        request = self.context.get("request")
+        if request and obj.banner:
+            return request.build_absolute_uri(obj.banner.url)
+        return None
+
+    def get_gallery(self, obj):
+        photos = obj.gallery_photos.all()
+        return GalleryPhotoSerializer(
+            photos, many=True, context=self.context
+        ).data
+
+    def get_stats(self, obj):
+        return {
+            "total_hours_completed": 0,
+            "total_hours_required": obj.horas_extensao_exigidas or 0,
+            "total_events": 0,
+        }
+
+    def get_events(self, obj):
+        return []
+
+
+# ────────────────────────────────────────────────────────────
+# Student Profile Update (PATCH /students/me/update/)
+# ────────────────────────────────────────────────────────────
+
+
+class StudentProfileUpdateSerializer(serializers.ModelSerializer):
+    """Serializer para atualizacao parcial do perfil do estudante."""
+
+    class Meta:
+        model = StudentProfile
+        fields = [
+            "nome",
+            "email",
+            "universidade",
+            "curso",
+            "matricula",
+            "semestre_atual",
+            "turno",
+            "ano_conclusao",
+            "horas_extensao_exigidas",
+            "interesses",
+            "bio",
+        ]
+
+    nome = serializers.CharField(source="user.nome", required=False, max_length=120)
+    email = serializers.EmailField(source="user.email", required=False)
+    # semestre_atual e ano_conclusao são obrigatórios no perfil acadêmico
+    # (exigem validação de range, não podem ser null no serializer embora
+    # o model aceite null para retrocompatibilidade com dados legados).
+    semestre_atual = serializers.IntegerField(required=True, allow_null=False)
+    ano_conclusao = serializers.IntegerField(required=True, allow_null=False)
+
+    def validate_email(self, value):
+        """Email nao pode ser alterado por este endpoint."""
+        if self.instance and value != self.instance.user.email:
+            raise serializers.ValidationError("Este campo não pode ser alterado.")
+        return value
+
+    def validate_semestre_atual(self, value):
+        return _validate_semestre_atual(value)
+
+    def validate_ano_conclusao(self, value):
+        return _validate_ano_conclusao(value)
+
+    def validate_interesses(self, value):
+        if value and len(value) > 3:
+            raise serializers.ValidationError("Máximo de 3 interesses permitidos.")
+        return value
+
+    def validate_matricula(self, value):
+        """Matrícula deve ser única entre todos os estudantes."""
+        if value and StudentProfile.objects.filter(matricula=value).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError("Esta matrícula já está em uso.")
+        return value
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", {})
+        # Não permite alterar email
+        user_data.pop("email", None)
+
+        if user_data.get("nome"):
+            instance.user.nome = user_data["nome"]
+            instance.user.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
+
+# ────────────────────────────────────────────────────────────
+# Upload Serializers
+# ────────────────────────────────────────────────────────────
+
+
+class AvatarUploadSerializer(serializers.Serializer):
+    """Serializer para upload de avatar."""
+
+    avatar = serializers.FileField(
+        validators=[validate_image_file_extension, validate_image_file_size]
+    )
+
+
+class BannerUploadSerializer(serializers.Serializer):
+    """Serializer para upload de banner."""
+
+    banner = serializers.FileField(
+        validators=[validate_image_file_extension, validate_image_file_size]
+    )
+
+
+class GalleryUploadSerializer(serializers.Serializer):
+    """Serializer para upload de fotos na galeria."""
+
+    images = serializers.ListField(
+        child=serializers.FileField(
+            validators=[validate_image_file_extension, validate_image_file_size]
+        ),
+        allow_empty=False,
+        min_length=1,
+    )
+
+    def create(self, validated_data, student_profile):
+        photos = []
+        for image in validated_data["images"]:
+            photos.append(
+                StudentGalleryPhoto.objects.create(
+                    student_profile=student_profile,
+                    image=image,
+                )
+            )
+        return photos
+
+
+# ────────────────────────────────────────────────────────────
+# Change Password Serializer
+# ────────────────────────────────────────────────────────────
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """Serializer para alteracao de senha."""
+
+    new_password = serializers.CharField(min_length=8, write_only=True)
+    confirm_password = serializers.CharField(min_length=8, write_only=True)
+
+    def validate_new_password(self, value):
+        validator = LettersAndNumbersValidator()
+        try:
+            validator.validate(value)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(e.messages)
+        return value
+
+    def validate(self, data):
+        if data["new_password"] != data["confirm_password"]:
+            raise serializers.ValidationError(
+                {"confirm_password": "As senhas não coincidem."}
+            )
+        return data
+
+    def save(self, user):
+        user.set_password(self.validated_data["new_password"])
+        user.save()

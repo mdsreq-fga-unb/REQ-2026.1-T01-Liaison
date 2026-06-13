@@ -3,17 +3,21 @@ import React from 'react';
 
 import OrgHomeScreen from '../screens/organization/HomeScreen';
 import CreateOpportunityScreen from '../screens/organization/CreateOpportunityScreen';
+import OrgProfileScreen from '../screens/organization/OrgProfileScreen';
+import OrgProfileEditScreen from '../screens/organization/OrgProfileEditScreen';
 
 export type OrgStackParamList = {
   OrgHome: undefined;
   CreateOpportunity: undefined;
+  OrgProfile: undefined;
+  OrgProfileEdit: undefined;
 };
 
 const Stack = createNativeStackNavigator<OrgStackParamList>();
 
 export default function OrgStack() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="OrgHome"
         component={OrgHomeScreen}
@@ -23,6 +27,16 @@ export default function OrgStack() {
         name="CreateOpportunity"
         component={CreateOpportunityScreen}
         options={{ title: 'Criar Vaga' }}
+      />
+      <Stack.Screen
+        name="OrgProfile"
+        component={OrgProfileScreen}
+        options={{ title: 'Perfil Institucional' }}
+      />
+      <Stack.Screen
+        name="OrgProfileEdit"
+        component={OrgProfileEditScreen}
+        options={{ title: 'Editar Perfil' }}
       />
     </Stack.Navigator>
   );

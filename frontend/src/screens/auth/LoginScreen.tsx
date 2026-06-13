@@ -11,16 +11,57 @@ import OrgTabIcon from '../../../assets/login_org_tab_icon.svg';
 
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import { useAuth } from '../../context/AuthContext';
+import { ApiError } from '../../services/api';
+import { formatCNPJ } from '../../utils/formatters';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
 export default function LoginScreen() {
   const navigation = useNavigation<any>();
+  const { handleLogin } = useAuth();
   const [email, setEmail] = useState('');
+  const [cnpj, setCnpj] = useState('');
   const [senha, setSenha] = useState('');
   const [lembrar, setLembrar] = useState(false);
   const [activeTab, setActiveTab] = useState<'estudante' | 'organizacao'>('estudante');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function handleEntrar() {
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    try {
+      if (activeTab === 'organizacao') {
+        await handleLogin(cnpj, senha, 'cnpj');
+      } else {
+        await handleLogin(email, senha, 'email');
+      }
+      // On success, navigation happens automatically via RootNavigator
+      // (isAuthenticated becomes true → role-based stack renders)
+    } catch (e) {
+      if (e instanceof ApiError) {
+        if (e.status === 403) {
+          setErrorMessage('Organização pendente de aprovação. Aguarde a análise do administrador.');
+        } else if (e.status === 401) {
+          setErrorMessage(activeTab === 'organizacao' ? 'CNPJ ou senha inválidos' : 'E-mail ou senha inválidos');
+        } else {
+          setErrorMessage('Erro de conexão');
+        }
+      } else if (e instanceof TypeError || (e as Error).message?.includes('Network')) {
+        setErrorMessage('Erro de conexão');
+      } else {
+        setErrorMessage('Erro ao realizar login. Tente novamente.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function handleCnpjChange(value: string) {
+    setCnpj(formatCNPJ(value));
+  }
 
   return (
     <View style={styles.root}>
@@ -90,7 +131,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             testID="tab-estudante"
             style={[styles.tab, activeTab === 'estudante' && styles.tabActive]}
-            onPress={() => setActiveTab('estudante')}
+            onPress={() => { setActiveTab('estudante'); setErrorMessage(null); }}
             activeOpacity={0.7}
           >
             <View style={styles.tabInner}>
@@ -101,7 +142,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             testID="tab-organizacao"
             style={[styles.tab, activeTab === 'organizacao' && styles.tabActive]}
-            onPress={() => setActiveTab('organizacao')}
+            onPress={() => { setActiveTab('organizacao'); setErrorMessage(null); }}
             activeOpacity={0.7}
           >
             <View style={styles.tabInner}>
@@ -111,16 +152,26 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Email */}
+        {/* Email or CNPJ */}
         <Text style={styles.fieldLabel}>
-          E-mail institucional <Text style={styles.fieldLabelAsterisk}>*</Text>
+          {activeTab === 'organizacao' ? 'CNPJ' : 'E-mail institucional'} <Text style={styles.fieldLabelAsterisk}>*</Text>
         </Text>
-        <Input
-          label="" value={email} onChangeText={setEmail}
-          keyboardType="email-address" autoCapitalize="none"
-          placeholder="seu@email.edu.br" placeholderTextColor={colors.text.secondary}
-          testID="input-email" hideLabel style={styles.inputNoMargin}
-        />
+        {activeTab === 'organizacao' ? (
+          <Input
+            label="" value={cnpj} onChangeText={handleCnpjChange}
+            keyboardType="numeric" autoCapitalize="none"
+            placeholder="00.000.000/0000-00" placeholderTextColor={colors.text.secondary}
+            testID="input-cnpj" hideLabel style={styles.inputNoMargin}
+            maxLength={18}
+          />
+        ) : (
+          <Input
+            label="" value={email} onChangeText={setEmail}
+            keyboardType="email-address" autoCapitalize="none"
+            placeholder="seu@email.edu.br" placeholderTextColor={colors.text.secondary}
+            testID="input-email" hideLabel style={styles.inputNoMargin}
+          />
+        )}
 
         {/* Password */}
         <Text style={styles.fieldLabel}>
@@ -165,7 +216,19 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <Button title="Entrar" onPress={() => {}} testID="button-entrar" />
+        {errorMessage && (
+          <View testID="login-error" style={styles.errorBanner}>
+            <Ionicons name="information-circle" size={16} color={colors.neutral.white} />
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        )}
+
+        <Button
+          title="Entrar"
+          onPress={handleEntrar}
+          loading={isSubmitting}
+          testID="button-entrar"
+        />
 
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
@@ -326,4 +389,22 @@ const styles = StyleSheet.create({
 
   securityNotice: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   securityText: { fontFamily: 'DMSans_400Regular', fontSize: 11, lineHeight: 17.6, color: colors.text.secondary },
+
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#d32f2f',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
+  errorText: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 13,
+    lineHeight: 20.8,
+    color: colors.neutral.white,
+  },
 });

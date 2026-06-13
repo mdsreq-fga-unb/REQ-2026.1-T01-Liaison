@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "storages",
     # Local apps
     "users",
     "opportunities",
@@ -81,37 +82,41 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 # DATABASE_URL is read from .env (local) or set by docker-compose (Container).
-# No hardcoded fallback — fails fast if missing.
-_db_url = config("DATABASE_URL")
+# For testing, fall back to SQLite in memory.
+_db_url = config("DATABASE_URL", default=None)
 
 # Parse DATABASE_URL manually for compatibility
 import re  # noqa: E402
 
-_db_match = re.match(
-    r"postgres(?:ql)?://(?P<user>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)/(?P<name>.+)",
-    _db_url,
-)
+if _db_url:
+    _db_match = re.match(
+        r"postgres(?:ql)?://(?P<user>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)/(?P<name>.+)",
+        _db_url,
+    )
 
-if _db_match:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": _db_match.group("name"),
-            "USER": _db_match.group("user"),
-            "PASSWORD": _db_match.group("password"),
-            "HOST": _db_match.group("host"),
-            "PORT": _db_match.group("port"),
+    if _db_match:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": _db_match.group("name"),
+                "USER": _db_match.group("user"),
+                "PASSWORD": _db_match.group("password"),
+                "HOST": _db_match.group("host"),
+                "PORT": _db_match.group("port"),
+            }
         }
-    }
+    else:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": ":memory:",
+            }
+        }
 else:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "liaison",
-            "USER": "postgres",
-            "PASSWORD": "postgres",
-            "HOST": "localhost",
-            "PORT": "5432",
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
         }
     }
 
@@ -132,6 +137,10 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Media files (user uploads: avatars, banners, gallery)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -187,3 +196,26 @@ CORS_ALLOWED_ORIGINS = config(
     cast=Csv(),
 )
 CORS_ALLOW_CREDENTIALS = True
+
+# ─── S3 Storage (mídia de usuários) ───────────────────────────
+# Ativado só quando USE_S3=True (servidor de produção). Em ambiente
+# local, sem a flag, o Django usa o storage padrão (sistema de arquivos).
+USE_S3 = config("USE_S3", default=False, cast=bool)
+
+if USE_S3:
+    STORAGES = {
+        "default": {"BACKEND": "storages.backends.s3.S3Storage"},
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        },
+    }
+    AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default="liaison-media-2026")
+    AWS_S3_REGION_NAME = "us-east-2"
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = False
+
+
+

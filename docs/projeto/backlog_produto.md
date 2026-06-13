@@ -6,128 +6,218 @@ Aqui, cabe destacar que todas as histórias de usuários relacionadas, a seguir,
 
 A tabela, a seguir, apresenta cada um dos requisitos funcionais (RFs) declarados utilizando a técnica de user story (US), assim como a rastreabilidade com os requisitos não funcionais (RNFs).
 
-| RF | User Story derivada | RNFs relacionados |
-| :--- | :--- | :--- |
-| **RF01 Cadastrar estudante** | **US001.1** Como estudante universitário, desejo me cadastrar na plataforma para poder buscar e me candidatar a vagas de voluntariado. | RNF01, RNF02 |
-| **RF02 Cadastrar organização** | **US001.2** Como representante de uma organização social, desejo cadastrar minha organização na plataforma para poder publicar vagas de voluntariado. | RNF01, RNF03 |
-| **RF03 Autenticar usuário** | **US001.3** Como usuário (estudante, organização ou administrador), desejo fazer login na plataforma de forma segura para acessar funcionalidades específicas do meu perfil. | RNF01, RNF02 |
-| **RF04 Gerenciar perfil** | **US001.4** Como estudante, desejo gerenciar e editar meu perfil para manter minhas informações atualizadas e relevantes para oportunidades de voluntariado.<br><br>**US001.5** Como organização, desejo editar meu perfil institucional para manter as informações da organização atualizadas e atrativas para estudantes voluntários. | RNF04 |
-| **RF05 Recuperar senha** | **US001.6** Como usuário, desejo recuperar minha senha via e-mail para poder acessar minha conta caso esqueça a senha. | RNF01 |
-| **RF06 Moderar organização** | **US001.7** Como administrador (Sysmin), desejo ter um painel para moderar cadastros de organizações sociais para garantir a legitimidade das organizações na plataforma. | RNF04 |
-| **RF18 Criar oportunidade** | **US002.1** Como organização, desejo criar novas vagas de voluntariado para atrair estudantes interessados em participar das atividades da organização. | RNF04, RNF06 |
-| **RF19 Editar oportunidade** | **US002.1b** Como organização, desejo editar informações de vagas de voluntariado existentes para mantê-las atualizadas. | RNF04 |
-| **RF20 Publicar oportunidade** | **US002.1c** Como organização, desejo publicar vagas de voluntariado para que fiquem visíveis aos estudantes. | RNF04 |
-| **RF21 Encerrar oportunidade** | **US002.1d** Como organização, desejo encerrar vagas de voluntariado quando não houver mais necessidade. | RNF04 |
-| **RF08 Buscar vaga** | **US002.2** Como estudante, desejo buscar e filtrar vagas de voluntariado para encontrar oportunidades que correspondam ao meu interesse e disponibilidade. | RNF04, RNF05, RNF06 |
-| **RF09 Consultar vaga** | **US002.3** Como estudante, desejo visualizar os detalhes completos de uma vaga de voluntariado para decidir se devo me candidatar. | RNF04 |
-| **RF10 Realizar candidatura** | **US002.4** Como estudante, desejo me candidatar a uma vaga de voluntariado ativa para participar das atividades da organização. | RNF04, RNF06 |
-| **RF11 Avaliar candidatura** | **US002.6** Como organização, desejo avaliar as candidaturas dos estudantes para aprovar ou recusar participantes nas vagas de voluntariado. | RNF04, RNF06 |
-| **RF12 Acompanhar candidatura** | **US002.5** Como estudante, desejo cancelar minha candidatura a uma vaga de voluntariado caso não tenha mais interesse ou disponibilidade.<br><br>**US002.7** Como usuário, desejo receber notificações sobre mudanças de status de candidaturas para me manter informado em tempo hábil. | RNF04 |
-| **RF13 Listar aprovados** | **US003.1** Como organização, desejo visualizar a lista de estudantes aprovados para cada atividade de voluntariado para gerenciar o acompanhamento e a presença. | RNF04, RNF08 |
-| **RF14 Registrar frequência** | **US003.2** Como organização, desejo registrar a presença e atestar a carga horária dos estudantes aprovados para documentar a participação nas atividades. | RNF04, RNF08 |
-| **RF15 Emitir certificado** | **US003.3a** Como estudante, desejo receber automaticamente meu certificado digital em PDF ao concluir uma atividade de voluntariado.<br><br>**US003.3b** Como estudante, desejo exportar meus certificados digitais em formato PDF para comprovação acadêmica. | RNF07, RNF08, RNF09 |
-| **RF16 Consultar histórico** | **US003.4a** Como estudante, desejo visualizar meu histórico de horas de voluntariado para acompanhar minha evolução.<br><br>**US003.4b** Como estudante, desejo fazer download dos meus certificados de voluntariado para comprovação acadêmica. | RNF04, RNF07, RNF08 |
-| **RF17 Validar certificado** | **US003.5** Como qualquer pessoa, desejo acessar um portal público para validar a autenticidade de um certificado por meio de URL ou QR Code. | RNF07, RNF09 |
+**Convenção de numeração das User Stories (US):**
+A numeração das User Stories segue o padrão `US<CP#>.<sequencial>`, vinculando cada história diretamente à Característica de Produto que ela implementa (ver [2.3 Características de Produto](solucao.md#23-caracteristicas-de-produto)):
+- O primeiro dígito (`CP#`) referencia a Característica de Produto correspondente: **CP01** (Gestão de Usuários e Entidades), **CP02** (Ciclo de Vagas e Engajamento) ou **CP03** (Acompanhamento e Certificação Acadêmica).
+- O número sequencial identifica cada história dentro da sua respectiva Característica de Produto, na ordem lógica de implementação.
 
-## 10.2 Priorização do Backlog e MVP
+**Exemplos:**
+- `US1.3` → terceira user story da **CP01** (Autenticar usuário).
+- `US2.5` → quinta user story da **CP02** (Buscar vaga).
+- `US3.1` → primeira user story da **CP03** (Listar aprovados).
 
-Para a priorização do backlog, a equipe adotou o método **ICE Score** (Impact, Confidence, Effort), conforme alinhado nas lições aprendidas e revisões do processo de engenharia de requisitos. Esse método permite uma ordenação objetiva fundamentada no valor gerado e no custo técnico.
+| RF | User Story derivada | CP vinculada | RNFs relacionados |
+| :--- | :--- | :---: | :--- |
+| **RF01 Cadastrar estudante** | **US1.1** Como estudante universitário, desejo me cadastrar na plataforma para poder buscar e me candidatar a vagas de voluntariado. | CP01 | RNF01, RNF02 |
+| **RF02 Cadastrar organização** | **US1.2** Como representante de uma organização social, desejo cadastrar minha organização na plataforma para poder publicar vagas de voluntariado. | CP01 | RNF01, RNF03 |
+| **RF03 Autenticar usuário** | **US1.3** Como usuário (estudante, organização ou administrador), desejo fazer login na plataforma de forma segura para acessar funcionalidades específicas do meu perfil. | CP01 | RNF01, RNF02 |
+| **RF04 Gerenciar perfil** | **US1.4** Como estudante, desejo gerenciar e editar meu perfil para manter minhas informações atualizadas e relevantes para oportunidades de voluntariado.<br><br>**US1.5** Como organização, desejo editar meu perfil institucional para manter as informações da organização atualizadas e atrativas para estudantes voluntários. | CP01 | RNF04 |
+| **RF05 Recuperar senha** | **US1.6** Como usuário, desejo recuperar minha senha via e-mail para poder acessar minha conta caso esqueça a senha. | CP01 | RNF01 |
+| **RF06 Moderar organização** | **US1.7** Como administrador (Sysmin), desejo ter um painel para moderar cadastros de organizações sociais para garantir a legitimidade das organizações na plataforma. | CP01 | RNF04 |
+| **RF18 Criar oportunidade** | **US2.1** Como organização, desejo criar novas vagas de voluntariado para atrair estudantes interessados em participar das atividades da organização. | CP02 | RNF04, RNF06 |
+| **RF19 Editar oportunidade** | **US2.2** Como organização, desejo editar informações de vagas de voluntariado existentes para mantê-las atualizadas. | CP02 | RNF04 |
+| **RF20 Publicar oportunidade** | **US2.3** Como organização, desejo publicar vagas de voluntariado para que fiquem visíveis aos estudantes. | CP02 | RNF04 |
+| **RF21 Encerrar oportunidade** | **US2.4** Como organização, desejo encerrar vagas de voluntariado quando não houver mais necessidade. | CP02 | RNF04 |
+| **RF08 Buscar vaga** | **US2.5** Como estudante, desejo buscar e filtrar vagas de voluntariado para encontrar oportunidades que correspondam ao meu interesse e disponibilidade. | CP02 | RNF04, RNF05, RNF06 |
+| **RF09 Consultar vaga** | **US2.6** Como estudante, desejo visualizar os detalhes completos de uma vaga de voluntariado para decidir se devo me candidatar. | CP02 | RNF04 |
+| **RF10 Realizar candidatura** | **US2.7** Como estudante, desejo me candidatar a uma vaga de voluntariado ativa para participar das atividades da organização. | CP02 | RNF04, RNF06 |
+| **RF11 Avaliar candidatura** | **US2.8** Como organização, desejo avaliar as candidaturas dos estudantes para aprovar ou recusar participantes nas vagas de voluntariado. | CP02 | RNF04, RNF06 |
+| **RF12 Acompanhar candidatura** | **US2.9** Como estudante, desejo cancelar minha candidatura a uma vaga de voluntariado caso não tenha mais interesse ou disponibilidade.<br><br>**US2.10** Como usuário, desejo receber notificações sobre mudanças de status de candidaturas para me manter informado em tempo hábil. | CP02 | RNF04 |
+| **RF13 Listar aprovados** | **US3.1** Como organização, desejo visualizar a lista de estudantes aprovados para cada atividade de voluntariado para gerenciar o acompanhamento e a presença. | CP03 | RNF04, RNF08 |
+| **RF14 Registrar frequência** | **US3.2** Como organização, desejo registrar a presença e atestar a carga horária dos estudantes aprovados para documentar a participação nas atividades. | CP03 | RNF04, RNF08 |
+| **RF15 Emitir certificado** | **US3.3** Como estudante, desejo receber automaticamente meu certificado digital em PDF ao concluir uma atividade de voluntariado.<br><br>**US3.4** Como estudante, desejo exportar meus certificados digitais em formato PDF para comprovação acadêmica. | CP03 | RNF07, RNF08, RNF09 |
+| **RF16 Consultar histórico** | **US3.5** Como estudante, desejo visualizar meu histórico de horas de voluntariado para acompanhar minha evolução.<br><br>**US3.6** Como estudante, desejo fazer download dos meus certificados de voluntariado para comprovação acadêmica. | CP03 | RNF04, RNF07, RNF08 |
+| **RF17 Validar certificado** | **US3.7** Como qualquer pessoa, desejo acessar um portal público para validar a autenticidade de um certificado por meio de URL ou QR Code. | CP03 | RNF07, RNF09 |
 
-Os critérios avaliados para cada requisito são:
+## 10.2 Priorização do Backlog
 
-- **Impacto (Impact - I):** Valor gerado para o usuário e para os objetivos do produto (Escala de 1 a 10).
-- **Confiança (Confidence - C):** Grau de segurança da equipe de que o valor de Impacto atribuído está correto e de que o requisito realmente entrega aquele montante de valor (Escala de 0,1 a 1,0).
-- **Esforço (Effort - E):** Complexidade estimada de implementação e carga técnica (Escala de 1 a 10).
+A priorização adota um sistema de **três camadas sequenciais**: MoSCoW define a banda de negócio, ICE Score quantifica e desempata dentro de cada banda, e a Matriz Esforço × Valor posiciona cada item visualmente.
 
-**Fórmula de Cálculo do ICE Score:**
-`Pontuação ICE = (Impacto × Confiança) / Esforço`
+### 10.2.1 Metodologia de Priorização: MoSCoW → ICE Score → Matriz Esforço × Valor
 
-Com base nos valores de Impacto e Esforço, os requisitos foram distribuídos em uma **matriz de priorização** com quatro quadrantes:
+```
+ENTRADA (requisito novo ou em revisão)
+    │
+    ▼
+┌──────────────────────────────────┐
+│  CAMADA 1: MoSCoW                │  ← "Isso é vital ou é luxo?"
+│  MUST / SHOULD / COULD / WON'T  │
+│  WON'T → fecha/descarta         │
+└──────────────┬───────────────────┘
+               │ (MUST, SHOULD, COULD)
+               ▼
+┌──────────────────────────────────┐
+│  CAMADA 2: ICE Score             │  ← "Qual a nota numérica?"
+│  Impacto × Confiança × Facilidade│
+│  Ranking dentro de cada banda    │
+└──────────────┬───────────────────┘
+               │
+               ▼
+┌──────────────────────────────────┐
+│  CAMADA 3: Matriz Esforço × Valor│  ← "Em qual quadrante caiu?"
+│  QUICK WIN / PLAN / LATER / DROP │
+└──────────────┬───────────────────┘
+               │
+               ▼
+         FLUXO KANBAN
+```
 
-|  | **Baixo Esforço** | **Alto Esforço** |
-|---|---|---|
-| **Alto Impacto** | **Quick Wins** — implementar primeiro | **Strategic** — planejar com cuidado |
-| **Baixo Impacto** | **Fill In** — preencher quando houver folga | **Avoid** — evitar ou postergar |
-
-A ordenação dentro de cada quadrante segue o **Score ICE** (decrescente).
+**Trava fundamental do MoSCoW:** Um item COULD **nunca** entra no fluxo antes de um MUST, mesmo que o ICE Score do COULD seja numericamente maior. O MoSCoW é a trava de negócio; o ICE desempata dentro da mesma banda.
 
 ---
 
-### Quick Wins (Alto Impacto, Baixo Esforço)
+#### Camada 1 - O Filtro de Negócio - MoSCoW
 
-| ID | Descrição | I | C | E | ICE |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **RF06** | Moderar organização | 10 | 1,0 | 1 | 10,00 |
-| **RF10** | Realizar candidatura | 10 | 1,0 | 1 | 10,00 |
-| **RF11** | Avaliar candidatura | 10 | 1,0 | 1 | 10,00 |
-| **RNF01** | Criptografia de senhas (bcrypt) | 10 | 1,0 | 1 | 10,00 |
-| **RNF04** | Interface responsiva (iOS e Android) | 10 | 1,0 | 1 | 10,00 |
-| **RF03** | Autenticar usuário | 10 | 1,0 | 2 | 5,00 |
-| **RF09** | Consultar vaga | 10 | 1,0 | 2 | 5,00 |
-| **RF13** | Listar aprovados | 10 | 1,0 | 2 | 5,00 |
-| **RF20** | Publicar oportunidade | 10 | 1,0 | 2 | 5,00 |
-| **RNF02** | Login em até 2 segundos | 10 | 0,9 | 2 | 4,50 |
-| **RNF05** | Busca em até 3 segundos | 10 | 0,9 | 2 | 4,50 |
-| **RNF06** | Suporte a 1.000 usuários simultâneos | 10 | 0,8 | 2 | 4,00 |
-| **RF21** | Encerrar oportunidade | 8 | 0,9 | 2 | 3,60 |
-| **RF02** | Cadastrar organização | 10 | 1,0 | 3 | 3,33 |
-| **RF16** | Consultar histórico | 6 | 1,0 | 2 | 3,00 |
-| **RNF09** | UUIDs para certificados | 10 | 0,6 | 2 | 3,00 |
-| **RF12** | Acompanhar candidatura | 6 | 0,8 | 2 | 2,40 |
-| **RF14** | Registrar frequência | 7 | 1,0 | 3 | 2,33 |
-| **RF08** | Buscar vaga | 10 | 0,8 | 5 | 1,60 |
+- **Must have (Deve ter):** Inegociável. Sem isso, não há lançamento do produto.
+- **Should have (Deveria ter):** Importante, mas o produto sobrevive sem ele por um tempo.
+- **Could have (Poderia ter):** "Nice to have" — agrega qualidade, pode ser postergado.
+- **Won't have (Não terá agora):** Descartado conscientemente para este ciclo.
 
-### Strategic (Alto Impacto, Alto Esforço)
+---
 
-| ID | Descrição | I | C | E | ICE |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **RF01** | Cadastrar estudante | 10 | 1,0 | 6 | 1,67 |
-| **RF04** | Gerenciar perfil | 10 | 1,0 | 6 | 1,67 |
-| **RF19** | Editar oportunidade | 10 | 1,0 | 6 | 1,67 |
-| **RF15** | Emitir certificado | 10 | 1,0 | 7 | 1,43 |
-| **RF18** | Criar oportunidade | 10 | 1,0 | 9 | 1,11 |
-| **RF17** | Validar certificado | 10 | 0,6 | 8 | 0,75 |
-| **RF05** | Recuperar senha | 6 | 0,8 | 8 | 0,60 |
+#### Camada 2 - A Quantificação e Desempate - ICE Score
 
-### Avoid (Baixo Impacto, Alto Esforço)
+Cada requisito recebe uma nota nos três eixos:
 
-| ID | Descrição | I | C | E | ICE |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **RNF07** | Geração assíncrona de PDFs | 2 | 0,5 | 7 | 0,14 |
+- **Impact (Impacto — I):** Quanto valor esse item gera para o negócio ou usuário? (1 a 10)
+- **Confidence (Confiança — C):** Qual a certeza da equipe sobre essas estimativas? (1 a 10)
+- **Ease (Facilidade — E):** Qual a facilidade de implementação? 10 = muito fácil; 1 = muito difícil. (1 a 10)
 
-### Fill In (Baixo Impacto, Baixo Esforço)
+```
+ICE Score = Impacto × Confiança × Facilidade     (range: 1 a 1.000)
+```
 
-| ID | Descrição | I | C | E | ICE |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **RNF03** | Validação de CNPJ | 5 | 1,0 | 1 | 5,00 |
-| **RNF08** | Imutabilidade de certificados | 4 | 0,7 | 4 | 0,70 |
+| Dimensão | Zona Crítica (1–3 / 1–4 / 1–6) | Zona Média | Zona Ideal |
+| :--- | :--- | :--- | :--- |
+| **I — Impacto** | 1–6: afeta <50% dos usuários; sem impacto no ciclo extensão→certificado; sem risco de abandono da plataforma | 7–8: afeta >50% dos usuários OU é parte do ciclo extensão→certificado OU remove fricção que causa abandono do SaaS | 9–10: existencial — sem isso o SaaS não entrega o ciclo completo; OU diferencia o Liaison de planilhas/grupos de WhatsApp; OU previne risco crítico de credibilidade |
+| **C — Confiança** | 1–3: time nunca implementou nada similar; alto risco de retrabalho total; depende de infra ou integração não dominada pelo time | 4–6: tecnologia nova para o time estudante; documentação disponível, mas vai aprender errando; ~50% de chance de retrabalho parcial (ex.: Django Admin customizado, PDF estilizado, search multi-filtro, Celery/SMTP) | 7–10: tecnologia dominada em aula ou trivialmente verificável; CRUD Django/DRF padrão; algoritmos públicos; configuração nativa do framework |
+| **E — Facilidade** | 1–4: >18h — múltiplos sistemas, refatoração pesada, exige fatiamento (capacidade do time: 36h/semana — 6 devs × 1h/dia × 6 dias) | 5–7: 6–18h — 1 a 2 sistemas, cabe no fluxo do time | 8–10: <6h — trivial, 1 dev em até 1 semana, 1 sistema, risco zero |
 
-## 10.3 MVP (Must Have — MoSCoW)
+---
 
-O MVP (Minimum Viable Product) é composto exclusivamente pelos requisitos classificados como **Must Have** na priorização MoSCoW. Abaixo estão os itens selecionados, ordenados por Score ICE (decrescente):
+#### Camada 3 - A Visualização e Validação - Matriz Esforço × Valor
 
-| ID | Descrição | I | C | E | ICE |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **RF06** | Moderar organização | 10 | 1,0 | 1 | 10,00 |
-| **RF10** | Realizar candidatura | 10 | 1,0 | 1 | 10,00 |
-| **RF11** | Avaliar candidatura | 10 | 1,0 | 1 | 10,00 |
-| **RNF01** | Criptografia de senhas (bcrypt) | 10 | 1,0 | 1 | 10,00 |
-| **RNF04** | Interface responsiva (iOS e Android) | 10 | 1,0 | 1 | 10,00 |
-| **RF03** | Autenticar usuário | 10 | 1,0 | 2 | 5,00 |
-| **RF09** | Consultar vaga | 10 | 1,0 | 2 | 5,00 |
-| **RF13** | Listar aprovados | 10 | 1,0 | 2 | 5,00 |
-| **RF20** | Publicar oportunidade | 10 | 1,0 | 2 | 5,00 |
-| **RF02** | Cadastrar organização | 10 | 1,0 | 3 | 3,33 |
-| **RF12** | Acompanhar candidatura | 6 | 0,8 | 2 | 2,40 |
-| **RF14** | Registrar frequência | 7 | 1,0 | 3 | 2,33 |
-| **RF01** | Cadastrar estudante | 10 | 1,0 | 6 | 1,67 |
-| **RF04** | Gerenciar perfil | 10 | 1,0 | 6 | 1,67 |
-| **RF19** | Editar oportunidade | 10 | 1,0 | 6 | 1,67 |
-| **RF08** | Buscar vaga | 10 | 0,8 | 5 | 1,60 |
-| **RF15** | Emitir certificado | 10 | 1,0 | 7 | 1,43 |
-| **RF18** | Criar oportunidade | 10 | 1,0 | 9 | 1,11 |
+|  | **Alta Facilidade (E ≥ 5)** | **Baixa Facilidade (E ≤ 4)** |
+| :--- | :--- | :--- |
+| **Alto Impacto (I ≥ 7)** | ⚡ **Quick Win** — prioridade máxima de execução | 📐 **Plan** — alto valor mas complexo; **fatiar** em sub-issues até E ≥ 5 |
+| **Baixo Impacto (I ≤ 6)** | ⏳ **Later** — fill-in; entra só se sobrar capacidade após Must + Should | 🗑️ **Drop** — descarte; fechar como descartada, salvo anomalia |
 
-Total de itens no MVP: **18** (16 RFs + 2 RNFs).
+> **Limitação:** A matriz ordena itens por valor estratégico e relação facilidade/impacto, mas **não considera dependências técnicas ou de negócio** entre os itens. O planejamento do fluxo no KanbanXP ajusta a sequência quando um item depende de outro.
+
+---
+
+### 10.2.2 Backlog Priorizado
+
+Cada item foi classificado por critério de negócio (MoSCoW) e depois quantificado pelo ICE Score (`I × C × E`). A trava MoSCoW é absoluta: um COULD jamais entra no fluxo antes de um MUST, independente do ICE.
+
+> **Ordenação:** 1º) Banda MoSCoW. 2º) ICE decrescente. **A sequência real de implementação é definida pelo time no KanbanXP, respeitando MoSCoW + resolução das cadeias.**
+>
+> **Q** = Quadrante: ⚡ Quick Win, 📐 Plan, ⏳ Later, 🗑️ Drop. O **E** exibido é o valor final (E bruto − penalidade por dependência, cap −2). **Cadeia:** `A → B → C` = A depende de B → B depende de C. Número entre parênteses = prof. (itens únicos na cadeia). ⛔ = bloqueado pela trava MoSCoW.
+
+---
+
+#### 🔴 Must Have - 19 itens (MVP)
+> Inegociáveis — sem eles, a plataforma não entrega a proposta de valor mínima.
+
+| # | ID | Descrição | Q | I | C | E | ICE | Cadeia (prof.) |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| 1 | RNF01 | Criptografia de senhas (bcrypt) | ⚡ | 10 | 10 | 10 | **1.000** | — (0) |
+| 2 | RNF04 | Interface responsiva (iOS e Android) | ⚡ | 9 | 8 | 8 | **576** | — (0) |
+| 3 | RNF08 | Imutabilidade de certificados | ⚡ | 9 | 9 | 7 | **567** | RF15 → RF14 → RF13 → RF11 → RF10 → RF01, RF20 → RF18 (8) |
+| 4 | RF01 | Cadastrar estudante | ⚡ | 10 | 8 | 7 | **560** | — (0) |
+| 5 | RF09 | Consultar vaga | ⚡ | 8 | 9 | 7 | **504** | RF20 → RF18 (2) |
+| 6 | RF20 | Publicar oportunidade | ⚡ | 8 | 9 | 7 | **504** | RF18 (1) |
+| 7 | RF03 | Autenticar usuário | ⚡ | 8 | 8 | 7 | **448** | RF01, RF02 (2) |
+| 8 | RF02 | Cadastrar organização | ⚡ | 10 | 7 | 6 | **420** | — (0) |
+| 9 | RF10 | Realizar candidatura | ⚡ | 10 | 7 | 5 | **350** | RF01, RF20 → RF18 (3) |
+| 10 | RF18 | Criar oportunidade ⚠️ | ⚡ | 10 | 7 | 5 | **350** | — (0) |
+| 11 | RF04 | Gerenciar perfil | ⚡ | 7 | 8 | 6 | **336** | RF01 (1) |
+| 12 | RF19 | Editar oportunidade | ⚡ | 7 | 8 | 6 | **336** | RF18 (1) |
+| 13 | RF13 | Listar aprovados | ⚡ | 7 | 8 | 6 | **336** | RF11 → RF10 → RF01, RF20 → RF18 (5) |
+| 14 | RF12 | Acompanhar candidatura | ⚡ | 8 | 7 | 6 | **336** | RF10 → RF01, RF20 → RF18 (4) |
+| 15 | RF11 | Avaliar candidatura | ⚡ | 9 | 7 | 5 | **315** | RF10 → RF01, RF20 → RF18 (4) |
+| 16 | RF14 | Registrar frequência ⚠️ | 📐 | 9 | 7 | 4 | **252** | RF13 → RF11 → RF10 → RF01, RF20 → RF18 (6) |
+| 17 | RF06 | Moderar organização | ⚡ | 7 | 6 | 5 | **210** | RF02 (1) |
+| 18 | RF08 | Buscar vaga ⚠️ | 📐 | 9 | 6 | 3 | **162** | RF20 → RF18 (2) |
+| 19 | RF15 | Emitir certificado ⚠️ | 📐 | 10 | 5 | 3 | **150** | RF14 → RF13 → RF11 → RF10 → RF01, RF20 → RF18 (7) |
+
+> ⚠️ **Plan:** RF14 (E=4), RF08 (E=3, fatiar busca em básica + filtros + UX), RF15 (E=3, C=5 — spike técnico obrigatório antes de iniciar).
+
+---
+
+#### 🟡 Should Have - 6 itens
+> Importantes para a qualidade; o MVP sobrevive sem eles no lançamento inicial.
+
+| # | ID | Descrição | Q | I | C | E | ICE | Cadeia (prof.) |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| 20 | RNF03 | Validação de CNPJ | ⚡ | 5 | 9 | 9 | **405** | — (0) |
+| 21 | RF21 | Encerrar oportunidade | ⚡ | 6 | 8 | 7 | **336** | RF20 → RF18 (2) |
+| 22 | RNF02 | Login em até 2 segundos | ⏳ | 6 | 6 | 8 | **288** | — (0) |
+| 23 | RNF05 | Busca em até 3 segundos | ⏳ | 6 | 6 | 8 | **288** | — (0) |
+| 24 | RF16 | Consultar histórico | 📐 | 7 | 7 | 4 | **196** | RF15 → RF14 → RF13 → RF11 → RF10 → RF01, RF20 → RF18 (8) |
+| 25 | RNF06 | Suporte a 1.000 usuários simultâneos | 🗑️ | 4 | 4 | 7 | **112** | — (0) |
+
+> ⚠️ **RNF02 e RNF05 (⏳ Later):** SLAs de performance são irrelevantes para MVP com volume controlado. Otimização sem baseline de produção não se justifica neste momento.
+>
+> ⚠️ **RNF06 (🗑️ Drop):** Escala para 1.000 usuários simultâneos é preocupação de crescimento, não de lançamento. Load testing é território desconhecido para o time.
+
+---
+
+#### 🟢 Could Have - 2 itens
+> Desejáveis — agregam qualidade mas podem ser postergados sem comprometer o valor central.
+
+| # | ID | Descrição | Q | I | C | E | ICE | Cadeia (prof.) |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| 26 | RNF09 | UUIDs para certificados | ⚡ | 8 | 5 | 6 | **240** | RF15 → ... → RF18 (8) |
+| 27 | RF17 | Validar certificado | 📐 | 6 | 5 | 4 | **120** | RF15 → ... → RF18 (8) |
+
+---
+
+#### ⚪ Won't Have - 2 itens
+> Descartados conscientemente para este ciclo; o valor gerado não justifica o esforço agora.
+
+| # | ID | Descrição | Q | I | C | E | ICE | Cadeia (prof.) |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| 28 | RF05 | Recuperar senha | ⚡ | 5 | 6 | 7 | **210** | — (0) |
+| 29 | RNF07 | Geração assíncrona de PDFs | ⏳ | 4 | 4 | 6 | **96** | — (0) |
+
+---
+
+### 10.2.3 Análise de Anomalias
+
+O ICE não tem contexto de negócio — o **MoSCoW é a trava de segurança**. Anomalias residuais após a priorização:
+
+| ID(s) | Anomalia | Risco | Ação |
+|:---|:---|:---:|:---|
+| **RF15** | C=5 — geração de PDF estilizado é território novo para o time. E=3 (📐 Plan). | Alto | Spike técnico com reportlab/weasyprint **antes** de iniciar |
+| **RF08** | C=6 — busca multi-filtro é o item mais complexo do backlog. E=3 (📐 Plan). | Alto | Fatiar: (1) busca básica, (2) filtros avançados, (3) UX mobile |
+| **RF18** | E=5 no limiar Quick Win/Plan. ~13h incluindo formulário multi-passo. | Médio | Fatiar: (1) modelo+endpoint, (2) formulário, (3) validações+publicação |
+| **RF10, RF11** | Must Have no limiar E=5. Dependem de RF01 e RF18 para serem puxados. | Médio | Garantir RF01 e RF18 concluídos antes de puxar RF10/RF11 |
+| **RNF06** | Should Have com ICE 112 (🗑️ Drop). Escala irrelevante para MVP. | Baixo | Revisitar quando base ativa > 100 usuários |
+
+---
+
+## 10.3 MVP (Minimum Viable Product)
+
+O MVP é composto pelos 19 itens classificados como **Must Have**, correspondentes às posições #1 a #19 da tabela consolidada. Este conjunto cobre os fluxos essenciais dos três perfis de usuário:
+
+| Perfil | Fluxos cobertos pelo MVP |
+| :--- | :--- |
+| **Estudante** | Cadastro, login, busca de vagas, visualização de detalhes, candidatura, acompanhamento de status, recebimento de certificado |
+| **Organização** | Cadastro (com moderação), login, criação/edição/publicação de vagas, avaliação de candidaturas, registro de frequência |
+| **Administrador** | Moderação de cadastros de organizações |
+
+Total de itens no MVP: **19** (17 RFs + 2 RNFs).
 
 ## 10.4 Anexos de Priorização
 

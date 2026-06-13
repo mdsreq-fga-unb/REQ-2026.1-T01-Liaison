@@ -50,6 +50,7 @@ export default function Step3Academic({ onContinue, initialData = {}, initialErr
     if (!curso.trim()) newErrors.curso = 'Curso é obrigatório';
     if (!matricula.trim()) newErrors.matricula = 'Matrícula é obrigatória';
     if (!turno) newErrors.turno = 'Turno é obrigatório';
+    if (!anoConclusao) newErrors.anoConclusao = 'Ano de conclusão é obrigatório';
     if (!horas.trim()) newErrors.horas = 'Horas de extensão exigidas é obrigatório';
     setLocalErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -134,7 +135,7 @@ export default function Step3Academic({ onContinue, initialData = {}, initialErr
 
         <View style={styles.twoCol}>
           <View style={styles.halfCol}><Select testID="select-turno" label="Turno" required options={TURNOS} value={turno} onChange={(v) => { setTurno(v); clearError('turno'); }} placeholder="Selecione" error={errors.turno} /></View>
-          <View style={styles.halfCol}><Select label="Ano de conclusão" options={ANO_CONCLUSAO} value={anoConclusao} onChange={setAnoConclusao} placeholder="Selecione" /></View>
+          <View style={styles.halfCol}><Select label="Ano de conclusão" required options={ANO_CONCLUSAO} value={anoConclusao} onChange={(v) => { setAnoConclusao(v); clearError('anoConclusao'); }} placeholder="Selecione" error={errors.anoConclusao} testID="select-ano-conclusao" /></View>
         </View>
 
         <Input testID="input-horas" label="Horas de extensão exigidas" required value={horas} onChangeText={(t) => { setHoras(t); if (t.trim()) clearError('horas'); }} keyboardType="numeric" placeholder="Ex: 360" error={errors.horas} />

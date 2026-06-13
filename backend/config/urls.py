@@ -5,7 +5,7 @@ Configuracao de rotas do projeto Liaison.
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -33,6 +33,7 @@ from users.views import (
     OrgChangePasswordView,
     AdminOrganizationViewSet,
 )
+from opportunities.views import MyOpportunitiesList
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -101,6 +102,9 @@ urlpatterns = [
         AdminOrganizationViewSet.as_view({"post": "request_info"}),
         name="admin-organization-request-info",
     ),
+    # Vagas de voluntariado
+    path("api/v1/organizations/me/opportunities/", MyOpportunitiesList.as_view(), name="my-opportunities"),
+    path("api/v1/opportunities/", include("opportunities.urls")),
 ]
 
 # Serve media files in development (DEBUG=True only)

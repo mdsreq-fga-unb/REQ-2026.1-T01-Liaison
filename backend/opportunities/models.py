@@ -1,1 +1,60 @@
-# Placeholder model file — to be implemented in future issues.
+import uuid
+from django.db import models
+
+class Opportunity(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = "draft", "Rascunho"
+        ACTIVE = "active", "Ativa"
+        PAUSED = "paused", "Pausada"
+        CLOSED = "closed", "Encerrada"
+
+    class Area(models.TextChoices):
+        EDUCACAO = "educacao", "Educação"
+        SAUDE = "saude", "Saúde"
+        TECNOLOGIA = "tecnologia", "Tecnologia"
+        MEIO_AMBIENTE = "meio_ambiente", "Meio Ambiente"
+        ASSISTENCIA_SOCIAL = "assistencia_social", "Assistência Social"
+        ARTE_CULTURA = "arte_cultura", "Arte & Cultura"
+        ESPORTE = "esporte", "Esporte"
+
+    class Modality(models.TextChoices):
+        PRESENCIAL = "presencial", "Presencial"
+        REMOTO = "remoto", "Remoto"
+        HIBRIDO = "hibrido", "Híbrido"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey("users.OrganizationProfile", on_delete=models.CASCADE, related_name="opportunities")
+    
+    title = models.CharField(max_length=200)
+    area = models.CharField(max_length=50, choices=Area.choices)
+    description = models.TextField(max_length=1000)
+    workload_value = models.PositiveIntegerField()
+    workload_unit = models.CharField(max_length=50)
+    vacancies = models.PositiveIntegerField()
+    
+    modality = models.CharField(max_length=20, choices=Modality.choices)
+    location = models.CharField(max_length=255, blank=True)
+    start_date = models.DateField()
+    start_time = models.TimeField()
+    end_date = models.DateField(null=True, blank=True)
+    is_recurring = models.BooleanField(default=False)
+    session_duration = models.DurationField(null=True, blank=True)
+    schedule = models.JSONField(default=list, blank=True)
+    
+    requirements = models.JSONField(default=list)
+    accepts_any_course = models.BooleanField(default=True)
+    preferred_courses = models.JSONField(default=list, blank=True)
+    
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "opportunities_opportunity"
+
+class OpportunityPhoto(models.Model):
+    opportunity = models.ForeignKey(Opportunity, on_delete=models.CASCADE, related_name="photos")
+    image = models.ImageField(upload_to="opportunities/photos/")
+
+    class Meta:
+        db_table = "opportunities_opportunityphoto"

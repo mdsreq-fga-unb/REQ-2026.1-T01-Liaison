@@ -2,11 +2,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
 import OrgHomeScreen from '../screens/organization/HomeScreen';
+import CreateOpportunityScreen from '../screens/organization/CreateOpportunityScreen';
 import OrgProfileScreen from '../screens/organization/OrgProfileScreen';
 import OrgProfileEditScreen from '../screens/organization/OrgProfileEditScreen';
 
 export type OrgStackParamList = {
   OrgHome: undefined;
+  CreateOpportunity: undefined;
   OrgProfile: undefined;
   OrgProfileEdit: undefined;
 };
@@ -20,6 +22,11 @@ export default function OrgStack() {
         name="OrgHome"
         component={OrgHomeScreen}
         options={{ title: 'Início — Organização' }}
+      />
+      <Stack.Screen
+        name="CreateOpportunity"
+        component={CreateOpportunityScreen}
+        options={{ title: 'Criar Vaga' }}
       />
       <Stack.Screen
         name="OrgProfile"

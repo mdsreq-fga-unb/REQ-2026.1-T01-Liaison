@@ -1,8 +1,10 @@
 from rest_framework import viewsets, permissions, status, generics
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Opportunity
 from .serializers import OpportunitySerializer, OpportunityCreateSerializer
 from .permissions import IsOwnerOrReadOnly
+
 
 class OpportunityViewSet(viewsets.ModelViewSet):
     queryset = Opportunity.objects.all()
@@ -34,6 +36,80 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         serializer.save(organization=org_profile, status=request.data.get("status", Opportunity.Status.DRAFT))
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+# ── Issue #50 — US2.2 Edição de Vagas (RF19) ──────────────────────────
+    def partial_update(self, request, *args, **kwargs):
+        opportunity = self.get_object()
+        if opportunity.status == Opportunity.Status.CLOSED:
+            return Response(
+                {"detail": "Vagas encerradas não podem ser editadas."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer = self.get_serializer(opportunity, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    # ── Issue #51 — US2.3 Publicação de Vagas (RF20) ──────────────────────
+    @action(detail=True, methods=["patch"], url_path="publish")
+    def publish(self, request, pk=None):
+        opportunity = self.get_object()
+        if opportunity.status == Opportunity.Status.ACTIVE:
+            return Response({"detail": "A vaga já está publicada."}, status=status.HTTP_400_BAD_REQUEST)
+        if opportunity.status == Opportunity.Status.CLOSED:
+            return Response({"detail": "Vagas encerradas não podem ser publicadas. Use reopen primeiro."}, status=status.HTTP_400_BAD_REQUEST)
+        campos_obrigatorios = ["title", "description", "area", "workload_value",
+                               "workload_unit", "vacancies", "modality", "start_date", "start_time"]
+        for campo in campos_obrigatorios:
+            if not getattr(opportunity, campo, None):
+                return Response(
+                    {"detail": f"Preencha o campo obrigatório antes de publicar: {campo}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        if request.user.organization_profile.status != "approved":
+            return Response({"detail": "Sua organização precisa ser aprovada para publicar vagas."}, status=status.HTTP_403_FORBIDDEN)
+        opportunity.status = Opportunity.Status.ACTIVE
+        opportunity.save()
+        return Response({"detail": "Vaga publicada com sucesso.", "status": opportunity.status})
+
+    @action(detail=True, methods=["patch"], url_path="pause")
+    def pause(self, request, pk=None):
+        opportunity = self.get_object()
+        if opportunity.status != Opportunity.Status.ACTIVE:
+            return Response({"detail": "Apenas vagas publicadas podem ser pausadas."}, status=status.HTTP_400_BAD_REQUEST)
+        opportunity.status = Opportunity.Status.PAUSED
+        opportunity.save()
+        return Response({"detail": "Vaga pausada com sucesso.", "status": opportunity.status})
+
+    @action(detail=True, methods=["patch"], url_path="resume")
+    def resume(self, request, pk=None):
+        opportunity = self.get_object()
+        if opportunity.status != Opportunity.Status.PAUSED:
+            return Response({"detail": "Apenas vagas pausadas podem ser reativadas."}, status=status.HTTP_400_BAD_REQUEST)
+        opportunity.status = Opportunity.Status.ACTIVE
+        opportunity.save()
+        return Response({"detail": "Vaga reativada com sucesso.", "status": opportunity.status})
+
+    # ── Issue #52 — US2.4 Encerramento de Vagas (RF21) ────────────────────
+    @action(detail=True, methods=["patch"], url_path="close")
+    def close(self, request, pk=None):
+        opportunity = self.get_object()
+        if opportunity.status == Opportunity.Status.CLOSED:
+            return Response({"detail": "A vaga já está encerrada."}, status=status.HTTP_400_BAD_REQUEST)
+        if opportunity.status == Opportunity.Status.DRAFT:
+            return Response({"detail": "Vagas em rascunho não podem ser encerradas. Publique primeiro."}, status=status.HTTP_400_BAD_REQUEST)
+        opportunity.status = Opportunity.Status.CLOSED
+        opportunity.save()
+        return Response({"detail": "Vaga encerrada com sucesso. Candidaturas existentes preservadas.", "status": opportunity.status})
+
+    @action(detail=True, methods=["patch"], url_path="reopen")
+    def reopen(self, request, pk=None):
+        opportunity = self.get_object()
+        if opportunity.status != Opportunity.Status.CLOSED:
+            return Response({"detail": "Apenas vagas encerradas podem ser reabertas."}, status=status.HTTP_400_BAD_REQUEST)
+        opportunity.status = Opportunity.Status.ACTIVE
+        opportunity.save()
+        return Response({"detail": "Vaga reaberta com sucesso.", "status": opportunity.status})
 
 class MyOpportunitiesList(generics.ListAPIView):
     serializer_class = OpportunitySerializer

@@ -35,7 +35,7 @@ interface AuthContextValue {
   refreshToken: string | null;
   studentRegister: (payload: StudentRegisterPayload) => Promise<StudentRegisterResponse>;
   organizationRegister: (payload: OrganizationRegisterPayload) => Promise<OrganizationRegisterResponse>;
-  handleLogin: (email: string, password: string) => Promise<void>;
+  handleLogin: (identifier: string, password: string, loginType?: 'email' | 'cnpj') => Promise<void>;
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>;
   tryRefreshSession: () => Promise<string | null>;
   logout: () => void;
@@ -109,15 +109,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // T1.6: handleLogin — calls api.login(), stores user + tokens in state AND SecureStore
-  async function handleLogin(email: string, password: string): Promise<void> {
+  async function handleLogin(identifier: string, password: string, loginType: 'email' | 'cnpj' = 'email'): Promise<void> {
     setIsLoading(true);
     try {
-      const payload: LoginPayload = { email, password };
+      const payload: LoginPayload = loginType === 'cnpj'
+        ? { cnpj: identifier, password }
+        : { email: identifier, password };
       const response = await login(payload);
 
       const authUser: AuthUser = {
         id: response.id,
-        email,
+        email: response.email,
         nome: response.nome,
         role: response.role,
       };

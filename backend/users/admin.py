@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import OrganizationProfile, StudentGalleryPhoto, StudentProfile, User
+from .models import OrganizationProfile, OrgGalleryPhoto, StudentGalleryPhoto, StudentProfile, User
 
 
 class GalleryPhotoInline(admin.TabularInline):
@@ -34,4 +34,57 @@ class StudentProfileAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    pass
+    """Configuracao do admin para o modelo User."""
+
+    list_display = (
+        "email",
+        "username",
+        "role",
+        "is_active",
+        "is_staff",
+        "date_joined",
+    )
+    list_filter = ("role", "is_active", "is_staff")
+    search_fields = ("email", "username", "first_name", "last_name")
+    ordering = ("-date_joined",)
+
+    fieldsets = BaseUserAdmin.fieldsets + (
+        (
+            "Liaison",
+            {"fields": ("role", "nome")},
+        ),
+    )
+    add_fieldsets = BaseUserAdmin.add_fieldsets + (
+        (
+            "Liaison",
+            {"fields": ("email", "role", "nome")},
+        ),
+    )
+
+
+class OrgGalleryPhotoInline(admin.TabularInline):
+    model = OrgGalleryPhoto
+    extra = 0
+    readonly_fields = ["created_at"]
+    fields = ["image", "created_at"]
+
+
+@admin.register(OrganizationProfile)
+class OrganizationProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "cnpj", "razao_social", "nome_fantasia", "status")
+    search_fields = ("user__email", "cnpj", "razao_social", "nome_fantasia")
+    list_filter = ("status",)
+    readonly_fields = ["created_at", "updated_at"]
+    fieldsets = (
+        (None, {"fields": ("user", "cnpj", "status")}),
+        ("Imagens", {"fields": ("logo", "banner")}),
+        ("Dados Institucionais", {
+            "fields": (
+                "razao_social", "nome_fantasia", "telefone",
+                "nome_responsavel", "mission", "full_description",
+                "areas_de_atuacao", "site", "endereco",
+            ),
+        }),
+        ("Metadados", {"fields": ("created_at", "updated_at")}),
+    )
+    inlines = [OrgGalleryPhotoInline]

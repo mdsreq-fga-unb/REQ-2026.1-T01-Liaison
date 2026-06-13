@@ -283,6 +283,7 @@ describe('AuthContext', () => {
     login.mockResolvedValueOnce({
       access: 'access-token-login',
       refresh: 'refresh-token-login',
+      email: 'maria@email.edu.br',
       role: 'estudante',
       nome: 'Maria Silva',
       id: 'uuid-maria',
@@ -311,6 +312,7 @@ describe('AuthContext', () => {
     login.mockResolvedValueOnce({
       access: 'access-token',
       refresh: 'refresh-token',
+      email: 'maria@email.edu.br',
       role: 'estudante',
       nome: 'Maria Silva',
       id: 'uuid-maria',
@@ -339,6 +341,7 @@ describe('AuthContext', () => {
     login.mockResolvedValueOnce({
       access: 'access-token',
       refresh: 'refresh-token',
+      email: 'maria@email.edu.br',
       role: 'estudante',
       nome: 'Maria Silva',
       id: 'uuid-maria',
@@ -367,6 +370,7 @@ describe('AuthContext', () => {
     login.mockResolvedValueOnce({
       access: 'access-token-ss',
       refresh: 'refresh-token-ss',
+      email: 'maria@email.edu.br',
       role: 'estudante',
       nome: 'Maria',
       id: 'uuid-maria',
@@ -456,6 +460,7 @@ describe('AuthContext', () => {
     login.mockResolvedValueOnce({
       access: 'fetch-token',
       refresh: 'refresh-token',
+      email: 'fetch@email.edu.br',
       role: 'estudante',
       nome: 'Fetch User',
       id: 'uuid-fetch',
@@ -502,6 +507,7 @@ describe('AuthContext', () => {
     login.mockResolvedValueOnce({
       access: 'token-to-clear',
       refresh: 'refresh-to-clear',
+      email: 'clear@email.edu.br',
       role: 'estudante',
       nome: 'Clear Me',
       id: 'uuid-clear',

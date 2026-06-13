@@ -5,11 +5,12 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 import re
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import StudentProfile, OrganizationProfile, StudentGalleryPhoto, AdminActionLog
+from .models import StudentProfile, OrganizationProfile, StudentGalleryPhoto, OrgGalleryPhoto, AdminActionLog
 from .validators import validate_image_file_extension, validate_image_file_size, LettersAndNumbersValidator
 
 User = get_user_model()
@@ -146,10 +147,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         user = self.user
 
         if not user.is_active:
-            raise serializers.ValidationError("E-mail ou senha inválidos.")
+            raise AuthenticationFailed("E-mail ou senha inválidos.")
 
         data["role"] = user.role
         data["nome"] = user.nome
+        data["email"] = user.email
         data["id"] = str(user.id)
 
         return data
@@ -652,3 +654,211 @@ class ChangePasswordSerializer(serializers.Serializer):
     def save(self, user):
         user.set_password(self.validated_data["new_password"])
         user.save()
+
+
+# ────────────────────────────────────────────────────────────
+# Organization Gallery Photo Serializer
+# ────────────────────────────────────────────────────────────
+
+
+class OrgGalleryPhotoSerializer(serializers.ModelSerializer):
+    """Serializer para uma foto da galeria da organização."""
+
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrgGalleryPhoto
+        fields = ["id", "image_url", "created_at"]
+        read_only_fields = ["id", "image_url", "created_at"]
+
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+        if request and obj.image:
+            return request.build_absolute_uri(obj.image.url)
+        return None
+
+
+# ────────────────────────────────────────────────────────────
+# Organization Profile Detail (GET /organizations/me/)
+# ────────────────────────────────────────────────────────────
+
+
+class OrganizationProfileDetailSerializer(serializers.ModelSerializer):
+    """Serializer completo do perfil da organização (read-only)."""
+
+    id = serializers.CharField(source="user.id", read_only=True)
+    email = serializers.CharField(source="user.email", read_only=True)
+    nome = serializers.CharField(source="user.nome", read_only=True)
+    logo_url = serializers.SerializerMethodField()
+    banner_url = serializers.SerializerMethodField()
+    gallery = serializers.SerializerMethodField()
+    stats = serializers.SerializerMethodField()
+    events = serializers.SerializerMethodField()
+    open_positions = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrganizationProfile
+        fields = [
+            "id",
+            "email",
+            "nome",
+            "cnpj",
+            "razao_social",
+            "nome_fantasia",
+            "telefone",
+            "nome_responsavel",
+            "mission",
+            "full_description",
+            "areas_de_atuacao",
+            "site",
+            "endereco",
+            "logo_url",
+            "banner_url",
+            "gallery",
+            "stats",
+            "events",
+            "open_positions",
+        ]
+
+    def get_logo_url(self, obj):
+        request = self.context.get("request")
+        if request and obj.logo:
+            return request.build_absolute_uri(obj.logo.url)
+        return None
+
+    def get_banner_url(self, obj):
+        request = self.context.get("request")
+        if request and obj.banner:
+            return request.build_absolute_uri(obj.banner.url)
+        return None
+
+    def get_gallery(self, obj):
+        photos = obj.gallery_photos.all()
+        return OrgGalleryPhotoSerializer(
+            photos, many=True, context=self.context
+        ).data
+
+    def get_stats(self, obj):
+        return {
+            "total_events": 0,
+            "total_volunteers": 0,
+            "rating": 0,
+        }
+
+    def get_events(self, obj):
+        return []
+
+    def get_open_positions(self, obj):
+        return []
+
+
+# ────────────────────────────────────────────────────────────
+# Organization Profile Update (PATCH /organizations/me/update/)
+# ────────────────────────────────────────────────────────────
+
+
+class OrganizationProfileUpdateSerializer(serializers.ModelSerializer):
+    """Serializer para atualização parcial do perfil da organização."""
+
+    class Meta:
+        model = OrganizationProfile
+        fields = [
+            "nome",
+            "email",
+            "cnpj",
+            "razao_social",
+            "nome_fantasia",
+            "telefone",
+            "nome_responsavel",
+            "mission",
+            "full_description",
+            "areas_de_atuacao",
+            "site",
+            "endereco",
+        ]
+
+    nome = serializers.CharField(source="user.nome", required=False, max_length=120)
+    email = serializers.EmailField(source="user.email", required=False)
+    cnpj = serializers.CharField(required=False)
+
+    def validate_email(self, value):
+        """Email não pode ser alterado por este endpoint."""
+        if self.instance and value != self.instance.user.email:
+            raise serializers.ValidationError("Este campo não pode ser alterado.")
+        return value
+
+    def validate_cnpj(self, value):
+        """CNPJ não pode ser alterado após cadastro."""
+        # Strip mask for comparison (stored CNPJ is digits only)
+        cnpj_digits = re.sub(r"\D", "", value)
+        if self.instance and cnpj_digits != self.instance.cnpj:
+            raise serializers.ValidationError("Este campo não pode ser alterado.")
+        return value
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", {})
+        # Não permite alterar email
+        user_data.pop("email", None)
+        # Não permite alterar cnpj
+        validated_data.pop("cnpj", None)
+
+        if user_data.get("nome"):
+            instance.user.nome = user_data["nome"]
+            instance.user.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
+
+# ────────────────────────────────────────────────────────────
+# Organization Upload Serializers
+# ────────────────────────────────────────────────────────────
+
+
+class OrgLogoUploadSerializer(serializers.Serializer):
+    """Serializer para upload de logo da organização."""
+
+    logo = serializers.FileField(
+        validators=[validate_image_file_extension, validate_image_file_size]
+    )
+
+
+class OrgBannerUploadSerializer(serializers.Serializer):
+    """Serializer para upload de banner da organização."""
+
+    banner = serializers.FileField(
+        validators=[validate_image_file_extension, validate_image_file_size]
+    )
+
+
+class OrgGalleryUploadSerializer(serializers.Serializer):
+    """Serializer para upload de fotos na galeria da organização."""
+
+    images = serializers.ListField(
+        child=serializers.FileField(
+            validators=[validate_image_file_extension, validate_image_file_size]
+        ),
+        allow_empty=False,
+        min_length=1,
+    )
+
+    def create(self, validated_data, organization_profile):
+        photos = []
+        for image in validated_data["images"]:
+            photos.append(
+                OrgGalleryPhoto.objects.create(
+                    organization_profile=organization_profile,
+                    image=image,
+                )
+            )
+        return photos
+
+
+# ────────────────────────────────────────────────────────────
+# Organization Change Password (reuses ChangePasswordSerializer)
+# ────────────────────────────────────────────────────────────
+
+OrgChangePasswordSerializer = ChangePasswordSerializer

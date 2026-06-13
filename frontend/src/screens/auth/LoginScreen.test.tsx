@@ -121,7 +121,7 @@ describe('LoginScreen', () => {
     fireEvent.press(screen.getByTestId('button-entrar'));
 
     await waitFor(() => {
-      expect(mockHandleLogin).toHaveBeenCalledWith('maria@email.edu.br', 'Senha123');
+      expect(mockHandleLogin).toHaveBeenCalledWith('maria@email.edu.br', 'Senha123', 'email');
     });
   });
 
@@ -133,7 +133,7 @@ describe('LoginScreen', () => {
     fireEvent.press(screen.getByTestId('button-entrar'));
 
     await waitFor(() => {
-      expect(mockHandleLogin).toHaveBeenCalledWith('', '');
+      expect(mockHandleLogin).toHaveBeenCalledWith('', '', 'email');
     });
   });
 
@@ -234,5 +234,122 @@ describe('LoginScreen', () => {
 
     // Resolve to clean up
     resolveLogin!();
+  });
+
+  // ─── CNPJ Login Tests ───
+
+  it('shows CNPJ input when Organização tab is active', async () => {
+    render(<LoginScreen />);
+
+    // Default tab is estudante — E-mail label should be visible
+    expect(screen.getByText(/E-mail/)).toBeTruthy();
+
+    // Switch to Organização tab
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('tab-organizacao'));
+    });
+
+    // Now CNPJ label should be visible
+    expect(screen.getByText(/CNPJ/)).toBeTruthy();
+    expect(screen.getByTestId('input-cnpj')).toBeTruthy();
+  });
+
+  it('applies CNPJ mask while typing', async () => {
+    render(<LoginScreen />);
+
+    // Switch to Organização tab
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('tab-organizacao'));
+    });
+
+    const cnpjInput = screen.getByTestId('input-cnpj');
+    fireEvent.changeText(cnpjInput, '11222333000181');
+
+    // The formatCNPJ function should have applied the mask
+    expect(cnpjInput.props.value).toBe('11.222.333/0001-81');
+  });
+
+  it('calls handleLogin with CNPJ and password when on org tab', async () => {
+    mockHandleLogin.mockResolvedValueOnce(undefined);
+
+    render(<LoginScreen />);
+
+    // Switch to Organização tab
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('tab-organizacao'));
+    });
+
+    const cnpjInput = screen.getByTestId('input-cnpj');
+    const senhaInput = screen.getByTestId('input-senha');
+
+    fireEvent.changeText(cnpjInput, '11.222.333/0001-81');
+    fireEvent.changeText(senhaInput, 'Senha123');
+
+    fireEvent.press(screen.getByTestId('button-entrar'));
+
+    await waitFor(() => {
+      expect(mockHandleLogin).toHaveBeenCalledWith(
+        '11.222.333/0001-81',
+        'Senha123',
+        'cnpj',
+      );
+    });
+  });
+
+  it('shows pending approval error on 403 response for org login', async () => {
+    const apiError = new ApiError('Permission denied', { detail: 'Organização pendente de aprovação.' }, 403);
+    mockHandleLogin.mockRejectedValueOnce(apiError);
+
+    render(<LoginScreen />);
+
+    // Switch to Organização tab
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('tab-organizacao'));
+    });
+
+    fireEvent.press(screen.getByTestId('button-entrar'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/pendente de aprovação/i)).toBeTruthy();
+    });
+  });
+
+  it('shows CNPJ invalid error on 401 response for org login', async () => {
+    const apiError = new ApiError('Invalid credentials', { detail: 'CNPJ ou senha inválidos.' }, 401);
+    mockHandleLogin.mockRejectedValueOnce(apiError);
+
+    render(<LoginScreen />);
+
+    // Switch to Organização tab
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('tab-organizacao'));
+    });
+
+    fireEvent.press(screen.getByTestId('button-entrar'));
+
+    await waitFor(() => {
+      expect(screen.getByText('CNPJ ou senha inválidos')).toBeTruthy();
+    });
+  });
+
+  it('clears error message when switching tabs', async () => {
+    const apiError = new ApiError('Login failed', { detail: 'Error' }, 401);
+    mockHandleLogin.mockRejectedValueOnce(apiError);
+
+    render(<LoginScreen />);
+
+    // Trigger an error
+    fireEvent.press(screen.getByTestId('button-entrar'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('login-error')).toBeTruthy();
+    });
+
+    // Switch tab — error should clear
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('tab-organizacao'));
+    });
+
+    expect(() => screen.getByTestId('login-error')).toThrow();
   });
 });

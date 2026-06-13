@@ -90,10 +90,9 @@ class TestStudentRegistrationSerializerValid:
         from users.serializers import StudentRegistrationSerializer
 
         payload = _valid_payload()
-        payload.pop("semestre_atual", None)
         payload.pop("turno", None)
-        payload.pop("ano_conclusao", None)
         payload.pop("horas_extensao_exigidas", None)
+        # semestre_atual e ano_conclusao sao obrigatorios — nao podem ser omitidos
 
         serializer = StudentRegistrationSerializer(data=payload)
         assert serializer.is_valid(), serializer.errors
@@ -222,7 +221,16 @@ class TestStudentRegistrationSerializerRequiredFields:
 
     @pytest.mark.parametrize(
         "missing_field",
-        ["nome", "email", "universidade", "curso", "matricula", "password"],
+        [
+            "nome",
+            "email",
+            "universidade",
+            "curso",
+            "matricula",
+            "password",
+            "semestre_atual",
+            "ano_conclusao",
+        ],
     )
     def test_missing_required_field_is_rejected(self, missing_field):
         """Campo obrigatorio ausente gera erro de validacao."""
@@ -316,3 +324,236 @@ class TestStudentRegistrationSerializerInteresses:
         )
         assert not serializer.is_valid()
         assert "interesses" in serializer.errors
+
+
+@pytest.mark.django_db
+class TestStudentRegistrationSerializerAcademicFieldsRequired:
+    """
+    semestre_atual e ano_conclusao sao obrigatorios no cadastro de estudante
+    (validados no serializer — o model aceita null para retrocompatibilidade).
+    """
+
+    def test_registration_requires_semestre_atual(self):
+        """Cadastro sem semestre_atual e rejeitado com 400."""
+        from users.serializers import StudentRegistrationSerializer
+
+        payload = _valid_payload()
+        del payload["semestre_atual"]
+        serializer = StudentRegistrationSerializer(data=payload)
+        assert not serializer.is_valid()
+        assert "semestre_atual" in serializer.errors
+
+    def test_registration_requires_ano_conclusao(self):
+        """Cadastro sem ano_conclusao e rejeitado com 400."""
+        from users.serializers import StudentRegistrationSerializer
+
+        payload = _valid_payload()
+        del payload["ano_conclusao"]
+        serializer = StudentRegistrationSerializer(data=payload)
+        assert not serializer.is_valid()
+        assert "ano_conclusao" in serializer.errors
+
+    def test_registration_rejects_null_semestre_atual(self):
+        """Cadastro com semestre_atual=None e rejeitado com 400."""
+        from users.serializers import StudentRegistrationSerializer
+
+        serializer = StudentRegistrationSerializer(
+            data=_valid_payload(semestre_atual=None)
+        )
+        assert not serializer.is_valid()
+        assert "semestre_atual" in serializer.errors
+
+    def test_registration_rejects_null_ano_conclusao(self):
+        """Cadastro com ano_conclusao=None e rejeitado com 400."""
+        from users.serializers import StudentRegistrationSerializer
+
+        serializer = StudentRegistrationSerializer(
+            data=_valid_payload(ano_conclusao=None)
+        )
+        assert not serializer.is_valid()
+        assert "ano_conclusao" in serializer.errors
+
+    def test_registration_rejects_semestre_atual_below_1(self):
+        """semestre_atual < 1 e rejeitado."""
+        from users.serializers import StudentRegistrationSerializer
+
+        serializer = StudentRegistrationSerializer(
+            data=_valid_payload(semestre_atual=0)
+        )
+        assert not serializer.is_valid()
+        assert "semestre_atual" in serializer.errors
+
+    def test_registration_rejects_semestre_atual_above_12(self):
+        """semestre_atual > 12 e rejeitado."""
+        from users.serializers import StudentRegistrationSerializer
+
+        serializer = StudentRegistrationSerializer(
+            data=_valid_payload(semestre_atual=13)
+        )
+        assert not serializer.is_valid()
+        assert "semestre_atual" in serializer.errors
+
+    def test_registration_accepts_semestre_atual_at_boundaries(self):
+        """semestre_atual = 1 e 12 sao aceitos."""
+        from users.serializers import StudentRegistrationSerializer
+
+        for value in (1, 12):
+            serializer = StudentRegistrationSerializer(
+                data=_valid_payload(semestre_atual=value, matricula=f"BOUND{value}")
+            )
+            assert serializer.is_valid(), serializer.errors
+
+    def test_registration_rejects_ano_conclusao_below_2020(self):
+        """ano_conclusao < 2020 e rejeitado."""
+        from users.serializers import StudentRegistrationSerializer
+
+        serializer = StudentRegistrationSerializer(
+            data=_valid_payload(ano_conclusao=2019)
+        )
+        assert not serializer.is_valid()
+        assert "ano_conclusao" in serializer.errors
+
+    def test_registration_rejects_ano_conclusao_above_future(self):
+        """ano_conclusao > ano_atual+10 e rejeitado."""
+        from datetime import datetime
+
+        from users.serializers import StudentRegistrationSerializer
+
+        future_year = datetime.now().year + 11
+        serializer = StudentRegistrationSerializer(
+            data=_valid_payload(ano_conclusao=future_year)
+        )
+        assert not serializer.is_valid()
+        assert "ano_conclusao" in serializer.errors
+
+    def test_registration_accepts_ano_conclusao_at_boundaries(self):
+        """ano_conclusao = 2020 e ano_atual+10 sao aceitos."""
+        from datetime import datetime
+
+        from users.serializers import StudentRegistrationSerializer
+
+        current_year = datetime.now().year
+        for value, matricula in [(2020, "MAT2020"), (current_year + 10, "MATFUTURE")]:
+            serializer = StudentRegistrationSerializer(
+                data=_valid_payload(ano_conclusao=value, matricula=matricula)
+            )
+            assert serializer.is_valid(), serializer.errors
+
+    def test_registration_rejects_non_integer_semestre_atual(self):
+        """semestre_atual nao-inteiro e rejeitado."""
+        from users.serializers import StudentRegistrationSerializer
+
+        serializer = StudentRegistrationSerializer(
+            data=_valid_payload(semestre_atual="cinco")
+        )
+        assert not serializer.is_valid()
+        assert "semestre_atual" in serializer.errors
+
+    def test_registration_rejects_non_integer_ano_conclusao(self):
+        """ano_conclusao nao-inteiro e rejeitado."""
+        from users.serializers import StudentRegistrationSerializer
+
+        serializer = StudentRegistrationSerializer(
+            data=_valid_payload(ano_conclusao="dois mil")
+        )
+        assert not serializer.is_valid()
+        assert "ano_conclusao" in serializer.errors
+
+
+@pytest.mark.django_db
+class TestStudentProfileUpdateSerializerAcademicFieldsRequired:
+    """
+    semestre_atual e ano_conclusao sao obrigatorios no PATCH /students/me/update/.
+    """
+
+    def _make_student(self, email="update-uniq@exemplo.com", matricula="UPDFIX001"):
+        """Cria User + StudentProfile via serializer valido (apos mudanca)."""
+        from users.serializers import StudentRegistrationSerializer
+
+        payload = _valid_payload(email=email, matricula=matricula)
+        serializer = StudentRegistrationSerializer(data=payload)
+        assert serializer.is_valid(), serializer.errors
+        return serializer.save()
+
+    def test_update_rejects_null_semestre_atual(self):
+        """PATCH com semestre_atual=null e rejeitado."""
+        from users.serializers import StudentProfileUpdateSerializer
+
+        user = self._make_student(matricula="UPDFIX002")
+        profile = user.student_profile
+        serializer = StudentProfileUpdateSerializer(
+            profile, data={"semestre_atual": None}, partial=True
+        )
+        assert not serializer.is_valid()
+        assert "semestre_atual" in serializer.errors
+
+    def test_update_rejects_null_ano_conclusao(self):
+        """PATCH com ano_conclusao=null e rejeitado."""
+        from users.serializers import StudentProfileUpdateSerializer
+
+        user = self._make_student(matricula="UPDFIX003")
+        profile = user.student_profile
+        serializer = StudentProfileUpdateSerializer(
+            profile, data={"ano_conclusao": None}, partial=True
+        )
+        assert not serializer.is_valid()
+        assert "ano_conclusao" in serializer.errors
+
+    def test_update_omitting_semestre_atual_is_allowed_when_partial(self):
+        """PATCH parcial sem semestre_atual e permitido (campo nao submetido)."""
+        from users.serializers import StudentProfileUpdateSerializer
+
+        user = self._make_student(matricula="UPDFIX004")
+        profile = user.student_profile
+        serializer = StudentProfileUpdateSerializer(
+            profile, data={"bio": "nova bio"}, partial=True
+        )
+        assert serializer.is_valid(), serializer.errors
+        serializer.save()
+        profile.refresh_from_db()
+        assert profile.bio == "nova bio"
+
+    def test_update_rejects_semestre_atual_out_of_range(self):
+        """PATCH com semestre_atual fora de [1, 12] e rejeitado."""
+        from users.serializers import StudentProfileUpdateSerializer
+
+        user = self._make_student(matricula="UPDFIX005")
+        profile = user.student_profile
+        serializer = StudentProfileUpdateSerializer(
+            profile, data={"semestre_atual": 15}, partial=True
+        )
+        assert not serializer.is_valid()
+        assert "semestre_atual" in serializer.errors
+
+    def test_update_rejects_ano_conclusao_out_of_range(self):
+        """PATCH com ano_conclusao fora de [2020, ano_atual+10] e rejeitado."""
+        from datetime import datetime
+
+        from users.serializers import StudentProfileUpdateSerializer
+
+        user = self._make_student(matricula="UPDFIX006")
+        profile = user.student_profile
+        serializer = StudentProfileUpdateSerializer(
+            profile,
+            data={"ano_conclusao": datetime.now().year + 15},
+            partial=True,
+        )
+        assert not serializer.is_valid()
+        assert "ano_conclusao" in serializer.errors
+
+    def test_update_with_valid_semestre_and_ano_succeeds(self):
+        """PATCH com semestre_atual e ano_conclusao validos e persistido."""
+        from users.serializers import StudentProfileUpdateSerializer
+
+        user = self._make_student(matricula="UPDFIX007")
+        profile = user.student_profile
+        serializer = StudentProfileUpdateSerializer(
+            profile,
+            data={"semestre_atual": 7, "ano_conclusao": 2030},
+            partial=True,
+        )
+        assert serializer.is_valid(), serializer.errors
+        serializer.save()
+        profile.refresh_from_db()
+        assert profile.semestre_atual == 7
+        assert profile.ano_conclusao == 2030

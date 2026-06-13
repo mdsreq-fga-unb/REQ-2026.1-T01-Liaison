@@ -183,11 +183,11 @@ describe('StudentProfileEditScreen', () => {
     });
   });
 
-  it('renders turno dropdown', async () => {
+  it('renders turno select', async () => {
     mockGetProfile.mockResolvedValueOnce(MOCK_PROFILE);
     render(<StudentProfileEditScreen />);
     await waitFor(() => {
-      expect(screen.getByTestId('edit-turno-dropdown')).toBeTruthy();
+      expect(screen.getByTestId('edit-turno-select')).toBeTruthy();
     });
   });
 
@@ -195,12 +195,14 @@ describe('StudentProfileEditScreen', () => {
     mockGetProfile.mockResolvedValueOnce(MOCK_PROFILE);
     render(<StudentProfileEditScreen />);
     await waitFor(() => {
-      expect(screen.getByTestId('edit-turno-dropdown')).toBeTruthy();
+      expect(screen.getByTestId('edit-turno-select')).toBeTruthy();
     });
-    fireEvent.press(screen.getByTestId('edit-turno-dropdown'));
+    fireEvent.press(screen.getByTestId('edit-turno-select'));
     await waitFor(() => {
-      expect(screen.getByTestId('turno-option-matutino')).toBeTruthy();
-      expect(screen.getByTestId('turno-option-noturno')).toBeTruthy();
+      // Select component shows the options as text after opening — "Matutino"
+      // aparece apenas no dropdown (turno atual e "Noturno" no trigger), entao
+      // eh um sinal unico de que o dropdown abriu.
+      expect(screen.getByText('Matutino')).toBeTruthy();
     });
   });
 
@@ -361,5 +363,57 @@ describe('StudentProfileEditScreen', () => {
     await waitFor(() => {
       expect(screen.getByTestId('edit-avatar-view')).toBeTruthy();
     });
+  });
+
+  it('renders required asterisk on Semestre atual label', async () => {
+    mockGetProfile.mockResolvedValueOnce(MOCK_PROFILE);
+    render(<StudentProfileEditScreen />);
+    await waitFor(() => {
+      expect(screen.getByText(/Semestre atual\s*\*/)).toBeTruthy();
+    });
+  });
+
+  it('renders required asterisk on Ano de conclusão label', async () => {
+    mockGetProfile.mockResolvedValueOnce(MOCK_PROFILE);
+    render(<StudentProfileEditScreen />);
+    await waitFor(() => {
+      expect(screen.getByText(/Ano de conclusão\s*\*/)).toBeTruthy();
+    });
+  });
+
+  it('blocks save when semestre_atual is null and shows error', async () => {
+    mockGetProfile.mockResolvedValueOnce({ ...MOCK_PROFILE, semestre_atual: null });
+    mockUpdateProfile.mockResolvedValueOnce(MOCK_PROFILE);
+
+    render(<StudentProfileEditScreen />);
+    await waitFor(() => {
+      expect(screen.getByTestId('edit-save-button')).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByTestId('edit-save-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('edit-error-message')).toBeTruthy();
+      expect(screen.getByText('Selecione o semestre atual.')).toBeTruthy();
+    });
+    expect(mockUpdateProfile).not.toHaveBeenCalled();
+  });
+
+  it('blocks save when ano_conclusao is null and shows error', async () => {
+    mockGetProfile.mockResolvedValueOnce({ ...MOCK_PROFILE, ano_conclusao: null });
+    mockUpdateProfile.mockResolvedValueOnce(MOCK_PROFILE);
+
+    render(<StudentProfileEditScreen />);
+    await waitFor(() => {
+      expect(screen.getByTestId('edit-save-button')).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByTestId('edit-save-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('edit-error-message')).toBeTruthy();
+      expect(screen.getByText('Selecione o ano de conclusão.')).toBeTruthy();
+    });
+    expect(mockUpdateProfile).not.toHaveBeenCalled();
   });
 });

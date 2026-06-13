@@ -76,6 +76,11 @@ describe('Step3Academic', () => {
     fireEvent.press(screen.getByTestId('select-turno'));
     fireEvent.press(screen.getByText('Matutino'));
 
+    // select ano de conclusao (obrigatorio)
+    fireEvent.press(screen.getByTestId('select-ano-conclusao'));
+    const currentYear = new Date().getFullYear();
+    fireEvent.press(screen.getByText(String(currentYear + 2)));
+
     fireEvent.changeText(screen.getByTestId('input-horas'), '360');
 
     fireEvent.press(screen.getByText('Continuar'));
@@ -89,6 +94,17 @@ describe('Step3Academic', () => {
         }),
       );
     });
+  });
+
+  it('shows error when ano_conclusao is empty and Continue is pressed', () => {
+    render(<Step3Academic {...defaultProps} />);
+    fireEvent.press(screen.getByText('Continuar'));
+    expect(screen.getByText(/ano de conclusão.*obrigatório/i)).toBeTruthy();
+  });
+
+  it('renders required asterisk on Ano de conclusão label', () => {
+    render(<Step3Academic {...defaultProps} />);
+    expect(screen.getByText(/Ano de conclusão\s*\*/)).toBeTruthy();
   });
 
   it('renders info box about horas extensao', () => {

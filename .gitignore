@@ -91,3 +91,4 @@ android/.gradle/
 # Docker
 .dockerignore
 *.pem
+PROJECT_CONTEXT.md

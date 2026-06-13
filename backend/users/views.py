@@ -3,11 +3,15 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
+from django.db.models import Q
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 
 from .models import StudentProfile, StudentGalleryPhoto, OrgGalleryPhoto, OrganizationProfile
 from .serializers import (
@@ -32,6 +36,8 @@ from .serializers import (
     OrgGalleryUploadSerializer,
     OrgGalleryPhotoSerializer,
     OrgChangePasswordSerializer,
+    OrganizationAdminSerializer,
+    AdminActionLogSerializer,
 )
 
 User = get_user_model()
@@ -75,6 +81,90 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return [IsAdmin()]
         return [IsAdminOrSelf()]
+
+
+class AdminOrganizationViewSet(viewsets.ViewSet):
+    """Endpoints para moderacao de organizacoes."""
+
+    permission_classes = [IsAdmin]
+    pagination_class = PageNumberPagination
+
+    def list(self, request):
+        """GET /api/v1/admin/organizations/?status=&search=&page="""
+        queryset = [op for op in []]
+        # Query OrganizationProfile
+        qs = []
+        from .models import OrganizationProfile
+
+        qs = OrganizationProfile.objects.select_related("user").all()
+
+        status_filter = request.query_params.get("status")
+        search = request.query_params.get("search")
+
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+
+        if search:
+            qs = qs.filter(Q(razao_social__icontains=search) | Q(cnpj__icontains=search) | Q(nome_responsavel__icontains=search) | Q(user__email__icontains=search))
+
+        # Paginate
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(qs, request)
+        serializer = OrganizationAdminSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @action(detail=True, methods=["post"])
+    def approve(self, request, pk=None):
+        """Aprova uma organizacao pendente."""
+        from .models import OrganizationProfile, AdminActionLog
+
+        org = get_object_or_404(OrganizationProfile, pk=pk)
+        if org.status == "approved":
+            return Response({"detail": "Organizacao ja aprovada."}, status=status.HTTP_400_BAD_REQUEST)
+
+        org.status = "approved"
+        org.user.is_active = True
+        org.user.save()
+        org.save()
+
+        # registra auditoria
+        AdminActionLog.objects.create(admin=request.user, organization=org, action=AdminActionLog.Action.APPROVE, details="Aprovado via painel admin")
+
+        return Response({"detail": "Organizacao aprovada."}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"])
+    def reject(self, request, pk=None):
+        """Reprova uma organizacao, requer motivo no body: {"reason": "..."}"""
+        from .models import OrganizationProfile, AdminActionLog
+
+        org = get_object_or_404(OrganizationProfile, pk=pk)
+        reason = request.data.get("reason") or request.data.get("details")
+        if not reason:
+            return Response({"detail": "Motivo obrigatorio."}, status=status.HTTP_400_BAD_REQUEST)
+
+        org.status = "rejected"
+        org.user.is_active = False
+        org.user.save()
+        org.save()
+
+        AdminActionLog.objects.create(admin=request.user, organization=org, action=AdminActionLog.Action.REJECT, details=reason)
+
+        return Response({"detail": "Organizacao reprovada."}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="request-info")
+    def request_info(self, request, pk=None):
+        """Solicita informacoes complementares: body {"message": "..."}"""
+        from .models import OrganizationProfile, AdminActionLog
+
+        org = get_object_or_404(OrganizationProfile, pk=pk)
+        message = request.data.get("message") or request.data.get("details")
+        if not message:
+            return Response({"detail": "Mensagem obrigatoria."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Mantem status pendente
+        AdminActionLog.objects.create(admin=request.user, organization=org, action=AdminActionLog.Action.REQUEST_INFO, details=message)
+
+        return Response({"detail": "Solicitacao registrada."}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

@@ -61,6 +61,7 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
 
+
 class OrgGalleryPhotoInline(admin.TabularInline):
     model = OrgGalleryPhoto
     extra = 0
@@ -87,4 +88,3 @@ class OrganizationProfileAdmin(admin.ModelAdmin):
         ("Metadados", {"fields": ("created_at", "updated_at")}),
     )
     inlines = [OrgGalleryPhotoInline]
-

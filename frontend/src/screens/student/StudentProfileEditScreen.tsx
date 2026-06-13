@@ -92,13 +92,11 @@ export default function StudentProfileEditScreen() {
   const [universidadeValue, setUniversidadeValue] = useState('outra');
   const [semestreValue, setSemestreValue] = useState<string | null>(null);
   const [anoConclusaoValue, setAnoConclusaoValue] = useState<string | null>(null);
+  const [turnoValue, setTurnoValue] = useState<string | null>(null);
 
   // ImageViewer state
   const [viewerVisible, setViewerVisible] = useState(false);
   const [viewerUrl, setViewerUrl] = useState('');
-
-  // Dropdown state
-  const [showTurnoDropdown, setShowTurnoDropdown] = useState(false);
 
   const loadProfile = useCallback(async () => {
     if (!accessToken) return;
@@ -119,6 +117,7 @@ export default function StudentProfileEditScreen() {
       setSemestreAtual(data.semestre_atual ? String(data.semestre_atual) : '');
       setSemestreValue(data.semestre_atual ? String(data.semestre_atual) : null);
       setTurno(data.turno || '');
+      setTurnoValue(data.turno || null);
       setAnoConclusao(data.ano_conclusao ? String(data.ano_conclusao) : '');
       setAnoConclusaoValue(data.ano_conclusao ? String(data.ano_conclusao) : null);
       setHorasExigidas(data.horas_extensao_exigidas ? String(data.horas_extensao_exigidas) : '');
@@ -255,14 +254,27 @@ export default function StudentProfileEditScreen() {
     setSuccessMessage('');
     setIsSaving(true);
 
+    // Validação client-side: semestre_atual e ano_conclusao sao obrigatorios
+    // (mirror do backend — exibimos erro amigavel antes de enviar request)
+    if (!semestreValue) {
+      setErrorMessage('Selecione o semestre atual.');
+      setIsSaving(false);
+      return;
+    }
+    if (!anoConclusaoValue) {
+      setErrorMessage('Selecione o ano de conclusão.');
+      setIsSaving(false);
+      return;
+    }
+
     const payload: Partial<ProfileData> = {
       nome: [firstName, lastName].filter(Boolean).join(' '),
       universidade: universidadeValue === 'unb' ? 'Universidade de Brasília (UnB)' : universidade,
       curso,
       matricula,
-      semestre_atual: semestreValue ? Number(semestreValue) : null,
-      turno: turno || null,
-      ano_conclusao: anoConclusaoValue ? Number(anoConclusaoValue) : null,
+      semestre_atual: Number(semestreValue),
+      turno: turnoValue,
+      ano_conclusao: Number(anoConclusaoValue),
       horas_extensao_exigidas: horasExigidas ? Number(horasExigidas) : null,
       bio,
       interesses,
@@ -551,6 +563,7 @@ export default function StudentProfileEditScreen() {
             {/* Semestre */}
             <Select
               label="Semestre atual"
+              required
               options={SEMESTRE_OPTIONS}
               value={semestreValue}
               onChange={setSemestreValue}
@@ -558,59 +571,21 @@ export default function StudentProfileEditScreen() {
               testID="edit-semestre-select"
             />
 
-            {/* Turno — Picker/Dropdown */}
-            <Text style={styles.label}>
-              Turno <Text style={styles.fieldLabelAsterisk}>*</Text>
-            </Text>
-            <TouchableOpacity
-              testID="edit-turno-dropdown"
-              style={styles.selectWrapper}
-              onPress={() => setShowTurnoDropdown(!showTurnoDropdown)}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  styles.selectText,
-                  !turno && styles.selectPlaceholder,
-                ]}
-              >
-                {turno
-                  ? TURNO_OPTIONS.find((o) => o.value === turno)?.label
-                  : 'Selecione o turno'}
-              </Text>
-              <Ionicons name="chevron-down" size={16} color={colors.text.secondary} />
-            </TouchableOpacity>
-            {showTurnoDropdown && (
-              <View style={styles.dropdownList}>
-                {TURNO_OPTIONS.map((opt) => (
-                  <TouchableOpacity
-                    key={opt.value}
-                    testID={`turno-option-${opt.value}`}
-                    style={[
-                      styles.dropdownItem,
-                      turno === opt.value && styles.dropdownItemSelected,
-                    ]}
-                    onPress={() => {
-                      setTurno(opt.value);
-                      setShowTurnoDropdown(false);
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.dropdownItemText,
-                        turno === opt.value && styles.dropdownItemTextSelected,
-                      ]}
-                    >
-                      {opt.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+            {/* Turno — usa componente padrao <Select> (mesma UI dos demais) */}
+            <Select
+              label="Turno"
+              required
+              options={TURNO_OPTIONS}
+              value={turnoValue}
+              onChange={setTurnoValue}
+              placeholder="Selecione o turno"
+              testID="edit-turno-select"
+            />
 
             {/* Ano Conclusão */}
             <Select
               label="Ano de conclusão"
+              required
               options={ANO_CONCLUSAO_OPTIONS}
               value={anoConclusaoValue}
               onChange={setAnoConclusaoValue}
@@ -957,7 +932,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.text.info,
     marginBottom: spacing.labelGap,
-    marginTop: 12,
   },
   fieldLabelAsterisk: {
     color: colors.brand.gold,
@@ -974,6 +948,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.text.primary,
     backgroundColor: colors.neutral.white,
+    marginBottom: spacing.formGap,
   },
   inputDisabled: {
     backgroundColor: '#f5f3ef',
@@ -1003,7 +978,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // ── Select / Dropdown ──
+  // ── Select / Dropdown (legacy custom — ainda referenciado por outros elementos) ──
   selectWrapper: {
     height: 52,
     borderRadius: 10,
@@ -1014,6 +989,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: colors.neutral.white,
+    marginBottom: spacing.formGap,
   },
   selectText: {
     fontFamily: typography.body.fontFamily,

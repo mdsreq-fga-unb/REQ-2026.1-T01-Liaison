@@ -4,6 +4,7 @@ import re
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 
 def validar_cnpj(value: str):
@@ -189,3 +190,32 @@ class OrgGalleryPhoto(models.Model):
 
     def __str__(self):
         return f"OrgGalleryPhoto({self.id})"
+
+
+class AdminActionLog(models.Model):
+
+    class Action(models.TextChoices):
+        APPROVE = "approve", "Aprovar"
+        REJECT = "reject", "Reprovar"
+        REQUEST_INFO = "request_info", "Solicitar Informacoes"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    admin = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="admin_actions"
+    )
+    organization = models.ForeignKey(
+        OrganizationProfile,
+        on_delete=models.CASCADE,
+        related_name="admin_logs",
+    )
+    action = models.CharField(max_length=30, choices=Action.choices)
+    details = models.TextField(blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "users_adminactionlog"
+        verbose_name = "Registro de Ação Administrativa"
+        verbose_name_plural = "Registros de Ações Administrativas"
+
+    def __str__(self):
+        return f"{self.get_action_display()} by {self.admin} on {self.organization} at {self.created_at}"

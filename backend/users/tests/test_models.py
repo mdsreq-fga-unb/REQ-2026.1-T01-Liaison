@@ -247,8 +247,13 @@ class TestStudentProfileModel:
                 matricula="MAT002",
             )
 
-    def test_student_profile_optional_fields_can_be_null(self):
-        """Campos opcionais podem ser nulos."""
+    def test_student_profile_accepts_null_semestre_and_ano_at_model_level(self):
+        """
+        Model aceita null em semestre_atual e ano_conclusao para retrocompatibilidade
+        com dados legados (perfis antigos). A obrigatoriedade e enforced apenas no
+        serializer (StudentRegistrationSerializer e StudentProfileUpdateSerializer)
+        para novos cadastros e edicoes.
+        """
         from users.models import StudentProfile
 
         user = self._make_user()

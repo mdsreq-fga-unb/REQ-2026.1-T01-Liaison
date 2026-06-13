@@ -1,12 +1,13 @@
 import { apiUrl } from '../config/api';
 
-export const createOpportunity = async (data: FormData) => {
-  // Assuming a token might be needed, it should be retrieved from secure storage,
-  // but for now we'll just use fetch according to the existing config.
+export const createOpportunity = async (token: string, data: FormData) => {
   const response = await fetch(apiUrl('/opportunities/'), {
     method: 'POST',
     body: data,
-    // headers like Authorization would go here
+    headers: {
+      Authorization: `Bearer ${token}`,
+      // FormData should NOT have Content-Type set manually (let browser/fetch set boundary)
+    },
   });
   if (!response.ok) {
     throw new Error('Failed to create opportunity');
@@ -14,8 +15,12 @@ export const createOpportunity = async (data: FormData) => {
   return response.json();
 };
 
-export const getMyOpportunities = async () => {
-  const response = await fetch(apiUrl('/opportunities/'));
+export const getMyOpportunities = async (token: string) => {
+  const response = await fetch(apiUrl('/opportunities/'), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch opportunities');
   }

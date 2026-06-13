@@ -4,6 +4,9 @@ import CreateOpportunityScreen from './CreateOpportunityScreen';
 import { createOpportunity } from '../../services/opportunities';
 
 jest.mock('../../services/opportunities');
+jest.mock('../../context/AuthContext', () => ({
+  useAuth: () => ({ accessToken: 'fake-token' })
+}));
 
 describe('CreateOpportunityScreen', () => {
   it('renders step 1 initially', () => {

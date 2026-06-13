@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, ScrollView, Alert, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { createOpportunity } from '../../services/opportunities';
+import { useAuth } from '../../context/AuthContext';
 
 export default function CreateOpportunityScreen({ navigation }: any) {
+  const { accessToken } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     title: '', area: 'educacao', description: '', workload_value: '4', workload_unit: 'h/semana', vacancies: '10',
@@ -62,7 +64,7 @@ export default function CreateOpportunityScreen({ navigation }: any) {
         } as any);
       });
 
-      await createOpportunity(data);
+      await createOpportunity(accessToken, data);
       Alert.alert('Sucesso', 'Vaga salva com sucesso!');
       navigation.goBack();
     } catch (error) {

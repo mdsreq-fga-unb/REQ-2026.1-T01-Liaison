@@ -9,7 +9,7 @@ import re
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import StudentProfile, OrganizationProfile, StudentGalleryPhoto
+from .models import StudentProfile, OrganizationProfile, StudentGalleryPhoto, AdminActionLog
 from .validators import validate_image_file_extension, validate_image_file_size, LettersAndNumbersValidator
 
 User = get_user_model()
@@ -312,6 +312,28 @@ class OrganizationProfileSerializer(serializers.Serializer):
     telefone = serializers.CharField()
     nome_responsavel = serializers.CharField()
     status = serializers.CharField()
+
+
+class OrganizationAdminSerializer(serializers.Serializer):
+    """Serializer para resposta do admin com dados da organizacao + user id/email."""
+    id = serializers.UUIDField(source="user.id")
+    email = serializers.EmailField(source="user.email")
+    cnpj = serializers.CharField()
+    razao_social = serializers.CharField()
+    nome_fantasia = serializers.CharField()
+    telefone = serializers.CharField()
+    nome_responsavel = serializers.CharField()
+    status = serializers.CharField()
+    created_at = serializers.DateTimeField()
+
+
+class AdminActionLogSerializer(serializers.ModelSerializer):
+    admin_email = serializers.EmailField(source="admin.email", read_only=True)
+
+    class Meta:
+        model = AdminActionLog
+        fields = ["id", "admin", "admin_email", "organization", "action", "details", "created_at"]
+        read_only_fields = ["id", "admin", "admin_email", "created_at"]
 
 class OrganizationRegistrationSerializer(serializers.Serializer):
     """

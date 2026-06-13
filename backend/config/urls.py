@@ -24,6 +24,7 @@ from users.views import (
     GalleryUploadView,
     GalleryDeleteView,
     ChangePasswordView,
+    AdminOrganizationViewSet,
 )
 
 @api_view(["GET"])
@@ -64,6 +65,27 @@ urlpatterns = [
     path("api/v1/students/me/gallery/", GalleryUploadView.as_view(), name="student-gallery-upload"),
     path("api/v1/students/me/gallery/<uuid:photo_id>/", GalleryDeleteView.as_view(), name="student-gallery-delete"),
     path("api/v1/students/me/change-password/", ChangePasswordView.as_view(), name="student-change-password"),
+    # Endpoints de verificação e moderação de organizações
+    path(
+        "api/v1/admin/organizations/",
+        AdminOrganizationViewSet.as_view({"get": "list"}),
+        name="admin-organization-list",
+    ),
+    path(
+        "api/v1/admin/organizations/<uuid:pk>/approve/",
+        AdminOrganizationViewSet.as_view({"post": "approve"}),
+        name="admin-organization-approve",
+    ),
+    path(
+        "api/v1/admin/organizations/<uuid:pk>/reject/",
+        AdminOrganizationViewSet.as_view({"post": "reject"}),
+        name="admin-organization-reject",
+    ),
+    path(
+        "api/v1/admin/organizations/<uuid:pk>/request-info/",
+        AdminOrganizationViewSet.as_view({"post": "request_info"}),
+        name="admin-organization-request-info",
+    ),
 ]
 
 # Serve media files in development (DEBUG=True only)

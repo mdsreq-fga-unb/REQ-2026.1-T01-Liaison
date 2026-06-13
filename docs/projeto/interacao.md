@@ -7,7 +7,7 @@ O Kanban não prescreve papéis fixos, permitindo que a equipe os defina conform
 | Papel | Descrição | Responsável |
 | :--- | :--- | :--- |
 | Líder do Projeto e Coordenador de Análise de Requisitos | Coordena o grupo, garante comunicação com o cliente e com o professor, acompanha o progresso do quadro Kanban e remove impedimentos. | Gustavo da Costa Cintra |
-| Analista de Requisitos | Conduz as sessões de elicitação com o cliente, redige histórias de usuário, define critérios de aceitação e mantém o backlog atualizado no GitHub Projects. | Henrique Fontenelle G. Passos |
+| Analista de Requisitos e Responsável de Infraestrutura | Conduz as sessões de elicitação com o cliente, redige histórias de usuário, define critérios de aceitação, mantém o backlog atualizado no GitHub Projects e gerencia o ambiente de produção na AWS (EC2, RDS, deploys e monitoramento). | Henrique Fontenelle G. Passos |
 | Dev. Frontend e Analista de Requisitos | Implementa as interfaces em React com Expo, responsável pela experiência do usuário em mobile e web. | Nicole Jovita Fernandes |
 | Dev. Frontend e Analista de Requisitos | Apoia a implementação das interfaces, construção de protótipos e wireframes para validação com o cliente. | Pedro Felipe Silva Vargas |
 | Dev. Backend e Analista de Requisitos | Implementa a API REST em Django com DRF, gerencia o PostgreSQL e garante a integração entre frontend e backend. | Luis Guilherme Borges Monteiro |

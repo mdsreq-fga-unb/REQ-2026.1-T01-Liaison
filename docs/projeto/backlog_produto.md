@@ -41,7 +41,17 @@ A numeração das User Stories segue o padrão `US<CP#>.<sequencial>`, vinculand
 
 ## 10.2 Priorização do Backlog
 
-A priorização adota um sistema de **três camadas sequenciais**: MoSCoW define a banda de negócio, ICE Score quantifica e desempata dentro de cada banda, e a Matriz Esforço × Valor posiciona cada item visualmente.
+A priorização do backlog utiliza um **funil de três técnicas** (MoSCoW, ICE Score e Matriz Esforço × Valor) para filtrar, quantificar e visualizar os itens.
+
+### Método Principal: Decisão do Time
+
+**Nenhuma das três técnicas define, sozinha, qual item será implementado em seguida.** O método principal de priorização é a **decisão conjunta do time de negócio e desenvolvimento** no momento de puxar um card do Kanban. As técnicas fornecem dados, mas a decisão final é humana e considera:
+
+- Banda de negócio (MoSCoW)
+- ICE Score (ordem de análise dentro da banda)
+- Quadrante da Matriz (alerta de complexidade)
+- Dependências técnicas e cadeia de pré-requisitos
+- Capacidade da semana e contexto do fluxo
 
 ### 10.2.1 Metodologia de Priorização: MoSCoW → ICE Score → Matriz Esforço × Valor
 
@@ -73,6 +83,21 @@ ENTRADA (requisito novo ou em revisão)
 ```
 
 **Trava fundamental do MoSCoW:** Um item COULD **nunca** entra no fluxo antes de um MUST, mesmo que o ICE Score do COULD seja numericamente maior. O MoSCoW é a trava de negócio; o ICE desempata dentro da mesma banda.
+
+### Papel de cada técnica
+
+| Técnica | Papel na priorização | O que decide |
+| :--- | :--- | :--- |
+| **MoSCoW** | **Filtro de negócio** — separa o vital do descartável | Em qual banda (Must, Should, Could, Won't) o item entra |
+| **ICE Score** | **Quantificador e desempate** — dá nota numérica dentro da banda | A ordem de análise dentro da mesma banda MoSCoW |
+| **Matriz Esforço × Valor** | **Alerta visual** — sinaliza se o item é Quick Win, Plan, Later ou Drop | Se o item deve ser fatiado, postergado ou descartado (dentro da banda) |
+
+### Regras de conflito
+
+- **Conflito 1:** COULD com ICE maior que MUST → **MoSCoW prevalece**. A banda de negócio é soberana.
+- **Conflito 2:** MUST/Should com Q=🗑️ Drop → **MoSCoW prevalece**, mas a Matriz sinaliza risco de complexidade. O time deve avaliar se fatia o item ou aceita o risco.
+- **Conflito 3:** MUST com Q=📐 Plan → **MoSCoW prevalece**, mas a execução deve ser fatiada até E ≥ 5.
+- **Conflito 4:** SHOULD com Q=⚡ Quick Win → **ICE Score prevalece** para decidir se entra no fluxo antes de outros Should.
 
 ---
 
@@ -120,7 +145,7 @@ ICE Score = Impacto × Confiança × Facilidade     (range: 1 a 1.000)
 
 Cada item foi classificado por critério de negócio (MoSCoW) e depois quantificado pelo ICE Score (`I × C × E`). A trava MoSCoW é absoluta: um COULD jamais entra no fluxo antes de um MUST, independente do ICE.
 
-> **Ordenação:** 1º) Banda MoSCoW. 2º) ICE decrescente. **A sequência real de implementação é definida pelo time no KanbanXP, respeitando MoSCoW + resolução das cadeias.**
+> **Ordenação:** 1º) Banda MoSCoW. 2º) ICE decrescente. **A tabela é uma referência; a sequência real de implementação é definida pelo time no KanbanXP, respeitando MoSCoW + resolução das cadeias + contexto do momento.**
 >
 > **Q** = Quadrante: ⚡ Quick Win, 📐 Plan, ⏳ Later, 🗑️ Drop. O **E** exibido é o valor final (E bruto − penalidade por dependência, cap −2). **Cadeia:** `A → B → C` = A depende de B → B depende de C. Número entre parênteses = prof. (itens únicos na cadeia). ⛔ = bloqueado pela trava MoSCoW.
 
@@ -195,7 +220,9 @@ Cada item foi classificado por critério de negócio (MoSCoW) e depois quantific
 
 ### 10.2.3 Análise de Anomalias
 
-O ICE não tem contexto de negócio — o **MoSCoW é a trava de segurança**. Anomalias residuais após a priorização:
+O ICE não tem contexto de negócio — o **MoSCoW é a trava de segurança**. As anomalias abaixo são **alertas para o time avaliar**, não regras automáticas de descarte. A ação final depende da análise conjunta de negócio e desenvolvimento no momento de puxar o card.
+
+Anomalias residuais após a priorização:
 
 | ID(s) | Anomalia | Risco | Ação |
 |:---|:---|:---:|:---|

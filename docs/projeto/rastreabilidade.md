@@ -10,6 +10,12 @@ Esta seção consolida em uma única visão a cadeia completa de rastreabilidade
 
 ---
 
+## 11.1.1 Diagrama de Rastreabilidade
+
+![Diagrama de rastreabilidade do projeto Liaison mostrando a cadeia completa de Objetivos Especificos, Capacidades do Produto, Requisitos Funcionais e Historias de Usuario](assets/rastreabilidade_diagrama.png)
+
+---
+
 ## 11.2 Problemas Identificados
 
 | ID | Problema |

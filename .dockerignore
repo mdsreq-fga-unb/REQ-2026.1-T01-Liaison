@@ -1,0 +1,61 @@
+# Node modules — never copy from host into Docker images
+**/node_modules
+node_modules
+
+# Python bytecode and caches
+**/__pycache__
+__pycache__
+**/*.pyc
+*.pyc
+**/*.pyo
+*.pyo
+**/*.pyd
+*.pyd
+
+# Python virtual environments
+.venv
+venv
+env
+
+# Environment files (secrets must never enter images)
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+dist
+build
+web-build
+.expo
+
+# Test output and coverage
+coverage
+.coverage
+htmlcov
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Editor / IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Docker files (not needed inside containers)
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# Documentation
+docs
+mkdocs.yml
+README.md
+
+# OpenCode work files
+.opencode

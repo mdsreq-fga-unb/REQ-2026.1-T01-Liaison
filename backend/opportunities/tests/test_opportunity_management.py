@@ -159,7 +159,17 @@ class TestEdicaoVagas:
 # ── Issue #51 — US2.3 Publicação de Vagas (RF20) ──────────────────────────
 @pytest.mark.django_db
 class TestPublicacaoVagas:
-    def test_publicar_vaga_rascunho(self, api_client, ong_user, vaga_rascunho):
+    def test_publicar_vaga_rascunho_sem_foto_retorna_400(self, api_client, ong_user, vaga_rascunho):
+        api_client.force_authenticate(user=ong_user)
+        response = api_client.patch(f'/api/v1/opportunities/{vaga_rascunho.id}/publish/')
+        assert response.status_code == 400
+        assert "foto" in response.data["detail"].lower()
+
+    def test_publicar_vaga_rascunho_com_foto(self, api_client, ong_user, vaga_rascunho):
+        from opportunities.models import OpportunityPhoto
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        foto = SimpleUploadedFile("foto.jpg", b"fake-image-content", content_type="image/jpeg")
+        OpportunityPhoto.objects.create(opportunity=vaga_rascunho, image=foto)
         api_client.force_authenticate(user=ong_user)
         response = api_client.patch(f'/api/v1/opportunities/{vaga_rascunho.id}/publish/')
         assert response.status_code == 200

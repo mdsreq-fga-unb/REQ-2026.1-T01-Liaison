@@ -13,7 +13,7 @@
       │
       ▼ HTTP
 [EC2 t3.micro — Ubuntu 26.04]
-  └── Nginx (porta 80) → Gunicorn (porta 8000) → Django 5.0.14
+  └── Nginx (porta 80) → Gunicorn (porta 8000) → Django 5.2.15
       │
       ▼ PostgreSQL (porta 5432)
 [RDS db.t4g.micro — PostgreSQL 15]
@@ -219,14 +219,14 @@ python manage.py createsuperuser
 
 ### Usuários criados em 23/05/2026
 
-| Membro | Email | Papel | Superuser |
-|---|---|---|---|
-| Henrique Fontenelle | fontenelle.dec@gmail.com | Analista de Requisitos | Sim |
-| Gustavo Cintra | cintra.gustavo@hotmail.com | Líder | Sim |
-| Luís Monteiro | monteiro.luis@aluno.unb.br | Backend | Sim |
-| Pedro Vargas | pedrofvargas10@gmail.com | Frontend | Sim |
-| Danilo Barros | danilosarmentobarros@gmail.com | QA | Sim |
-| Nicole Fernandes | nicolejovitafernandes@gmail.com | Frontend | Sim |
+| Membro | Papel |
+|---|---|
+| Henrique Fontenelle | Infra e Analista de Requisitos |
+| Gustavo Cintra | Líder e Analista de Requisitos | 
+| Luís Monteiro | Backend e Analista de Requisitos | 
+| Pedro Vargas | Frontend e Analista de Requisitos | 
+| Danilo Barros | QA e Analista de Requisitos | 
+| Nicole Fernandes | Frontend e Analista de Requisitos | 
 
 ### Resetar senha de um usuário
 

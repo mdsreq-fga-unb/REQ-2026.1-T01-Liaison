@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-me-in-production")
 DEBUG = config("DEBUG", default=True, cast=bool)
-
+FRONTEND_URL = config("FRONTEND_URL")
 # ---------------------------------------------------------------------------
 # ALLOWED_HOSTS — built from LOCAL_IP so Expo Go (device/emulator) can reach
 # the backend over Wi-Fi. Set LOCAL_IP in .env to your machine's local IP.

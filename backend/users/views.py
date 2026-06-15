@@ -284,8 +284,7 @@ class PasswordResetRequestView(APIView):
                 token = default_token_generator.make_token(user)
                 
                 # Link para o frontend no React Native
-                reset_link = f"liaison://reset-password?uid={uid}&token={token}"
-                
+                reset_link = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"                
                 # Mensagem em texto puro (caso o e-mail não suporte HTML)
                 mensagem_texto = f"Olá,\n\nAcesse o link para redefinir sua senha: {reset_link}\n\nO link expira em 24 horas."
 

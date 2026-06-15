@@ -1,63 +1,94 @@
-# 8 REQUISITOS DE SOFTWARE
+# 8 Requisitos de Software
 
 Esta seção descreve os requisitos necessários para o desenvolvimento do software. Ela está dividida em requisitos funcionais e não funcionais, que apresentam as funcionalidades do sistema e as qualidades que ele deve possuir para atender às expectativas dos usuários.
 
-## 8.1 Lista de Requisitos Funcionais
+---
 
-Os requisitos funcionais descrevem as funcionalidades específicas que o sistema deve implementar para atender às necessidades do negócio. Eles incluem integrações, processos e interações do usuário com o sistema.
+## 8.1 Cadeia de Rastreabilidade
 
-### CP01 - Gestão de Usuários e Entidades
-| ID | Nome do Requisito | Descrição |
-| :--- | :--- | :--- |
-| **RF01** | Cadastrar estudante | Permitir a criação de conta na plataforma para alunos universitários. |
-| **RF02** | Cadastrar organização | Permitir o registro e envio de dados de entidades sociais parceiras. |
-| **RF03** | Autenticar usuário | Garantir o acesso seguro à plataforma via login e senha. |
-| **RF04** | Gerenciar perfil | Permitir a atualização de dados cadastrais, fotos e preferências. |
-| **RF05** | Recuperar senha | Prover um fluxo seguro de redefinição de credenciais de acesso esquecidas. |
-| **RF06** | Moderar organização | Permitir a validação e aprovação administrativa dos cadastros de organizações. |
-
-### CP02 - Ciclo de Vagas e Engajamento
-| ID | Nome do Requisito | Descrição |
-| :--- | :--- | :--- |
-| **RF18** | Criar oportunidade | Permitir que organizações criem novas vagas de voluntariado. |
-| **RF19** | Editar oportunidade | Permitir que organizações editem vagas de voluntariado existentes. |
-| **RF20** | Publicar oportunidade | Permitir que organizações publiquem vagas de voluntariado para visualização dos estudantes. |
-| **RF21** | Encerrar oportunidade | Permitir que organizações encerrem vagas de voluntariado. |
-| **RF08** | Buscar vaga | Prover listagem de oportunidades com filtros personalizados para o estudante. |
-| **RF09** | Consultar vaga | Exibir informações detalhadas, requisitos mínimos e datas de uma vaga específica. |
-| **RF10** | Realizar candidatura | Permitir que o estudante confirme interesse e se inscreva em uma vaga. |
-| **RF11** | Avaliar candidatura | Permitir que a organização aprove ou recuse inscrições de estudantes nas vagas. |
-| **RF12** | Acompanhar candidatura | Permitir que o estudante visualize o status de aprovação de sua inscrição. |
-
-### CP03 - Acompanhamento e Certificação Acadêmica
-| ID | Nome do Requisito | Descrição |
-| :--- | :--- | :--- |
-| **RF13** | Listar aprovados | Exibir o painel de voluntários confirmados na vaga para controle da organização. |
-| **RF14** | Registrar frequência | Permitir que a organização ateste as horas efetivamente cumpridas por voluntário. |
-| **RF15** | Emitir certificado | Gerar automaticamente o documento oficial em PDF comprovando o voluntariado. |
-| **RF16** | Consultar histórico | Exibir painel com o consolidado de certificados e horas totais obtidas pelo estudante. |
-| **RF17** | Validar certificado | Prover página pública para terceiros verificarem a autenticidade de um documento via código/UUID. |
+`Problema → Objetivos Específicos (OE) → Características do Produto (CP) → Requisitos Funcionais (RF) → Histórias de Usuário (US) → Requisitos Não Funcionais (RNF)`
 
 ---
 
-## 8.2 Lista de Requisitos Não Funcionais
+## 8.1.1 Diagrama de Rastreabilidade
 
-Os requisitos não funcionais especificam as qualidades e restrições do sistema, classificados pelo modelo URPS+.
+![Diagrama de rastreabilidade do projeto Liaison mostrando a cadeia completa de Objetivos Especificos, Capacidades do Produto, Requisitos Funcionais e Historias de Usuario](assets/rastreabilidade_diagrama.png)
 
-*   **RNF01 - Segurança (Security):** As senhas dos usuários devem ser armazenadas exclusivamente com o algoritmo **bcrypt**, com fator de custo (work factor) mínimo de **12**, garantindo resistência a ataques de força bruta e proteção contra vazamentos de banco de dados.
+---
 
-*   **RNF02 - Desempenho (Performance):** O processo de login deve retornar resposta ao usuário em no máximo **2 segundos**, medido sob carga nominal de até **100 requisições simultâneas** no ambiente de produção.
+## 8.2 Problemas Identificados
 
-*   **RNF03 - Confiabilidade (Reliability):** O sistema deve validar CNPJs inseridos no cadastro de organizações aplicando o **algoritmo oficial de verificação dos dígitos verificadores** da Receita Federal, rejeitando entradas com formatação inválida ou dígitos incorretos antes de persistir os dados.
+| ID | Problema |
+| :--- | :--- |
+| **P01** | Estudantes universitários não dispõem de um canal único para localizar, se inscrever e obter comprovante de atividades de voluntariado. |
+| **P02** | ONGs e entidades sociais não possuem ferramentas para publicar vagas, receber inscrições, registrar presença e emitir comprovantes em um único sistema. |
 
-*   **RNF04 - Usabilidade (Usability):** A interface do sistema deve ser responsiva e totalmente operável em dispositivos móveis com **iOS 16 ou superior** e **Android 10 (API 29) ou superior**, sem quebras de layout ou perda de funcionalidade em telas com largura mínima de **360px**.
+---
 
-*   **RNF05 - Desempenho (Performance):** Os resultados de busca de vagas, com até **5 filtros simultâneos aplicados**, devem ser carregados em menos de **3 segundos**, medido sob carga de até **200 requisições simultâneas** no ambiente de produção.
+## 8.3 Objetivos Específicos
 
-*   **RNF06 - Desempenho (Performance):** O módulo de vagas deve suportar pelo menos **1.000 usuários navegando e lendo vagas simultaneamente**, com tempo de resposta máximo de **5 segundos** para qualquer requisição de leitura sob essa carga.
+| ID | Objetivo Específico | Problema atendido |
+| :--- | :--- | :--- |
+| **OE01** | Conectar estudantes e organizações de forma centralizada, facilitando o fluxo de publicação, descoberta e gestão de inscrições em oportunidades de voluntariado. | P01, P02 |
+| **OE02** | Automatizar o fluxo de comprovação acadêmica das atividades extracurriculares, unificando o controle de participação e a emissão de certificados digitais. | P01, P02 |
 
-*   **RNF07 - Suportabilidade (Supportability):** A geração de certificados em PDF deve ocorrer de forma **assíncrona**, via fila de tarefas em background (ex: Celery + Redis), com tempo máximo de **30 segundos** entre a solicitação e a disponibilização do arquivo para download, sem bloquear a interface do usuário.
+---
 
-*   **RNF08 - Segurança (Security):** Uma vez atestada a carga horária e gerado o certificado digital, os registros correspondentes no banco de dados devem ser **imutáveis** — implementado por meio de restrições no nível do banco (sem permissão de UPDATE/DELETE nas tabelas de certificados e frequências) e validação na camada de aplicação que rejeita qualquer tentativa de alteração.
+## 8.4 Matriz de Rastreabilidade Completa
 
-*   **RNF09 - Confiabilidade (Reliability):** Cada certificado emitido deve receber um identificador único gerado pelo algoritmo **UUID v4** (RFC 4122), utilizado tanto como chave de validação pública quanto como URL de verificação. A probabilidade de colisão do UUID v4 é de aproximadamente 1 em 5,3 × 10³⁶, tornando colisões estatisticamente desprezíveis no volume esperado da plataforma.
+### CP01 — Gestão de Usuários e Entidades
+
+**Objetivo principal:** OE01 | **Contribuição secundária:** OE02
+
+| RF | Nome | História de Usuário | RNFs |
+| :--- | :--- | :--- | :--- |
+| RF01 | Cadastrar estudante | US1.1 Como estudante universitário, desejo me cadastrar na plataforma para poder buscar e me candidatar a vagas de voluntariado. | RNF01, RNF04 |
+| RF02 | Cadastrar organização | US1.2 Como representante de uma organização social, desejo cadastrar minha organização na plataforma para poder publicar vagas de voluntariado. | RNF01, RNF03, RNF04 |
+| RF03 | Autenticar usuário | US1.3 Como usuário, desejo fazer login na plataforma de forma segura para acessar funcionalidades específicas do meu perfil. | RNF01, RNF02, RNF04 |
+| RF04 | Gerenciar perfil | US1.4 Como estudante, desejo gerenciar e editar meu perfil para manter minhas informações atualizadas.<br>US1.5 Como organização, desejo editar meu perfil institucional para manter as informações atualizadas. | RNF04 |
+| RF05 | Recuperar senha | US1.6 Como usuário, desejo recuperar minha senha via e-mail para acessar minha conta caso esqueça a senha. | RNF01, RNF04 |
+| RF06 | Moderar organização | US1.7 Como administrador, desejo ter um painel para moderar cadastros de organizações sociais para garantir a legitimidade das organizações. | RNF04 |
+
+### CP02 — Ciclo de Vagas e Engajamento
+
+**Objetivo principal:** OE01 | **Contribuição secundária:** OE02
+
+| RF | Nome | História de Usuário | RNFs |
+| :--- | :--- | :--- | :--- |
+| RF18 | Criar oportunidade | US2.1 Como organização, desejo criar novas vagas de voluntariado para atrair estudantes interessados. | RNF04, RNF06 |
+| RF19 | Editar oportunidade | US2.2 Como organização, desejo editar informações de vagas existentes para mantê-las atualizadas. | RNF04 |
+| RF20 | Publicar oportunidade | US2.3 Como organização, desejo publicar vagas para que fiquem visíveis aos estudantes. | RNF04 |
+| RF21 | Encerrar oportunidade | US2.4 Como organização, desejo encerrar vagas quando não houver mais necessidade. | RNF04 |
+| RF08 | Buscar vaga | US2.5 Como estudante, desejo buscar e filtrar vagas para encontrar oportunidades que correspondam ao meu interesse e disponibilidade. | RNF04, RNF05, RNF06 |
+| RF09 | Consultar vaga | US2.6 Como estudante, desejo visualizar os detalhes completos de uma vaga para decidir se devo me candidatar. | RNF04, RNF06 |
+| RF10 | Realizar candidatura | US2.7 Como estudante, desejo me candidatar a uma vaga ativa para participar das atividades da organização. | RNF04, RNF06 |
+| RF11 | Avaliar candidatura | US2.8 Como organização, desejo avaliar as candidaturas dos estudantes para aprovar ou recusar participantes. | RNF04, RNF06 |
+| RF12 | Acompanhar candidatura | US2.9 Como estudante, desejo cancelar minha candidatura caso não tenha mais interesse ou disponibilidade.<br>US2.10 Como usuário, desejo receber notificações sobre mudanças de status de candidaturas. | RNF04 |
+
+### CP03 — Acompanhamento e Certificação Acadêmica
+
+**Objetivo principal:** OE02 | **Contribuição secundária:** OE01
+
+| RF | Nome | História de Usuário | RNFs |
+| :--- | :--- | :--- | :--- |
+| RF13 | Listar aprovados | US3.1 Como organização, desejo visualizar a lista de estudantes aprovados para gerenciar acompanhamento e presença. | RNF04, RNF08 |
+| RF14 | Registrar frequência | US3.2 Como organização, desejo registrar a presença e atestar a carga horária dos estudantes aprovados. | RNF04, RNF08 |
+| RF15 | Emitir certificado | US3.3 Como estudante, desejo receber automaticamente meu certificado digital em PDF ao concluir uma atividade.<br>US3.4 Como estudante, desejo exportar meus certificados digitais em PDF para comprovação acadêmica. | RNF07, RNF08, RNF09 |
+| RF16 | Consultar histórico | US3.5 Como estudante, desejo visualizar meu histórico de horas de voluntariado para acompanhar minha evolução.<br>US3.6 Como estudante, desejo fazer download dos meus certificados para comprovação acadêmica. | RNF04, RNF07, RNF08 |
+| RF17 | Validar certificado | US3.7 Como qualquer pessoa, desejo acessar um portal público para validar a autenticidade de um certificado por URL ou QR Code. | RNF07, RNF09 |
+
+---
+
+## 8.5 Requisitos Não Funcionais
+
+| ID | Classificação URPS+ | Descrição resumida | RFs impactados |
+| :--- | :--- | :--- | :--- |
+| RNF01 | Segurança | bcrypt com work factor ≥ 12 | RF01, RF02, RF03, RF05 |
+| RNF02 | Desempenho | Login ≤ 2s sob 100 req. simultâneas | RF01, RF03 |
+| RNF03 | Confiabilidade | Validação de CNPJ com dígitos verificadores | RF02 |
+| RNF04 | Usabilidade | Responsivo em iOS 16+ e Android 10+, tela ≥ 360px | RF04, RF06, RF08, RF09, RF10, RF11, RF12, RF13, RF14, RF16 |
+| RNF05 | Desempenho | Busca ≤ 3s com até 5 filtros, 200 req. simultâneas | RF08 |
+| RNF06 | Desempenho | Suporte a 1.000 usuários simultâneos, resp. ≤ 5s | RF08, RF10, RF11 |
+| RNF07 | Suportabilidade | Geração assíncrona de PDF em até 30s | RF15, RF16, RF17 |
+| RNF08 | Segurança | Imutabilidade de certificados e frequências no banco | RF13, RF14, RF15, RF16 |
+| RNF09 | Confiabilidade | UUID v4 (RFC 4122) para certificados | RF15, RF17 |

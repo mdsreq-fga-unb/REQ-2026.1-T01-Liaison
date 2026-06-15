@@ -17,8 +17,7 @@
  * Expo only exposes env vars prefixed with EXPO_PUBLIC_ to the app bundle.
  */
 
-export const API_BASE_URL: string =
-  process.env["EXPO_PUBLIC_API_BASE_URL"] ?? "http://localhost:8000/api/v1";
+export const API_BASE_URL: string = "http://18.225.181.125/api/v1";
 
 /**
  * Helper to build a full API endpoint URL.

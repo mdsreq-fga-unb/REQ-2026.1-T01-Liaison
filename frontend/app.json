@@ -20,13 +20,20 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": false
+      "edgeToEdgeEnabled": false,
+      "usesCleartextTraffic": true,
+      "package": "com.unb.liaison"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "96f5d351-3997-4129-b59e-78ba719ffe39"
+      }
+    }
   }
 }

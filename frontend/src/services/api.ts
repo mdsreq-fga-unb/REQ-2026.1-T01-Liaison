@@ -744,3 +744,40 @@ export async function changeOrgPassword(
   }
   return data as { detail: string };
 }
+
+// ── Opportunity API Types ──────────────────────────────────────────
+
+export interface OpportunityData {
+  id: string;
+  title: string;
+  category: string;
+  status: 'draft' | 'active' | 'closed';
+  workload_hours: number;
+  workload_type: 'daily' | 'weekly' | 'monthly' | 'total';
+  location_type: 'remote' | 'in_person' | 'hybrid';
+  city?: string;
+  state?: string;
+  start_date?: string;
+  end_date?: string;
+  available_spots: number;
+  filled_spots: number;
+  created_at: string;
+}
+
+// ── Opportunity API Functions ──────────────────────────────────────
+
+/**
+ * Fetch the authenticated organization's opportunities.
+ * GET /organizations/me/opportunities/
+ */
+export async function getOrgOpportunities(token: string): Promise<OpportunityData[]> {
+  const url = apiUrl('/organizations/me/opportunities/');
+  const response = await fetch(url, {
+    headers: { ...authHeaders(token) },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to fetch org opportunities', data, response.status);
+  }
+  return data as OpportunityData[];
+}

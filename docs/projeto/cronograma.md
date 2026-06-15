@@ -1,7 +1,7 @@
 
 # 5 CRONOGRAMA E ENTREGAS
 
-O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são incrementais e cumulativas — cada uma entrega um conjunto coeso de funcionalidades que agregam valor direto ao usuário final. Infraestrutura e configuração de ambiente são incorporadas conforme a necessidade de cada release, nunca concentradas em etapa isolada.
+O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são incrementais e cumulativas — a cada entrega um conjunto coeso de funcionalidades que agregam valor direto ao usuário final. Infraestrutura e configuração de ambiente são incorporadas conforme a necessidade de cada release, nunca concentradas em etapa isolada.
 
 ## 5.1 Plano de Releases
 

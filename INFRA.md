@@ -13,7 +13,7 @@
       │
       ▼ HTTP
 [EC2 t3.micro — Ubuntu 26.04]
-  └── Nginx (porta 80) → Gunicorn (porta 8000) → Django 5.0.14
+  └── Nginx (porta 80) → Gunicorn (porta 8000) → Django 5.2.15
       │
       ▼ PostgreSQL (porta 5432)
 [RDS db.t4g.micro — PostgreSQL 15]
@@ -206,8 +206,7 @@ http://18.225.181.125/api/
 
 ## Gerenciamento de Usuários no Servidor
 
-Os usuários do sistema são criados via terminal no servidor, não pelo admin Django.
-Isso se deve a uma incompatibilidade temporária entre Django 5.0.14 e Python 3.14 (ver issue #49).
+Os usuários administrativos (superuser) do sistema são criados via terminal no servidor, por convenção da equipe.
 
 ### Criar novo usuário superadmin
 
@@ -219,14 +218,14 @@ python manage.py createsuperuser
 
 ### Usuários criados em 23/05/2026
 
-| Membro | Email | Papel | Superuser |
-|---|---|---|---|
-| Henrique Fontenelle | fontenelle.dec@gmail.com | Analista de Requisitos | Sim |
-| Gustavo Cintra | cintra.gustavo@hotmail.com | Líder | Sim |
-| Luís Monteiro | monteiro.luis@aluno.unb.br | Backend | Sim |
-| Pedro Vargas | pedrofvargas10@gmail.com | Frontend | Sim |
-| Danilo Barros | danilosarmentobarros@gmail.com | QA | Sim |
-| Nicole Fernandes | nicolejovitafernandes@gmail.com | Frontend | Sim |
+| Membro | Papel |
+|---|---|
+| Gustavo Cintra | Líder |
+| Henrique Fontenelle | Infraestrutura e Analista de Requisitos |
+| Luís Monteiro | Backend e Analista de Requisitos |
+| Pedro Vargas | Frontend e Analista de Requisitos |
+| Danilo Barros | QA e Analista de Requisitos |
+| Nicole Fernandes | Frontend e Analista de Requisitos |
 
 ### Resetar senha de um usuário
 
@@ -260,4 +259,4 @@ Executar **obrigatoriamente** ao final do projeto para garantir $0 de cobrança:
 
 ---
 
-*Última atualização: 02/06/2026 — @HenriqueFontenelle*
+*Última atualização: 15/06/2026 — @HenriqueFontenelle*

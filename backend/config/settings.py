@@ -213,5 +213,19 @@ if USE_S3:
     AWS_DEFAULT_ACL = None
     AWS_QUERYSTRING_AUTH = False
 
+# backend/config/settings.py
 
+# Configurações de E-mail (Exemplo utilizando SMTP padrão)
+# Em ambiente de desenvolvimento, você pode usar o console backend para debugar:
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com' # Substitua pelo seu provedor (ex: smtp.gmail.com)
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'seu-email@liaison.com' # Variável de ambiente recomendada
+# EMAIL_HOST_PASSWORD = 'sua-senha-segura'  # Variável de ambiente recomendada
+# DEFAULT_FROM_EMAIL = 'Equipe Liaison <seu-email@liaison.com>'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Tempo de expiração do link de redefinição de senha (24 horas em segundos)
+PASSWORD_RESET_TIMEOUT = 86400
 

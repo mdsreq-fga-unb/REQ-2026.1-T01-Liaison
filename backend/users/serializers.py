@@ -328,3 +328,16 @@ class OrganizationRegistrationSerializer(serializers.Serializer):
         )
 
         return user
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    uidb64 = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True, min_length=8)
+
+    def validate(self, data):
+        # Aqui garantimos que a senha atenda aos critérios mínimos do Django
+        validate_password(data['new_password'])
+        return data

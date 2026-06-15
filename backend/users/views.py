@@ -9,6 +9,14 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
+from django.conf import settings
+from .serializers import PasswordResetRequestSerializer, PasswordResetConfirmSerializer
+from rest_framework.permissions import AllowAny
 
 from .serializers import (
     CustomTokenObtainPairSerializer,
@@ -258,3 +266,78 @@ def organization_register(request):
     }
 
     return Response(data, status=status.HTTP_201_CREATED)
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            user = User.objects.filter(email=email).first()
+            
+            # Mensagem genérica exigida pelo Cenário 1 e 2
+            generic_message = "Se o e-mail estiver cadastrado, você receberá um link de redefinição"
+
+            if user:
+                # Geração de token single-use seguro
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                
+                # Link para o frontend no React Native (ajuste para o seu deep link)
+                # Exemplo: liaison://reset-password?uid={uid}&token={token}
+                reset_link = f"liaison://reset-password?uid={uid}&token={token}"
+                
+                # Disparo do e-mail
+                send_mail(
+                    subject="Liaison - Recuperação de Senha",
+                    message=f"Olá,\n\nAcesse o link para redefinir sua senha: {reset_link}\n\nO link expira em 24 horas.",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                )
+            
+            # Retorna 200 OK sempre com a mesma mensagem, protegendo contra enumeração de e-mails
+            return Response({"message": generic_message}, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            uidb64 = serializer.validated_data['uidb64']
+            token = serializer.validated_data['token']
+            new_password = serializer.validated_data['new_password']
+
+            try:
+                uid = force_str(urlsafe_base64_decode(uidb64))
+                user = User.objects.get(pk=uid)
+            except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
+
+            # Cenário 4: Link expirado ou inválido
+            if user is None or not default_token_generator.check_token(user, token):
+                return Response(
+                    {"error": "Link expirado. Solicite uma nova redefinição de senha."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Cenário 5: Nova senha igual à anterior
+            if user.check_password(new_password):
+                return Response(
+                    {"error": "A nova senha não pode ser igual à senha anterior"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Cenário 3: Redefinição com sucesso
+            user.set_password(new_password) # O Django aplica o hash (bcrypt) automaticamente
+            user.save()
+
+            return Response(
+                {"message": "Senha redefinida com sucesso"}, 
+                status=status.HTTP_200_OK
+            )
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -16,6 +17,7 @@ import RedefineLockIcon from '../../../assets/redefine_lock.svg';
 
 export default function PasswordRecoveryScreen() {
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation<any>();
 
   const handlePasswordRecovery = async () => {
@@ -23,16 +25,37 @@ export default function PasswordRecoveryScreen() {
       Alert.alert('Erro', 'Por favor, insira seu e-mail institucional.');
       return;
     }
-    
-    // Aqui entra a chamada para a API (Backend)
-    // Exemplo: await api.post('/auth/password-reset/', { email });
-    
-    // Alerta baseado no Cenário 1 e Cenário 2 (Mesma mensagem sempre)
-    Alert.alert(
-      'Solicitação enviada',
-      'Se o e-mail estiver cadastrado, você receberá um link de redefinição.'
-    );
+
+    setIsLoading(true);
+
+    try {
+      // Substitua pelo IP correto do seu backend. 
+      // Para Emulador Android: http://10.0.2.2:8000/api/users/password-reset/
+      const baseUrl = process.env.EXPO_PUBLIC_API_URL;
+      const apiUrl = `${baseUrl}/users/password-reset/`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        // Envia o e-mail limpo de espaços vazios e em minúsculas
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+
+    } catch (error) {
+      // Cai aqui apenas se o servidor estiver desligado ou não houver internet
+      console.error('Erro de conexão:', error);
+      Alert.alert(
+        'Erro de conexão',
+        'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   return (
     <SafeAreaView style={styles.root}>
@@ -82,10 +105,20 @@ export default function PasswordRecoveryScreen() {
             text="Pronto! Você já pode navegar normalmente e trocar sua senha para a que preferir."
           />
 
-          <TouchableOpacity style={styles.sendButton} onPress={handlePasswordRecovery}>
-            <Text style={styles.sendButtonText}>Solicitar Nova Senha</Text>
-            <Feather name="send" size={18} color="#ffffff" />
-          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.sendButton, isLoading && { opacity: 0.7 }]} 
+            onPress={handlePasswordRecovery}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+                  <>
+                    <Text style={styles.sendButtonText}>Solicitar Nova Senha</Text>
+                    <Feather name="send" size={18} color="#ffffff" />
+                  </>
+                )}
+</TouchableOpacity>
 
           <View style={styles.footerRow}>
             <Text style={styles.footerText}>Lembrou sua senha?     </Text>

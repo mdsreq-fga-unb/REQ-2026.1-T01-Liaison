@@ -30,6 +30,9 @@ from .serializers import (
     AdminActionLogSerializer,
 )
 
+import time
+import random
+
 User = get_user_model()
 
 
@@ -315,6 +318,9 @@ class PasswordResetRequestView(APIView):
                     html_message=mensagem_html, # <-- Essa é a linha que ativa o HTML!
                     fail_silently=False,
                 )
+            else:
+                # pausando o código por um tempo aleatório entre 1.2 e 1.8 segundos.
+                time.sleep(random.uniform(1.2, 1.8))
             
             # Retorna 200 OK sempre com a mesma mensagem, protegendo contra enumeração de e-mails
             return Response({"message": generic_message}, status=status.HTTP_200_OK)

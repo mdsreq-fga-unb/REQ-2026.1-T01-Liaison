@@ -51,6 +51,7 @@ Data de atualização: 14/06/2026. Percentual geral do MVP: **~60%**.
 ---
 
 **Legenda:**
+
 - Entregue — história implementada e validada
 - Em andamento — em desenvolvimento ou revisão
 - Planejado — ainda não iniciado

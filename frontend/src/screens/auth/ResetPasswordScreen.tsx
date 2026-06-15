@@ -7,41 +7,56 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import RedefineLockIcon from '../../../assets/redefine_lock.svg';
+// Importação do Pop-up (ajuste o caminho se necessário)
+import CustomPopup from '../../components/ui/CostumPopup'; 
 
 export default function NewPasswordScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
+  // --- NOVOS ESTADOS PARA O POP-UP ---
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupTitle, setPopupTitle] = useState('');
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupType, setPopupType] = useState<'success' | 'error'>('success');
+
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
 
   // Captura os parâmetros mágicos que o React Navigation extraiu do link do e-mail
   const { uid, token } = route.params || {};
 
+  // Função auxiliar para chamar o pop-up mais facilmente
+  const showPopup = (title: string, message: string, type: 'success' | 'error') => {
+    setPopupTitle(title);
+    setPopupMessage(message);
+    setPopupType(type);
+    setPopupVisible(true);
+  };
+
   const handleResetPassword = async () => {
-    // 1. Validações de Frontend
+    // 1. Validações de Frontend usando o pop-up
     if (!password || !confirmPassword) {
-      Alert.alert('Erro', 'Por favor, preencha os dois campos.');
+      showPopup('Erro', 'Por favor, preencha os dois campos.', 'error');
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas não coincidem. Tente novamente.');
+      showPopup('Erro', 'As senhas não coincidem. Tente novamente.', 'error');
       return;
     }
     if (password.length < 8) {
-      Alert.alert('Erro', 'A nova senha deve ter no mínimo 8 caracteres.');
+      showPopup('Erro', 'A nova senha deve ter no mínimo 8 caracteres.', 'error');
       return;
     }
     if (!uid || !token) {
-      Alert.alert('Erro', 'Link inválido ou expirado. Solicite a recuperação novamente.');
+      showPopup('Erro', 'Link inválido ou expirado. Solicite a recuperação novamente.', 'error');
       return;
     }
 
@@ -68,24 +83,34 @@ export default function NewPasswordScreen() {
 
       if (response.ok) {
         // Cenário 3: Sucesso
-        Alert.alert(
-          'Sucesso!',
-          'Sua senha foi redefinida com sucesso. Você já pode acessar sua conta.',
-          [{ text: 'Ir para o Login', onPress: () => navigation.navigate('Login') }]
+        showPopup(
+          'Sucesso!', 
+          'Sua senha foi redefinida com sucesso. Você já pode acessar sua conta.', 
+          'success'
         );
       } else {
         // Cenário 4 e 5: Trata erros do backend (Token expirado ou senha igual à antiga)
-        Alert.alert('Erro', data.error || 'Ocorreu um erro ao redefinir a senha.');
+        showPopup('Erro', data.error || 'Ocorreu um erro ao redefinir a senha.', 'error');
       }
 
     } catch (error) {
       console.error('Erro de conexão:', error);
-      Alert.alert(
+      showPopup(
         'Erro de conexão',
-        'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.'
+        'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.',
+        'error'
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Função para fechar o pop-up
+  const handleClosePopup = () => {
+    setPopupVisible(false);
+    // Se for o pop-up de sucesso, redireciona para o login ao clicar em OK
+    if (popupType === 'success') {
+      navigation.navigate('Login');
     }
   };
 
@@ -158,6 +183,15 @@ export default function NewPasswordScreen() {
 
         </View>
       </ScrollView>
+
+      {/* Renderização do Pop-up Customizado */}
+      <CustomPopup 
+        visible={popupVisible}
+        title={popupTitle}
+        message={popupMessage}
+        type={popupType}
+        onClose={handleClosePopup}
+      />
     </SafeAreaView>
   );
 }

@@ -7,22 +7,30 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 import RedefineLockIcon from '../../../assets/redefine_lock.svg';
+import CustomPopup from '../../components/ui/CostumPopup'; // Importação do Pop-up (ajuste o caminho se necessário)
 
 export default function PasswordRecoveryScreen() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Estados necessários apenas para o pop-up
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupType, setPopupType] = useState<'success' | 'error'>('success');
+  
   const navigation = useNavigation<any>();
 
   const handlePasswordRecovery = async () => {
     if (!email) {
-      Alert.alert('Erro', 'Por favor, insira seu e-mail institucional.');
+      setPopupMessage('Por favor, insira seu e-mail institucional.');
+      setPopupType('error');
+      setPopupVisible(true);
       return;
     }
 
@@ -44,18 +52,35 @@ export default function PasswordRecoveryScreen() {
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
 
+      // Lógica adicionada para o Pop-up de Sucesso (Cenário 1 e 2) ou Erro
+      if (response.ok) {
+        setPopupMessage('Se o e-mail estiver cadastrado, você receberá um link de redefinição');
+        setPopupType('success');
+        setPopupVisible(true);
+      } else {
+        setPopupMessage('Ocorreu um erro ao processar sua solicitação.');
+        setPopupType('error');
+        setPopupVisible(true);
+      }
+
     } catch (error) {
       // Cai aqui apenas se o servidor estiver desligado ou não houver internet
       console.error('Erro de conexão:', error);
-      Alert.alert(
-        'Erro de conexão',
-        'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.'
-      );
+      setPopupMessage('Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.');
+      setPopupType('error');
+      setPopupVisible(true);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Função para fechar o pop-up
+  const handleClosePopup = () => {
+    setPopupVisible(false);
+    if (popupType === 'success') {
+      navigation.navigate('Login'); // Redireciona para o login após fechar mensagem de sucesso
+    }
+  };
 
   return (
     <SafeAreaView style={styles.root}>
@@ -118,7 +143,7 @@ export default function PasswordRecoveryScreen() {
                     <Feather name="send" size={18} color="#ffffff" />
                   </>
                 )}
-</TouchableOpacity>
+          </TouchableOpacity>
 
           <View style={styles.footerRow}>
             <Text style={styles.footerText}>Lembrou sua senha?     </Text>
@@ -128,6 +153,15 @@ export default function PasswordRecoveryScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Renderização do Pop-up Customizado */}
+      <CustomPopup 
+        visible={popupVisible}
+        title={popupType === 'success' ? 'Recuperação de Senha' : 'Atenção'}
+        message={popupMessage}
+        type={popupType}
+        onClose={handleClosePopup}
+      />
     </SafeAreaView>
   );
 }

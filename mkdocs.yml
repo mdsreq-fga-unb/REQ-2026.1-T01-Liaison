@@ -64,10 +64,15 @@ nav:
   - Lições Aprendidas:
       - Unidade 1: projeto/licoes/unidade1.md
       - Unidade 2: projeto/licoes/unidade2.md
+      - Unidade 3: projeto/licoes/unidade3.md
   - Entregas:
       - Unidade 1: entregas/unidade1.md
       - Unidade 2: entregas/unidade2.md
-
+      - Unidade 3: entregas/unidade3.md
+  - Execução:
+      - Atas: execucao/atas.md
+      - Evidencias de software: execucao/evidencias_esw.md
+      - Evidencias de requisitos: execucao/evidencias_er.md
 extra_css:
   - stylesheets/extra.css
 

@@ -8,7 +8,7 @@ Foi feita descobrindo na primeira reunião com o Cliente descobrindo quais eram 
 * [Ata de Reunião 03: Elicitação com o Cliente](atas/ata_03_elicitaçao_valdemir_12_04.md)
 
 ### Declaração dos Requisitos
-* (docs/projeto/requisitos_software.md)
+* [Requisitos declarados](docs/projeto/requisitos_software.md)
 
 ### Verificação e Validação dos requisitos
 * Requisitos foram verificados e validados com o cliente como mostrado nessa reunião:

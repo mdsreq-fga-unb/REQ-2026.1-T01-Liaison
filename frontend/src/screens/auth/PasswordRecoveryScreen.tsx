@@ -168,6 +168,7 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     paddingBottom: 40,
     paddingHorizontal: 24,
+    overflow: 'hidden',
   },
   heroLabel: {
     color: 'rgba(255, 255, 255, 0.55)',

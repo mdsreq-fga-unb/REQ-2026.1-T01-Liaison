@@ -283,16 +283,37 @@ class PasswordResetRequestView(APIView):
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
                 token = default_token_generator.make_token(user)
                 
-                # Link para o frontend no React Native (ajuste para o seu deep link)
-                # Exemplo: liaison://reset-password?uid={uid}&token={token}
+                # Link para o frontend no React Native
                 reset_link = f"liaison://reset-password?uid={uid}&token={token}"
                 
+                # Mensagem em texto puro (caso o e-mail não suporte HTML)
+                mensagem_texto = f"Olá,\n\nAcesse o link para redefinir sua senha: {reset_link}\n\nO link expira em 24 horas."
+
+                # Mensagem em HTML (com o botão clicável)
+                mensagem_html = f"""
+                <html>
+                    <body>
+                        <h2 style="color: #1A2744;">Liaison - Recuperação de Senha</h2>
+                        <p>Você solicitou a redefinição da sua senha.</p>
+                        <p>Para criar uma nova senha, clique no botão abaixo:</p>
+                        <br>
+                        <a href="{reset_link}" style="background-color: #1A2744; color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                            Redefinir Minha Senha
+                        </a>
+                        <br><br>
+                        <p>Se o botão não funcionar, copie e cole o link abaixo no navegador do seu celular:</p>
+                        <p style="color: #D4813A;">{reset_link}</p>
+                    </body>
+                </html>
+                """
+
                 # Disparo do e-mail
                 send_mail(
                     subject="Liaison - Recuperação de Senha",
-                    message=f"Olá,\n\nAcesse o link para redefinir sua senha: {reset_link}\n\nO link expira em 24 horas.",
+                    message=mensagem_texto,
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
+                    html_message=mensagem_html, # <-- Essa é a linha que ativa o HTML!
                     fail_silently=False,
                 )
             

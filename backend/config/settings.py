@@ -218,7 +218,7 @@ if USE_S3:
 
 # Configurações de E-mail (Exemplo utilizando SMTP padrão)
 # Em ambiente de desenvolvimento, você pode usar o console backend para debugar:
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #EMAIL DE CONSOLE
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com' # Substitua pelo seu provedor (ex: smtp.gmail.com)
 EMAIL_PORT = 587

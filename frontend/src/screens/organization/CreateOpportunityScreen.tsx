@@ -37,7 +37,6 @@ export default function CreateOpportunityScreen({ navigation }: any) {
   const opportunityId = navigation.getState().routes.find((r: any) => r.name === 'CreateOpportunity')?.params?.id;
 
   const [step, setStep] = useState(1);
-  // ... o state permanece o mesmo
   const [formData, setFormData] = useState({
     title: '', area: 'educacao', description: '', workload_value: '4', workload_unit: 'h/semana', vacancies: '10',
     modality: 'presencial', location: '', start_date: '', start_time: '14:00', end_date: '',
@@ -53,22 +52,6 @@ export default function CreateOpportunityScreen({ navigation }: any) {
     if (newRequirement.trim()) {
       setRequirements([...requirements, newRequirement.trim()]);
       setNewRequirement('');
-    }
-  };
-
-  const handleRemoveRequirement = (index: number) => {
-    setRequirements(requirements.filter((_, i) => i !== index));
-  };
-
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setPhotos([...photos, result.assets[0]]);
     }
   };
 
@@ -141,8 +124,28 @@ export default function CreateOpportunityScreen({ navigation }: any) {
       }
 
       const data = new FormData();
-      Object.keys(formData).forEach(key => {
-        const val = (formData as any)[key];
+      
+      // Injeta valores padrão se o usuário salvar rascunho com campos vazios (para não quebrar o Banco de Dados)
+      const safeFormData = { ...formData };
+      if (status === 'draft') {
+        if (!safeFormData.title) safeFormData.title = 'Rascunho de Vaga';
+        if (!safeFormData.description) safeFormData.description = 'Sem descrição';
+        if (!safeFormData.start_date) safeFormData.start_date = '2026-01-01';
+        if (!safeFormData.start_time) safeFormData.start_time = '00:00';
+      }
+
+      // Converte a data do formato BR (DD/MM/AAAA) para o formato DB (AAAA-MM-DD)
+      const formatDateForDB = (dateStr: string) => {
+        if (!dateStr || !dateStr.includes('/')) return dateStr;
+        const [day, month, year] = dateStr.split('/');
+        return `${year}-${month}-${day}`;
+      };
+
+      safeFormData.start_date = formatDateForDB(safeFormData.start_date);
+      safeFormData.end_date = formatDateForDB(safeFormData.end_date);
+
+      Object.keys(safeFormData).forEach(key => {
+        const val = (safeFormData as any)[key];
         if (val) data.append(key, val);
       });
       data.append('status', status);
@@ -161,16 +164,28 @@ export default function CreateOpportunityScreen({ navigation }: any) {
 
       if (opportunityId) {
         await updateOpportunity(accessToken, opportunityId, data);
-        Alert.alert('Sucesso', 'Vaga atualizada com sucesso!');
+        Alert.alert('Sucesso', 'Rascunho atualizado!');
       } else {
         await createOpportunity(accessToken, data);
-        Alert.alert('Sucesso', 'Vaga criada com sucesso!');
+        Alert.alert('Sucesso', status === 'draft' ? 'Rascunho salvo!' : 'Vaga criada com sucesso!');
       }
       
       navigation.goBack();
     } catch (error: any) {
       console.error(error);
       Alert.alert('Erro', error.message || 'Não foi possível salvar a vaga. Verifique os campos.');
+    }
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setPhotos([...photos, result.assets[0]]);
     }
   };
 

@@ -60,17 +60,18 @@ export default function OrgHomeScreen() {
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    if (category.toLowerCase().includes('edu')) return '📚';
-    if (category.toLowerCase().includes('saúd') || category.toLowerCase().includes('saud')) return '🏥';
-    if (category.toLowerCase().includes('tec')) return '💻';
-    if (category.toLowerCase().includes('social')) return '🤝';
+  const getCategoryIcon = (area: string) => {
+    if (!area) return '📋';
+    if (area.toLowerCase().includes('edu')) return '📚';
+    if (area.toLowerCase().includes('saúd') || area.toLowerCase().includes('saud')) return '🏥';
+    if (area.toLowerCase().includes('tec')) return '💻';
+    if (area.toLowerCase().includes('social')) return '🤝';
     return '📋';
   };
 
   const filteredOpportunities = opportunities.filter(opp => {
     const matchesTab = activeTab === 'all' || opp.status === activeTab;
-    const matchesSearch = opp.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = opp.title?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
@@ -82,7 +83,7 @@ export default function OrgHomeScreen() {
         {/* Card Header */}
         <View style={styles.cardHeader}>
           <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{getCategoryIcon(item.category)} {item.category.toUpperCase()}</Text>
+            <Text style={styles.categoryText}>{getCategoryIcon(item.area)} {(item.area || 'Geral').toUpperCase()}</Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
             <Text style={[styles.statusText, { color: statusStyle.color }]}>{statusStyle.text}</Text>
@@ -129,7 +130,10 @@ export default function OrgHomeScreen() {
         <View style={styles.actionsRow}>
           {item.status === 'draft' ? (
             <>
-              <TouchableOpacity style={styles.outlineButton}>
+              <TouchableOpacity 
+                style={styles.outlineButton}
+                onPress={() => navigation.navigate('CreateOpportunity', { id: item.id })}
+              >
                 <Text style={styles.outlineButtonText}>Continuar editando</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.solidDarkButton}>
@@ -358,7 +362,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 100,
+    paddingBottom: 120,
     gap: 16,
   },
   cardContainer: {
@@ -506,7 +510,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: colors.text.secondary,
+    color: '#7a8299',
   },
   fab: {
     position: 'absolute',

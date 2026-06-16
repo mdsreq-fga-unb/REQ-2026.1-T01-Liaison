@@ -47,10 +47,10 @@ Foi feita descobrindo na primeira reunião com o Cliente descobrindo quais eram 
 ### Validação de protótipos
 * O protótipo de alta fidelidade foi apresentado ao cliente, que aprovou o fluxo para solucionar o controle manual de voluntários da igreja.
 
-<!-- ![Print da aprovação do cliente ou formulário final](assets/nome_da_imagem_aqui.png)-->
+![Print da aprovação do cliente](assets/whatsValdemir.png)
 ---
 
-## Fase 3 - Construção
+<!--## Fase 3 - Construção
 
 ### Validação de implementação
 
@@ -65,6 +65,6 @@ Foi feita descobrindo na primeira reunião com o Cliente descobrindo quais eram 
 * Após o MVP será feito um fórmulário de usabilidade para assim ter o conhecimento se o usuário aprova e está de acordo com o que ele imagina:
 <!-- * [Link forms de usabailidade do MVP] -->
 
-### Verificação do Cliente
+<!-- ### Verificação do Cliente
 * Após o MVP será feito um checklist com o cliente sobre a validação do MVP
 <!-- * [Link para Checklist de Validação de Entrega (MVP)] -->

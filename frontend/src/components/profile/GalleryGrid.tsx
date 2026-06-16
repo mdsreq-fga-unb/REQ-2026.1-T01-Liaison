@@ -57,7 +57,7 @@ export default function GalleryGrid({
           };
 
           return (
-            <View key={photo.id} style={[styles.photoWrapper, { width: itemSize, height: itemSize }]}>
+            <View key={photo.id} style={[styles.photoOuter, { width: itemSize, height: itemSize }]}>
               <TouchableOpacity
                 testID={`gallery-photo-${photo.id}`}
                 style={styles.photoTouchable}
@@ -134,16 +134,19 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
   },
-  photoWrapper: {
+  photoOuter: {
     borderRadius: 10,
-    overflow: 'hidden',
+    // no overflow:hidden here — it clips absolute children (delete btn) on web
   },
   photoTouchable: {
     flex: 1,
+    borderRadius: 10,
+    overflow: 'hidden',
   },
   photo: {
     width: '100%',
     height: '100%',
+    borderRadius: 10,
   },
   placeholder: {
     width: '100%',

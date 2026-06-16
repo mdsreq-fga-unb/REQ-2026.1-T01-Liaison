@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -243,6 +244,16 @@ export default function OrgProfileEditScreen() {
   }
 
   async function handleDeleteGalleryPhoto(photoId: string) {
+    if (Platform.OS === 'web') {
+      if (!window.confirm('Tem certeza que deseja remover esta foto?')) return;
+      try {
+        await deleteOrgGalleryPhoto(accessToken!, photoId);
+        setGallery((prev) => prev.filter((p) => p.id !== photoId));
+      } catch {
+        setErrorMessage('Erro ao remover foto.');
+      }
+      return;
+    }
     Alert.alert('Remover foto', 'Tem certeza que deseja remover esta foto?', [
       { text: 'Cancelar', style: 'cancel' },
       {

@@ -70,9 +70,17 @@ nav:
       - Unidade 2: entregas/unidade2.md
       - Unidade 3: entregas/unidade3.md
   - Execução:
-      - Atas: execucao/atas.md
       - Evidencias de software: execucao/evidencias_esw.md
       - Evidencias de requisitos: execucao/evidencias_er.md
+      - Atas de Reuniões:
+          - Ata 01 - Elicitação (12/04): execucao/atas/ata_01_elicitaçao_valdemir_12_04.md
+          - Ata 02 - Organização (02/05): execucao/atas/ata_02_organizacao_reqs_02_05.md
+          - Ata 03 - Monitoria (12/05): execucao/atas/ata_03_monitoria_12_05.md
+          - Ata 04 - Priorização (19/05): execucao/atas/ata_04_priorizacao_19_05.md
+          - Ata 05 - Monitoria (19/05): execucao/atas/ata_05_monitoria_19_05.md
+          - Ata 06 - Monitoria (26/05): execucao/atas/ata_06_monitoria_26_05.md
+          - Ata 07 - Monitoria (02/06): execucao/atas/ata_07_monitoria_02_06.md
+          - Ata 08 - Monitoria (09/06): execucao/atas/ata_08_monitoria_09_06.md
 extra_css:
   - stylesheets/extra.css
 

@@ -28,8 +28,9 @@ Foi feita descobrindo na primeira reunião com o Cliente descobrindo quais eram 
 ### Verificação das telas 
 * Para ser feita a verificação das telas foi feito um formulário para o cliente avaliar (na escala likert e com um campo aberto) a tela prototipada 
 
-![Imagem de parte do forms validação](assets/formVerificacao2.png)
-![Imagem de parte do forms validação](assets/formVerificacao.png)
+![Imagem de parte do forms verificação](assets/formVerificacao2.png)
+![Imagem de parte do forms verificação](assets/formVerificacao.png)
+![Imagem da verificação](assets/respostaVerificação.png)
 
 ### Declaração 
 

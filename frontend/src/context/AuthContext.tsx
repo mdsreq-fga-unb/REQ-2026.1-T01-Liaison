@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 import {
@@ -27,6 +28,22 @@ const SECURE_STORE_KEYS = {
   user: 'auth_user',
 } as const;
 
+// expo-secure-store has no web implementation; use localStorage on web
+const storage = {
+  async getItem(key: string): Promise<string | null> {
+    if (Platform.OS === 'web') return localStorage.getItem(key);
+    return SecureStore.getItemAsync(key);
+  },
+  async setItem(key: string, value: string): Promise<void> {
+    if (Platform.OS === 'web') { localStorage.setItem(key, value); return; }
+    await SecureStore.setItemAsync(key, value);
+  },
+  async deleteItem(key: string): Promise<void> {
+    if (Platform.OS === 'web') { localStorage.removeItem(key); return; }
+    await SecureStore.deleteItemAsync(key);
+  },
+};
+
 interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -54,9 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function hydrate() {
       try {
-        const storedToken = await SecureStore.getItemAsync(SECURE_STORE_KEYS.accessToken);
-        const storedRefresh = await SecureStore.getItemAsync(SECURE_STORE_KEYS.refreshToken);
-        const storedUser = await SecureStore.getItemAsync(SECURE_STORE_KEYS.user);
+        const storedToken = await storage.getItem(SECURE_STORE_KEYS.accessToken);
+        const storedRefresh = await storage.getItem(SECURE_STORE_KEYS.refreshToken);
+        const storedUser = await storage.getItem(SECURE_STORE_KEYS.user);
 
         if (storedToken && storedUser) {
           setAccessToken(storedToken);
@@ -86,10 +103,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAccessToken(response.tokens.access);
       setRefreshToken(response.tokens.refresh);
 
-      // Persist to SecureStore
-      await SecureStore.setItemAsync(SECURE_STORE_KEYS.accessToken, response.tokens.access);
-      await SecureStore.setItemAsync(SECURE_STORE_KEYS.refreshToken, response.tokens.refresh);
-      await SecureStore.setItemAsync(SECURE_STORE_KEYS.user, JSON.stringify(authUser));
+      await storage.setItem(SECURE_STORE_KEYS.accessToken, response.tokens.access);
+      await storage.setItem(SECURE_STORE_KEYS.refreshToken, response.tokens.refresh);
+      await storage.setItem(SECURE_STORE_KEYS.user, JSON.stringify(authUser));
 
       return response;
     } finally {
@@ -128,10 +144,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAccessToken(response.access);
       setRefreshToken(response.refresh);
 
-      // Persist to SecureStore
-      await SecureStore.setItemAsync(SECURE_STORE_KEYS.accessToken, response.access);
-      await SecureStore.setItemAsync(SECURE_STORE_KEYS.refreshToken, response.refresh);
-      await SecureStore.setItemAsync(SECURE_STORE_KEYS.user, JSON.stringify(authUser));
+      await storage.setItem(SECURE_STORE_KEYS.accessToken, response.access);
+      await storage.setItem(SECURE_STORE_KEYS.refreshToken, response.refresh);
+      await storage.setItem(SECURE_STORE_KEYS.user, JSON.stringify(authUser));
     } finally {
       setIsLoading(false);
     }
@@ -162,8 +177,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await refreshAccessToken(refreshToken);
       setAccessToken(result.access);
       setRefreshToken(result.refresh);
-      await SecureStore.setItemAsync(SECURE_STORE_KEYS.accessToken, result.access);
-      await SecureStore.setItemAsync(SECURE_STORE_KEYS.refreshToken, result.refresh);
+      await storage.setItem(SECURE_STORE_KEYS.accessToken, result.access);
+      await storage.setItem(SECURE_STORE_KEYS.refreshToken, result.refresh);
       return result.access;
     } catch {
       // Refresh failed — token is expired/invalid, force re-login
@@ -177,13 +192,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAccessToken(null);
     setRefreshToken(null);
 
-    // Clear SecureStore
     try {
-      await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.accessToken);
-      await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.refreshToken);
-      await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.user);
+      await storage.deleteItem(SECURE_STORE_KEYS.accessToken);
+      await storage.deleteItem(SECURE_STORE_KEYS.refreshToken);
+      await storage.deleteItem(SECURE_STORE_KEYS.user);
     } catch {
-      // If deletion fails, state is already cleared — session is effectively logged out
+      // state already cleared above
     }
   }
 

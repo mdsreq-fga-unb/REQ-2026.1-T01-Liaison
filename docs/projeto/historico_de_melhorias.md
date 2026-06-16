@@ -15,6 +15,11 @@ Esta seção apresenta a evolução do projeto entre as entregas, demonstrando c
 
 
 ### Unidade 2
+* **Issue #67: Documentar a execução do projeto:** Foi apontado pelo professor que a apresentação da segunda unidade focou nos artefatos previstos pela disciplina, porém não apresentou evidências da execução efetiva do projeto. Sendo assim, seria necessário:
+Criar seção de acompanhamento do projeto.
+Registrar evolução do trabalho ao longo das unidades.
+* **Issue #68: Registrar evidências da execução do processo de Engenharia de Requisitos:** Apontamento do professor indicando que, embora a equipe tivesse modelado e definido teoricamente um fluxo de Engenharia de Requisitos, não haviam sido apresentadas provas práticas de sua execução. Foi exigido o mapeamento e a documentação de todas as atividades realizadas, associando cada técnica prevista a evidências reais e acessíveis dentro do repositório.
+* **Issue #69: Registrar evidências da execução do processo de Engenharia de Software:** Crítica do professor apontando que a estratégia metodológica de Engenharia de Software (KanbanXP) foi detalhada textualmente, mas o repositório carecia de evidências práticas sobre a sua execução. A equipe precisava demonstrar quais atividades do processo foram cumpridas no ecossistema de desenvolvimento, amarrando a relação entre as práticas teóricas, os artefatos produzidos e os resultados técnicos obtidos.
 * **Issue #71: Consolidar a rastreabilidade em uma visão integrada:** Observação do professor apontando que os elos de rastreabilidade entre o problema, objetivos específicos, características do produto, requisitos funcionais e não funcionais estavam dispersos em diferentes arquivos do repositório. Embora a amarração existisse, a falta de centralização obrigava o leitor a navegar por múltiplas páginas para compreender o encadeamento lógico do escopo.
 * **Issue #72: Refinar os Requisitos Não Funcionais:** Foi apontado que as restrições técnicas e de qualidade (RNFs) estavam descritas em nível de abstração alto, resultando em baixa verificabilidade. Foram citados problemas como definições abstratas de segurança, referências genéricas a sistemas operacionais (Android/iOS) sem especificação de versões e falta de métricas quantitativas e mensuráveis para testes de carga e performance.
 * **Issue #73: Documentar o padrão de identificação das histórias de usuário:** Crítica à falta de transparência e formalização no padrão de nomenclatura das IDs das histórias de usuário (como a sequência 001.1, 001.2, 001.3). 
@@ -66,6 +71,29 @@ Esta seção apresenta a evolução do projeto entre as entregas, demonstrando c
 * Todas as descrições dos papéis técnicos e operacionais foram revisadas, detalhadas e expandidas para refletir com precisão as responsabilidades reais de cada integrante no ecossistema de desenvolvimento.
 
 ### Unidade 2
+
+### Solução para a Issue #67 (Documentar a execução do projeto)
+* Foram criadas atas de Reunião: Adição das atas cobrindo desde a elicitação inicial (12/04) até as reuniões de
+priorização e monitoria (até 09/06).
+* Adicionadas Evidências de Requisitos (ER): Criação do documento evidencias_er.md com os registros do processo de
+Engenharia de Requisitos.
+* Adicionadas Evidências de Software (ESW): Criação do documento evidencias_esw.md para documentar práticas de desenvolvimento e arquitetura.
+-Assets e Comprovações: Inclusão de imagens e capturas de tela comprovando as atividades (Quadro Kanban, Pair Programming, Dailies Assíncronas, reuniões no Teams, Protótipos e Rastreabilidade).
+
+#### Solução para a Issue #68 (Registrar evidências da execução do processo de Engenharia de Requisitos)
+* Foi estruturado e publicado um ecossistema de comprovação de processo no repositório através da criação de múltiplos documentos de governança e histórico:
+  * **Atas de Reunião:** Inclusão e formalização de todas as atas de alinhamento da equipe, cobrindo o histórico cronológico desde as fases de elicitação inicial com o cliente (em 12/04) até as sessões de priorização do backlog e alinhamentos em monitorias (até 09/06).
+  * **Evidências de Requisitos (`evidencias_er.md`):** Criação de um artefato centralizador para registrar a execução prática das dinâmicas de Engenharia de Requisitos, correlacionando as técnicas homologadas com os seus respectivos resultados gerados.
+  * **Evidências de Software (`evidencias_esw.md`):** Elaboração de um documento focado em provar a aplicação das práticas técnicas acordadas, detalhando a evolução da arquitetura e o cumprimento dos ritos de engenharia.
+* Adicionou-se uma pasta de ativos visuais contendo capturas de tela e registros gráficos que servem de testemunho para a execução das atividades, englobando imagens das reuniões no Microsoft Teams, registros de sessões de *Pair Programming*, histórico de *Dailies* assíncronas, evolução dos quadros Kanban, construção de protótipos de interface e telas das ferramentas de rastreabilidade.
+
+#### Solução para a Issue #69 (Registrar evidências da execução do processo de Engenharia de Software)
+* Foi desenvolvido e integrado ao repositório o documento de governança `docs/projeto/evidencias_esw.md`, focado exclusivamente em mapear e comprovar a aplicação real das práticas ágeis e de engenharia do framework KanbanXP.
+* O artefato estabeleceu a rastreabilidade direta entre o processo planejado e o executado, documentando as seguintes frentes de engenharia de software:
+  * **Práticas de Fluxo (Kanban):** Evidências visuais de gerenciamento do fluxo de trabalho através de capturas periódicas do quadro e relatórios de acompanhamento de Sprints.
+  * **Práticas Técnicas (XP):** Comprovação de ritos técnicos cruciais para a integridade do ecossistema, como registros de sessões de *Pair Programming* (Programação em Par), o andamento de *Dailies* assíncronas do time de desenvolvimento, e o cumprimento de revisões de código de pares (*Code Review*).
+  * **Arquitetura e Infraestrutura:** Detalhamento e links de comprovação do pipeline de Integração Contínua (CI) e do provisionamento de ambiente em nuvem executado pela equipe.
+* Todo o documento de engenharia de software foi ancorado em uma pasta de ativos digitais (`assets`), contendo capturas de tela das ferramentas organizacionais e dos terminais de desenvolvimento que atestam a veracidade do histórico operacional de desenvolvimento do projeto.
 
 #### Solução para a Issue #71 (Consolidar a rastreabilidade em uma visão integrada)
 * Foi criado um artefato centralizador e exclusivo em `docs/projeto/rastreabilidade.md` para consolidar toda a árvore de engenharia de requisitos do projeto em uma única visão integrada.

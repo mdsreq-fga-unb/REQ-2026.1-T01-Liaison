@@ -16,20 +16,21 @@ import { useAuth } from '../../context/AuthContext';
 import GalleryPreview from '../../components/profile/GalleryPreview';
 import ImageViewer from '../../components/profile/ImageViewer';
 import { colors } from '../../theme/colors';
-import { radius, shadows, spacing } from '../../theme/spacing';
+import { radius, shadows } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
-import {
-  getOrgProfile,
-  OrgProfileData,
-} from '../../services/api';
+import { getOrgProfile, OrgProfileData } from '../../services/api';
+import { INTERESSE_OPTIONS } from '../../constants/interests';
 
 function isAuthError(e: unknown): e is { status: number } {
   return typeof e === 'object' && e !== null && 'status' in e && (e as any).status === 401;
 }
 
+const AREA_LABELS: Record<string, string> = {};
+INTERESSE_OPTIONS.forEach((opt) => { AREA_LABELS[opt.id] = opt.label; });
+
 export default function OrgProfileScreen() {
   const navigation = useNavigation<any>();
-  const { accessToken, tryRefreshSession, logout } = useAuth();
+  const { accessToken, tryRefreshSession } = useAuth();
 
   const [profile, setProfile] = useState<OrgProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -93,7 +94,7 @@ export default function OrgProfileScreen() {
     return (
       <View style={styles.loadingContainer}>
         <Ionicons name="information-circle" size={48} color={colors.text.secondary} />
-        <Text style={styles.errorText}>{errorMessage}</Text>
+        <Text style={styles.errorBanner}>{errorMessage}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={loadProfile}>
           <Text style={styles.retryButtonText}>Tentar novamente</Text>
         </TouchableOpacity>
@@ -102,6 +103,9 @@ export default function OrgProfileScreen() {
   }
 
   if (!profile) return null;
+
+  const displayName = profile.nome_fantasia || profile.razao_social;
+  const openPositionsCount = (profile.open_positions as any[])?.length ?? 0;
 
   return (
     <View style={styles.root}>
@@ -115,7 +119,7 @@ export default function OrgProfileScreen() {
         >
           <Ionicons name="arrow-back" size={20} color={colors.neutral.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Perfil Institucional</Text>
+        <Text style={styles.headerTitle}>Perfil da Organização</Text>
         <TouchableOpacity
           testID="org-profile-edit-button"
           style={styles.editButton}
@@ -131,9 +135,7 @@ export default function OrgProfileScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
         {/* Banner */}
         <TouchableOpacity
@@ -155,42 +157,71 @@ export default function OrgProfileScreen() {
           )}
         </TouchableOpacity>
 
-        {/* Logo (overlapping banner) */}
-        <View style={styles.logoWrapper}>
-          <TouchableOpacity
-            style={styles.logoOuter}
-            onPress={() => {
-              if (profile.logo_url) {
-                setViewerUrl(profile.logo_url);
-                setViewerVisible(true);
-              }
-            }}
-            activeOpacity={profile.logo_url ? 0.8 : 1}
-            disabled={!profile.logo_url}
-            accessibilityLabel="Ver logo"
-          >
-            {profile.logo_url ? (
-              <Image source={{ uri: profile.logo_url }} style={styles.logoImage} />
-            ) : (
-              <View style={styles.logoPlaceholder}>
-                <Text style={styles.logoInitial}>{getInitial(profile.nome_fantasia || profile.razao_social)}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
+        {/* ═══ Profile Info Block (white, full-width) ═══ */}
+        <View style={styles.profileBlock}>
+          {/* Logo (overlapping banner, left-aligned) */}
+          <View style={styles.logoRow}>
+            <TouchableOpacity
+              style={styles.logoOuter}
+              onPress={() => {
+                if (profile.logo_url) {
+                  setViewerUrl(profile.logo_url);
+                  setViewerVisible(true);
+                }
+              }}
+              activeOpacity={profile.logo_url ? 0.8 : 1}
+              disabled={!profile.logo_url}
+              accessibilityLabel="Ver logo"
+            >
+              {profile.logo_url ? (
+                <Image source={{ uri: profile.logo_url }} style={styles.logoImage} />
+              ) : (
+                <View style={styles.logoPlaceholder}>
+                  <Text style={styles.logoInitial}>{getInitial(displayName)}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
 
-        {/* ═══ White Card: Profile Info ═══ */}
-        <View style={styles.card}>
+            {/* Share button */}
+            <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
+              <Ionicons name="share-outline" size={16} color={colors.text.primary} />
+            </TouchableOpacity>
+          </View>
+
           {/* Name */}
-          <Text style={styles.orgName}>{profile.nome_fantasia || profile.razao_social}</Text>
-          {profile.nome_fantasia && (
-            <Text style={styles.razaoSocial}>{profile.razao_social}</Text>
-          )}
+          <Text style={styles.orgName}>{displayName}</Text>
 
-          {/* Badge */}
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>🏢</Text>
-            <Text style={styles.badgeText}>Organização</Text>
+          {/* Category / Razão Social subtitle */}
+          {profile.nome_fantasia && profile.razao_social ? (
+            <Text style={styles.orgCategory}>{profile.razao_social}</Text>
+          ) : null}
+
+          {/* Badges: Verified + Location */}
+          <View style={styles.badgesRow}>
+            <View style={styles.verifiedBadge}>
+              <Text style={styles.verifiedText}>✓ Verificada</Text>
+            </View>
+            {profile.endereco ? (
+              <View style={styles.locationBadge}>
+                <Text style={styles.locationText}>📍 {profile.endereco}</Text>
+              </View>
+            ) : null}
+          </View>
+
+          {/* CTA Row */}
+          <View style={styles.ctaRow}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              activeOpacity={0.8}
+              testID="org-view-positions-button"
+            >
+              <Text style={styles.primaryButtonText}>
+                {'Ver Vagas Abertas' + (openPositionsCount > 0 ? ` (${openPositionsCount})` : '')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.bookmarkButton} activeOpacity={0.7}>
+              <Ionicons name="bookmark-outline" size={20} color={colors.text.primary} />
+            </TouchableOpacity>
           </View>
 
           {/* Stats */}
@@ -210,81 +241,134 @@ export default function OrgProfileScreen() {
               <Text style={styles.statLabel}>Avaliação</Text>
             </View>
           </View>
+        </View>
 
-          {/* Mission */}
-          {profile.mission ? (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Missão</Text>
-              <Text style={styles.sectionText}>{profile.mission}</Text>
-            </View>
-          ) : null}
-
-          {/* Áreas de Atuação */}
-          {profile.areas_de_atuacao && profile.areas_de_atuacao.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Áreas de Atuação</Text>
-              <View style={styles.tagsRow}>
-                {profile.areas_de_atuacao.map((area) => (
-                  <View key={area} style={styles.tag}>
-                    <Text style={styles.tagText}>{area}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* Contact Info */}
+        {/* ═══ Missão ═══ */}
+        {(profile.mission || profile.full_description) ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Contato</Text>
-            {profile.telefone ? (
-              <View style={styles.contactRow}>
-                <Ionicons name="call-outline" size={16} color={colors.text.secondary} />
-                <Text style={styles.contactText}>{profile.telefone}</Text>
+            <Text style={styles.sectionTitle}>Missão</Text>
+            {profile.mission ? (
+              <View style={styles.missionBox}>
+                <Text style={styles.missionBoxLabel}>NOSSA MISSÃO</Text>
+                <Text style={styles.missionBoxText}>{`"${profile.mission}"`}</Text>
               </View>
             ) : null}
-            {profile.email ? (
-              <View style={styles.contactRow}>
-                <Ionicons name="mail-outline" size={16} color={colors.text.secondary} />
-                <Text style={styles.contactText}>{profile.email}</Text>
+            {profile.full_description ? (
+              <Text style={styles.descriptionText}>{profile.full_description}</Text>
+            ) : null}
+          </View>
+        ) : null}
+
+        {/* ═══ Áreas de Atuação ═══ */}
+        {profile.areas_de_atuacao && profile.areas_de_atuacao.length > 0 ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Áreas de Atuação</Text>
+            <View style={styles.chipsRow}>
+              {profile.areas_de_atuacao.map((area) => (
+                <View key={area} style={styles.chip}>
+                  <Text style={styles.chipText}>
+                    {AREA_LABELS[area] || area.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
+        {/* ═══ Dados Institucionais ═══ */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Dados Institucionais</Text>
+          <View style={styles.infoRows}>
+            {profile.razao_social ? (
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Razão Social</Text>
+                <Text style={styles.infoValue} numberOfLines={1}>{profile.razao_social}</Text>
               </View>
             ) : null}
-            {profile.site ? (
-              <View style={styles.contactRow}>
-                <Ionicons name="globe-outline" size={16} color={colors.text.secondary} />
-                <Text style={styles.contactText}>{profile.site}</Text>
+            {profile.nome_responsavel ? (
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Responsável</Text>
+                <Text style={styles.infoValue}>{profile.nome_responsavel}</Text>
               </View>
             ) : null}
             {profile.endereco ? (
-              <View style={styles.contactRow}>
-                <Ionicons name="location-outline" size={16} color={colors.text.secondary} />
-                <Text style={styles.contactText}>{profile.endereco}</Text>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Localização</Text>
+                <Text style={styles.infoValue}>{profile.endereco}</Text>
               </View>
             ) : null}
-          </View>
-
-          {/* Gallery */}
-          {profile.gallery && profile.gallery.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Galeria</Text>
-              <GalleryPreview
-                photos={profile.gallery.map((p) => ({ uri: p.image_url, id: p.id }))}
-                onPhotoPress={(uri) => {
-                  setViewerUrl(uri);
-                  setViewerVisible(true);
-                }}
-              />
+            <View style={[styles.infoRow, styles.infoRowLast]}>
+              <Text style={styles.infoLabel}>Status</Text>
+              <Text style={[styles.infoValue, styles.infoValueGreen]}>✓ Aprovada pela Liaison</Text>
             </View>
-          )}
-
-          {/* CNPJ (read-only info) */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>CNPJ</Text>
-            <Text style={styles.sectionText}>{profile.cnpj}</Text>
           </View>
         </View>
+
+        {/* ═══ Contato ═══ */}
+        {(profile.email || profile.telefone || profile.site) ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Contato</Text>
+            <View style={styles.contactCards}>
+              {profile.email ? (
+                <View style={styles.contactCard}>
+                  <View style={[styles.contactIconBox, { backgroundColor: colors.brand.navy }]}>
+                    <Ionicons name="mail-outline" size={16} color={colors.neutral.white} />
+                  </View>
+                  <View style={styles.contactCardText}>
+                    <Text style={styles.contactCardLabel}>E-MAIL</Text>
+                    <Text style={styles.contactCardValue}>{profile.email}</Text>
+                  </View>
+                </View>
+              ) : null}
+              {profile.telefone ? (
+                <View style={styles.contactCard}>
+                  <View style={[styles.contactIconBox, { backgroundColor: colors.brand.navy }]}>
+                    <Ionicons name="call-outline" size={16} color={colors.neutral.white} />
+                  </View>
+                  <View style={styles.contactCardText}>
+                    <Text style={styles.contactCardLabel}>TELEFONE</Text>
+                    <Text style={styles.contactCardValue}>{profile.telefone}</Text>
+                  </View>
+                </View>
+              ) : null}
+              {profile.site ? (
+                <View style={styles.contactCard}>
+                  <View style={[styles.contactIconBox, { backgroundColor: colors.brand.gold }]}>
+                    <Ionicons name="globe-outline" size={16} color={colors.neutral.white} />
+                  </View>
+                  <View style={styles.contactCardText}>
+                    <Text style={styles.contactCardLabel}>SITE</Text>
+                    <Text style={[styles.contactCardValue, styles.contactCardLink]}>{profile.site}</Text>
+                  </View>
+                </View>
+              ) : null}
+            </View>
+          </View>
+        ) : null}
+
+        {/* ═══ Galeria ═══ */}
+        {profile.gallery && profile.gallery.length > 0 ? (
+          <View style={styles.section}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionTitle}>Álbum de Eventos</Text>
+              <Text style={styles.sectionSubtext}>{profile.gallery.length} fotos</Text>
+            </View>
+            <GalleryPreview
+              photos={profile.gallery}
+              onPhotoPress={(photo) => {
+                if (photo.image_url) {
+                  setViewerUrl(photo.image_url);
+                  setViewerVisible(true);
+                }
+              }}
+            />
+          </View>
+        ) : null}
+
+        <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      {/* Image Viewer Modal */}
+      {/* ═══ Image Viewer Modal ═══ */}
       <ImageViewer
         visible={viewerVisible}
         imageUrl={viewerUrl}
@@ -295,86 +379,408 @@ export default function OrgProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.neutral.bg },
+  root: {
+    flex: 1,
+    backgroundColor: colors.neutral.bg,
+  },
+
+  // ── Loading / Error ──
   loadingContainer: {
-    flex: 1, justifyContent: 'center', alignItems: 'center',
-    backgroundColor: colors.neutral.bg, padding: spacing.lg,
+    flex: 1,
+    backgroundColor: colors.neutral.bg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
   },
   loadingText: {
-    ...typography.body, color: colors.text.secondary, marginTop: spacing.sm,
+    ...typography.body,
+    color: colors.text.secondary,
+    marginTop: 12,
   },
-  errorText: {
-    ...typography.body, color: colors.text.secondary,
-    textAlign: 'center', marginTop: spacing.md,
+  errorBanner: {
+    ...typography.body,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 20,
   },
   retryButton: {
-    marginTop: spacing.lg, paddingHorizontal: spacing.xl, paddingVertical: spacing.sm,
-    backgroundColor: colors.brand.navy, borderRadius: radius.md,
+    backgroundColor: colors.brand.gold,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: radius.sm,
   },
-  retryButtonText: { ...typography.button, color: colors.neutral.white },
+  retryButtonText: {
+    fontFamily: typography.button.fontFamily,
+    fontSize: 15,
+    color: colors.neutral.white,
+  },
+
+  // ── Header ──
   header: {
-    backgroundColor: colors.brand.navy, paddingTop: 50, paddingBottom: 16,
-    paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center',
+    backgroundColor: colors.brand.navy,
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 14,
   },
-  headerBackButton: { padding: 4 },
+  headerBackButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerTitle: {
-    ...typography.h3, color: colors.neutral.white, flex: 1, textAlign: 'center',
+    fontFamily: typography.h2.fontFamily,
+    fontSize: 18,
+    color: colors.neutral.white,
   },
-  editButton: { paddingHorizontal: 12, paddingVertical: 6 },
-  editButtonText: { ...typography.button, color: colors.brand.gold },
-  scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: spacing.xl },
-  bannerContainer: { height: 180 },
-  bannerImage: { width: '100%', height: '100%' },
-  bannerPlaceholder: { backgroundColor: '#e0d5c8' },
-  logoWrapper: { alignItems: 'center', marginTop: -60 },
+  editButton: {
+    backgroundColor: colors.brand.gold,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    borderRadius: radius.round,
+  },
+  editButtonText: {
+    fontFamily: typography.button.fontFamily,
+    fontSize: 13,
+    color: colors.neutral.white,
+  },
+
+  // ── Scroll ──
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+
+  // ── Banner ──
+  bannerContainer: {
+    width: '100%',
+    height: 180,
+  },
+  bannerImage: {
+    width: '100%',
+    height: 180,
+  },
+  bannerPlaceholder: {
+    backgroundColor: '#1a2744',
+  },
+
+  // ── Profile Block ──
+  profileBlock: {
+    backgroundColor: colors.neutral.white,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginTop: -44,
+    marginBottom: 8,
+  },
   logoOuter: {
-    width: 120, height: 120, borderRadius: 60, borderWidth: 4,
-    borderColor: colors.neutral.white, overflow: 'hidden',
-    backgroundColor: colors.neutral.white, ...shadows.sm,
+    width: 88,
+    height: 88,
+    borderRadius: 16,
+    borderWidth: 4,
+    borderColor: colors.neutral.white,
+    overflow: 'hidden',
+    ...shadows.card,
   },
-  logoImage: { width: '100%', height: '100%' },
+  logoImage: {
+    width: '100%',
+    height: '100%',
+  },
   logoPlaceholder: {
-    width: '100%', height: '100%', backgroundColor: colors.brand.gold,
-    justifyContent: 'center', alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    backgroundColor: colors.brand.navy,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  logoInitial: { ...typography.h2, color: colors.neutral.white },
-  card: {
-    marginHorizontal: 16, marginTop: 20, backgroundColor: colors.neutral.white,
-    borderRadius: radius.lg, padding: 20, ...shadows.sm,
+  logoInitial: {
+    fontFamily: typography.h1.fontFamily,
+    fontSize: 28,
+    color: colors.neutral.white,
+    letterSpacing: 1,
   },
-  orgName: { ...typography.h2, color: colors.text.primary, textAlign: 'center' },
-  razaoSocial: {
-    ...typography.body, color: colors.text.secondary, textAlign: 'center', marginTop: 4,
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 52,
   },
-  badge: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    marginTop: 12, gap: 6,
+
+  // ── Name / Category ──
+  orgName: {
+    fontFamily: typography.h2.fontFamily,
+    fontSize: 21,
+    color: colors.text.primary,
+    marginBottom: 4,
   },
-  badgeEmoji: { fontSize: 16 },
-  badgeText: { ...typography.caption, color: colors.text.secondary },
+  orgCategory: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: 13,
+    color: colors.text.secondary,
+    marginBottom: 12,
+  },
+
+  // ── Badges ──
+  badgesRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+    flexWrap: 'wrap',
+  },
+  verifiedBadge: {
+    backgroundColor: 'rgba(29,122,74,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(29,122,74,0.2)',
+    borderRadius: radius.round,
+    paddingHorizontal: 13,
+    paddingVertical: 5,
+  },
+  verifiedText: {
+    fontFamily: typography.button.fontFamily,
+    fontSize: 11,
+    color: '#1d7a4a',
+  },
+  locationBadge: {
+    backgroundColor: 'rgba(26,39,68,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(26,39,68,0.15)',
+    borderRadius: radius.round,
+    paddingHorizontal: 13,
+    paddingVertical: 5,
+  },
+  locationText: {
+    fontFamily: typography.button.fontFamily,
+    fontSize: 11,
+    color: colors.brand.navy,
+  },
+
+  // ── CTA Row ──
+  ctaRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  primaryButton: {
+    flex: 1,
+    height: 48,
+    backgroundColor: colors.brand.navy,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryButtonText: {
+    fontFamily: typography.button.fontFamily,
+    fontSize: 14,
+    color: colors.neutral.white,
+  },
+  bookmarkButton: {
+    width: 48,
+    height: 48,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // ── Stats ──
   statsRow: {
-    flexDirection: 'row', marginTop: 20, paddingVertical: 16,
-    borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#f0f0f0',
+    flexDirection: 'row',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.border,
   },
-  statItem: { flex: 1, alignItems: 'center' },
-  statNumber: { ...typography.h3, color: colors.brand.navy },
-  statLabel: { ...typography.caption, color: colors.text.secondary, marginTop: 4 },
-  statDivider: { width: 1, backgroundColor: '#f0f0f0' },
-  section: { marginTop: 20 },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontFamily: typography.h2.fontFamily,
+    fontSize: 22,
+    color: colors.text.primary,
+  },
+  statLabel: {
+    fontFamily: typography['body-sm'].fontFamily,
+    fontSize: 11,
+    color: colors.text.secondary,
+    marginTop: 2,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: colors.neutral.border,
+  },
+
+  // ── Sections ──
+  section: {
+    marginTop: 2,
+    backgroundColor: colors.neutral.white,
+    padding: 16,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
   sectionTitle: {
-    ...typography.subtitle, color: colors.text.primary, marginBottom: 8,
+    fontFamily: typography.h2.fontFamily,
+    fontSize: 16,
+    color: colors.text.primary,
+    marginBottom: 12,
   },
-  sectionText: { ...typography.body, color: colors.text.secondary, lineHeight: 22 },
-  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tag: {
-    backgroundColor: '#f0f0f0', paddingHorizontal: 12, paddingVertical: 6,
-    borderRadius: radius.full,
+  sectionSubtext: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: 12,
+    color: colors.text.secondary,
+    marginBottom: 12,
   },
-  tagText: { ...typography.caption, color: colors.text.primary },
-  contactRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8,
+
+  // ── Mission ──
+  missionBox: {
+    backgroundColor: '#fdf5ec',
+    borderWidth: 1,
+    borderColor: 'rgba(212,129,58,0.2)',
+    borderRadius: 10,
+    padding: 17,
+    marginBottom: 16,
   },
-  contactText: { ...typography.body, color: colors.text.secondary },
+  missionBoxLabel: {
+    fontFamily: typography.button.fontFamily,
+    fontSize: 11,
+    color: colors.brand.gold,
+    letterSpacing: 0.6,
+    marginBottom: 8,
+  },
+  missionBoxText: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: '#3a4560',
+    lineHeight: 22,
+  },
+  descriptionText: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: 14,
+    color: '#3a4560',
+    lineHeight: 23,
+  },
+
+  // ── Chips ──
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  chip: {
+    backgroundColor: colors.accent.lightBg,
+    borderWidth: 1,
+    borderColor: colors.brand.gold,
+    borderRadius: radius.round,
+    paddingHorizontal: 15,
+    paddingVertical: 9,
+  },
+  chipText: {
+    fontFamily: typography.label.fontFamily,
+    fontSize: 13,
+    color: colors.brand.gold,
+  },
+
+  // ── Dados Institucionais ──
+  infoRows: {
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    overflow: 'hidden',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.neutral.border,
+  },
+  infoRowLast: {
+    borderBottomWidth: 0,
+  },
+  infoLabel: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: 13,
+    color: colors.text.secondary,
+    flexShrink: 0,
+  },
+  infoValue: {
+    fontFamily: typography.label.fontFamily,
+    fontSize: 13,
+    color: colors.text.primary,
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: 8,
+  },
+  infoValueGreen: {
+    color: '#1d7a4a',
+  },
+
+  // ── Contact Cards ──
+  contactCards: {
+    gap: 8,
+  },
+  contactCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 13,
+    backgroundColor: colors.neutral.bg,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: 10,
+  },
+  contactIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  contactCardText: {
+    flex: 1,
+  },
+  contactCardLabel: {
+    fontFamily: typography.button.fontFamily,
+    fontSize: 11,
+    color: colors.text.secondary,
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  contactCardValue: {
+    fontFamily: typography.label.fontFamily,
+    fontSize: 13,
+    color: colors.text.primary,
+  },
+  contactCardLink: {
+    color: colors.brand.gold,
+  },
+
+  // ── Bottom Spacer ──
+  bottomSpacer: {
+    height: 32,
+  },
 });

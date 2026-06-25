@@ -37,3 +37,10 @@ class OpportunityCreateSerializer(serializers.ModelSerializer):
         for photo in photos_data:
             OpportunityPhoto.objects.create(opportunity=opportunity, image=photo)
         return opportunity
+
+    def update(self, instance, validated_data):
+        photos_data = validated_data.pop("photos", [])
+        instance = super().update(instance, validated_data)
+        for photo in photos_data:
+            OpportunityPhoto.objects.create(opportunity=instance, image=photo)
+        return instance

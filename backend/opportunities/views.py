@@ -1,5 +1,6 @@
 from rest_framework import viewsets, permissions, status, generics
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from .models import Opportunity
 from .serializers import OpportunitySerializer, OpportunityCreateSerializer
@@ -9,6 +10,7 @@ from .permissions import IsOwnerOrReadOnly
 class OpportunityViewSet(viewsets.ModelViewSet):
     queryset = Opportunity.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    parser_classes = [MultiPartParser, JSONParser]
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:

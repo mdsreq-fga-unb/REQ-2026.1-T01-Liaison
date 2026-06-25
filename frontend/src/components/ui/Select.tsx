@@ -24,6 +24,7 @@ export interface SelectProps {
   placeholder?: string;
   error?: string;
   testID?: string;
+  hideLabel?: boolean;
   required?: boolean;
   /** Optional chevron SVG component for the dropdown */
   chevronIcon?: React.ReactNode;
@@ -39,6 +40,7 @@ export default function Select({
   placeholder = 'Selecione',
   error,
   testID = 'select-trigger',
+  hideLabel = false,
   required = false,
   chevronIcon,
   width,
@@ -48,10 +50,12 @@ export default function Select({
 
   return (
     <View style={[styles.container, width ? { width } : undefined]}>
-      <Text style={styles.label}>
-        {label}
-        {required && <Text style={styles.required}> *</Text>}
-      </Text>
+      {!hideLabel && (
+        <Text style={styles.label}>
+          {label}
+          {required && <Text style={styles.required}> *</Text>}
+        </Text>
+      )}
       <TouchableOpacity
         testID={testID}
         onPress={() => { setOpen(!open); }}

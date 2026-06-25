@@ -7,21 +7,26 @@ import {
   FlatList, 
   TextInput,
   ActivityIndicator,
-  Alert
+  Alert,
+  ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import * as api from '../../services/api';
+import { getMyOpportunities, publishOpportunity, closeOpportunity, reopenOpportunity, deleteOpportunity } from '../../services/opportunities';
 import { OpportunityData } from '../../services/api';
 
 type FilterTab = 'all' | 'active' | 'draft' | 'closed';
 
 export default function OrgHomeScreen() {
   const navigation = useNavigation<any>();
-  const { accessToken } = useAuth();
+  const insets = useSafeAreaInsets();
+  const { accessToken, logout } = useAuth();
   
   const [opportunities, setOpportunities] = useState<OpportunityData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,15 +39,76 @@ export default function OrgHomeScreen() {
       setLoading(true);
       setError(null);
       if (accessToken) {
-        const data = await api.getOrgOpportunities(accessToken);
+        const data = await getMyOpportunities(accessToken);
         setOpportunities(data);
       }
     } catch (err: any) {
       setError('Erro ao carregar vagas');
-      console.error(err);
+      console.warn('API Opportunities Error:', err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePublish = async (id: string) => {
+    try {
+      if (accessToken) {
+        await publishOpportunity(accessToken, id);
+        Alert.alert('Sucesso', 'Sua vaga foi publicada com sucesso!');
+        fetchOpportunities(); // Recarrega a lista para mostrar o novo status
+      }
+    } catch (err: any) {
+      Alert.alert('Atenção', err.message);
+    }
+  };
+
+  const handleClose = async (id: string) => {
+    try {
+      if (accessToken) {
+        await closeOpportunity(accessToken, id);
+        Alert.alert('Sucesso', 'A vaga foi encerrada.');
+        fetchOpportunities();
+      }
+    } catch (err: any) {
+      Alert.alert('Atenção', err.message);
+    }
+  };
+
+  const handleReopen = async (id: string) => {
+    try {
+      if (accessToken) {
+        await reopenOpportunity(accessToken, id);
+        Alert.alert('Sucesso', 'Sua vaga foi reaberta!');
+        fetchOpportunities();
+      }
+    } catch (err: any) {
+      Alert.alert('Atenção', err.message);
+    }
+  };
+
+  const confirmDelete = (id: string) => {
+    Alert.alert(
+      'Excluir Rascunho',
+      'Tem certeza que deseja excluir este rascunho permanentemente?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Excluir', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              if (accessToken) {
+                await deleteOpportunity(accessToken, id);
+                Alert.alert('Sucesso', 'Rascunho excluído.');
+                fetchOpportunities();
+              }
+            } catch (err: any) {
+              Alert.alert('Erro', err.message);
+            }
+          }
+        }
+      ]
+    );
   };
 
   useFocusEffect(
@@ -60,19 +126,50 @@ export default function OrgHomeScreen() {
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    if (category.toLowerCase().includes('edu')) return '📚';
-    if (category.toLowerCase().includes('saúd') || category.toLowerCase().includes('saud')) return '🏥';
-    if (category.toLowerCase().includes('tec')) return '💻';
-    if (category.toLowerCase().includes('social')) return '🤝';
+  const getCategoryIcon = (category?: string) => {
+    if (!category) return '📋';
+    const cat = category.toLowerCase();
+    if (cat.includes('edu')) return '📚';
+    if (cat.includes('saúd') || cat.includes('saud')) return '🏥';
+    if (cat.includes('tec')) return '💻';
+    if (cat.includes('social')) return '🤝';
     return '📋';
   };
 
   const filteredOpportunities = opportunities.filter(opp => {
     const matchesTab = activeTab === 'all' || opp.status === activeTab;
-    const matchesSearch = opp.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesTab && matchesSearch;
+    const titleMatch = opp.title ? opp.title.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+    return matchesTab && titleMatch;
   });
+
+  const formatCardDate = (start?: string, end?: string) => {
+    if (!start && !end) return 'Data a definir';
+    
+    const formatDate = (dateStr: string) => {
+      try {
+        const [year, month, day] = dateStr.split('T')[0].split('-');
+        const date = new Date(Number(year), Number(month) - 1, Number(day));
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
+      } catch (e) {
+        return dateStr;
+      }
+    };
+
+    if (start && end) {
+      return `${formatDate(start)} a ${formatDate(end)}`;
+    } else if (start) {
+      return `A partir de ${formatDate(start)}`;
+    } else {
+      return `Até ${formatDate(end)}`;
+    }
+  };
+
+  const formatWorkload = (val?: number | string, unit?: string) => {
+    if (!val) return 'Carga a definir';
+    if (unit === 'total' || unit === 'h/total') return `${val}h/total`;
+    if (unit === 'h/semana' || unit === 'h/mês') return `${val}${unit}`;
+    return `${val} ${unit}`;
+  };
 
   const renderCard = ({ item }: { item: OpportunityData }) => {
     const statusStyle = getStatusColor(item.status);
@@ -82,7 +179,7 @@ export default function OrgHomeScreen() {
         {/* Card Header */}
         <View style={styles.cardHeader}>
           <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{getCategoryIcon(item.category)} {item.category.toUpperCase()}</Text>
+            <Text style={styles.categoryText}>{getCategoryIcon(item.area)} {(item.area || 'Diversos').toUpperCase()}</Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
             <Text style={[styles.statusText, { color: statusStyle.color }]}>{statusStyle.text}</Text>
@@ -97,17 +194,19 @@ export default function OrgHomeScreen() {
           <View style={styles.metadataItem}>
             <Ionicons name="calendar-outline" size={14} color="#3a4560" />
             <Text style={styles.metadataText}>
-              {item.start_date ? new Date(item.start_date).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : 'Data a definir'}
+              {formatCardDate(item.start_date, item.end_date)}
             </Text>
           </View>
           <View style={styles.metadataItem}>
             <Ionicons name="time-outline" size={14} color="#3a4560" />
-            <Text style={styles.metadataText}>{item.workload_hours}h{item.workload_type === 'weekly' ? '/semana' : ''}</Text>
+            <Text style={styles.metadataText}>
+              {formatWorkload(item.workload_value, item.workload_unit)}
+            </Text>
           </View>
           <View style={styles.metadataItem}>
             <Ionicons name="location-outline" size={14} color="#3a4560" />
             <Text style={styles.metadataText}>
-              {item.location_type === 'remote' ? 'Remoto' : `Presencial · ${item.state || 'DF'}`}
+              {item.modality ? (item.modality.charAt(0).toUpperCase() + item.modality.slice(1)) : 'Local a definir'}
             </Text>
           </View>
         </View>
@@ -129,24 +228,57 @@ export default function OrgHomeScreen() {
         <View style={styles.actionsRow}>
           {item.status === 'draft' ? (
             <>
-              <TouchableOpacity style={styles.outlineButton}>
+              <TouchableOpacity 
+                style={[styles.outlineButton, { flex: 1.5 }]}
+                onPress={() => navigation.navigate('CreateOpportunity', { draft: item })}
+              >
                 <Text style={styles.outlineButtonText}>Continuar editando</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.solidDarkButton}>
+              <TouchableOpacity 
+                style={[styles.solidDarkButton, { flex: 1 }]}
+                onPress={() => handlePublish(item.id)}
+              >
                 <Text style={styles.solidDarkButtonText}>Publicar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.outlineDangerButton, { width: 36, flex: undefined }]}
+                onPress={() => confirmDelete(item.id)}
+              >
+                <Ionicons name="trash-outline" size={18} color="#ef4444" />
               </TouchableOpacity>
             </>
           ) : (
             <>
               <TouchableOpacity 
-                style={styles.outlineButton}
+                style={[styles.outlineButton, { flex: 1.5 }]}
                 onPress={() => Alert.alert('Em breve', 'A tela de candidatos ainda não foi implementada.')}
               >
-                <Text style={styles.outlineButtonText}>Ver Candidatos ({(item.filled_spots || 0)})</Text>
+                <Text style={styles.outlineButtonText}>Candidatos ({(item.filled_spots || 0)})</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.solidBrandButton}>
-                <Text style={styles.solidBrandButtonText}>{item.status === 'closed' ? 'Republicar' : 'Editar'}</Text>
-              </TouchableOpacity>
+              
+              {item.status === 'closed' ? (
+                <TouchableOpacity 
+                  style={[styles.solidBrandButton, { flex: 1 }]}
+                  onPress={() => handleReopen(item.id)}
+                >
+                  <Text style={styles.solidBrandButtonText}>Reabrir</Text>
+                </TouchableOpacity>
+              ) : (
+                <>
+                  <TouchableOpacity 
+                    style={[styles.solidBrandButton, { flex: 1 }]}
+                    onPress={() => navigation.navigate('CreateOpportunity', { draft: item })}
+                  >
+                    <Text style={styles.solidBrandButtonText}>Editar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.outlineDangerButton, { flex: 1 }]}
+                    onPress={() => handleClose(item.id)}
+                  >
+                    <Text style={styles.outlineDangerButtonText}>Encerrar</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </>
           )}
         </View>
@@ -168,31 +300,38 @@ export default function OrgHomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Banner Superior */}
-      <View style={styles.header}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={styles.headerTitle}>Minhas Vagas</Text>
-        <TouchableOpacity 
-          style={styles.createButton}
-          onPress={() => navigation.navigate('CreateOpportunity')}
-        >
-          <Ionicons name="add" size={16} color="white" />
-          <Text style={styles.createButtonText}>Criar</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <TouchableOpacity onPress={logout} style={{ padding: 4 }}>
+            <Ionicons name="log-out-outline" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.createButton}
+            onPress={() => navigation.navigate('CreateOpportunity')}
+          >
+            <Ionicons name="add" size={16} color="white" />
+            <Text style={styles.createButtonText}>Criar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        {tabs.map(tab => (
-          <TouchableOpacity 
-            key={tab.key} 
-            style={[styles.tab, activeTab === tab.key && styles.activeTab]}
-            onPress={() => setActiveTab(tab.key as FilterTab)}
-          >
-            <Text style={[styles.tabLabel, activeTab === tab.key && styles.activeTabLabel]}>
-              {tab.label} <Text style={styles.tabCount}>· {tab.count}</Text>
-            </Text>
-          </TouchableOpacity>
-        ))}
+      <View style={styles.tabsWrapper}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsContainer}>
+          {tabs.map(tab => (
+            <TouchableOpacity 
+              key={tab.key} 
+              style={[styles.tab, activeTab === tab.key && styles.activeTab]}
+              onPress={() => setActiveTab(tab.key as FilterTab)}
+            >
+              <Text style={[styles.tabLabel, activeTab === tab.key && styles.activeTabLabel]}>
+                {tab.label} <Text style={styles.tabCount}>· {tab.count}</Text>
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* Search Bar */}
@@ -238,14 +377,14 @@ export default function OrgHomeScreen() {
 
       {/* Floating Action Button */}
       <TouchableOpacity 
-        style={styles.fab}
+        style={[styles.fab, { bottom: insets.bottom + 80 }]}
         onPress={() => navigation.navigate('CreateOpportunity')}
       >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
       {/* Bottom Navigation Bar */}
-      <View style={styles.bottomNav}>
+      <View style={[styles.bottomNav, { paddingBottom: insets.bottom + 8 }]}>
         <TouchableOpacity style={styles.navItem}>
           <Ionicons name="briefcase" size={24} color="#d4813a" />
           <Text style={[styles.navText, { color: '#d4813a', fontWeight: 'bold' }]}>Vagas</Text>
@@ -281,7 +420,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#1a2744',
-    paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -289,9 +427,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
+    ...typography.h2,
     color: 'white',
-    fontSize: 22,
-    fontWeight: 'bold',
   },
   createButton: {
     backgroundColor: '#d4813a',
@@ -303,15 +440,16 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   createButtonText: {
+    ...typography.button,
     color: 'white',
-    fontWeight: 'bold',
-    fontSize: 14,
   },
-  tabsContainer: {
-    flexDirection: 'row',
+  tabsWrapper: {
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd8ce',
+  },
+  tabsContainer: {
+    flexDirection: 'row',
     paddingHorizontal: 10,
   },
   tab: {
@@ -324,9 +462,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#d4813a',
   },
   tabLabel: {
+    ...typography.button,
     color: '#7a8299',
-    fontSize: 14,
-    fontWeight: '600',
   },
   activeTabLabel: {
     color: '#1a2744',
@@ -352,8 +489,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   searchInput: {
+    ...typography.body,
     flex: 1,
-    fontSize: 14,
     color: '#3a4560',
   },
   listContainer: {
@@ -383,8 +520,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   categoryText: {
+    ...typography['label-sm'],
     color: '#d4813a',
-    fontSize: 11,
     fontWeight: 'bold',
   },
   statusBadge: {
@@ -393,17 +530,17 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   statusText: {
-    fontSize: 11,
+    ...typography['label-sm'],
     fontWeight: 'bold',
   },
   cardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    ...typography.button,
     color: '#1a2744',
     marginBottom: 12,
   },
   metadataRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
     marginBottom: 16,
   },
@@ -413,9 +550,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   metadataText: {
-    fontSize: 12,
+    ...typography['label-sm'],
     color: '#3a4560',
-    fontWeight: '500',
   },
   progressContainer: {
     marginBottom: 16,
@@ -426,12 +562,11 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   progressLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+    ...typography['label-sm'],
     color: '#3a4560',
   },
   progressValue: {
-    fontSize: 12,
+    ...typography['label-sm'],
     fontWeight: 'bold',
     color: '#1a2744',
   },
@@ -461,9 +596,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   outlineButtonText: {
+    ...typography.label,
     color: '#1a2744',
-    fontSize: 13,
-    fontWeight: 'bold',
+  },
+  outlineDangerButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ef4444',
+    borderRadius: 20,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  outlineDangerButtonText: {
+    ...typography.label,
+    color: '#ef4444',
   },
   solidDarkButton: {
     flex: 1,
@@ -474,9 +621,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   solidDarkButtonText: {
+    ...typography.label,
     color: 'white',
-    fontSize: 13,
-    fontWeight: 'bold',
   },
   solidBrandButton: {
     flex: 1,
@@ -487,12 +633,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   solidBrandButtonText: {
+    ...typography.label,
     color: 'white',
-    fontSize: 13,
-    fontWeight: 'bold',
   },
   footerInfo: {
-    fontSize: 11,
+    ...typography['body-sm'],
     color: '#7a8299',
   },
   errorText: {
@@ -505,12 +650,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 16,
+    ...typography.body,
     color: colors.text.secondary,
   },
   fab: {
     position: 'absolute',
-    bottom: 80,
     right: 24,
     width: 56,
     height: 56,
@@ -526,20 +670,20 @@ const styles = StyleSheet.create({
   },
   bottomNav: {
     flexDirection: 'row',
-    height: 60,
     backgroundColor: 'white',
     borderTopWidth: 1,
     borderTopColor: '#ddd8ce',
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingHorizontal: 20,
+    paddingTop: 12,
   },
   navItem: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   navText: {
-    fontSize: 11,
+    ...typography['label-sm'],
     color: '#7a8299',
     marginTop: 4,
   }

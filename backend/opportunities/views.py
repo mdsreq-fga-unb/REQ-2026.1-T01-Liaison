@@ -23,6 +23,15 @@ class OpportunityViewSet(viewsets.ModelViewSet):
             return Opportunity.objects.filter(organization__user=user)
         return Opportunity.objects.filter(status=Opportunity.Status.ACTIVE)
 
+    def destroy(self, request, *args, **kwargs):
+        opportunity = self.get_object()
+        if opportunity.status != Opportunity.Status.DRAFT:
+            return Response(
+                {"detail": "Apenas vagas em rascunho podem ser excluídas fisicamente. Use o endpoint /close/ para encerrar vagas ativas."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().destroy(request, *args, **kwargs)
+
     def create(self, request, *args, **kwargs):
         user = request.user
         if user.role != "organizacao" or not hasattr(user, 'organization_profile'):

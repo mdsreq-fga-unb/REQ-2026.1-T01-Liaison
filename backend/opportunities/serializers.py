@@ -25,10 +25,34 @@ class OpportunityCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ["organization"]
 
     def validate(self, attrs):
-        status = attrs.get("status", Opportunity.Status.DRAFT)
+        status_value = attrs.get("status")
+        if not status_value and self.instance:
+            status_value = self.instance.status
+        if not status_value:
+            status_value = Opportunity.Status.DRAFT
+
         photos = attrs.get("photos", [])
-        if status == Opportunity.Status.ACTIVE and not photos:
-            raise serializers.ValidationError({"photos": "A vaga deve conter pelo menos uma foto para ser publicada."})
+        
+        if status_value != Opportunity.Status.DRAFT:
+            campos_str = ["title", "description", "area", "workload_unit", "modality"]
+            campos_int = ["workload_value", "vacancies"]
+            campos_data = ["start_date", "start_time"]
+            
+            for campo in campos_str + campos_data:
+                val = attrs.get(campo, getattr(self.instance, campo, None) if self.instance else None)
+                if not val:
+                    raise serializers.ValidationError({campo: f"O campo {campo} é obrigatório para vagas publicadas."})
+                    
+            for campo in campos_int:
+                val = attrs.get(campo, getattr(self.instance, campo, None) if self.instance else None)
+                if val is None:
+                    raise serializers.ValidationError({campo: f"O campo {campo} é obrigatório para vagas publicadas."})
+            
+            has_photo_in_request = bool(photos)
+            has_photo_in_instance = self.instance and self.instance.photos.exists()
+            if not has_photo_in_request and not has_photo_in_instance:
+                raise serializers.ValidationError({"photos": "A vaga deve conter pelo menos uma foto para ser publicada."})
+                
         return attrs
 
     def create(self, validated_data):

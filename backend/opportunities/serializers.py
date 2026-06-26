@@ -38,7 +38,8 @@ class OpportunityCreateSerializer(serializers.ModelSerializer):
 
         photos = attrs.get("photos", [])
         
-        if status_value != Opportunity.Status.DRAFT:
+        was_already_active = self.instance is not None and self.instance.status != Opportunity.Status.DRAFT
+        if status_value != Opportunity.Status.DRAFT and not was_already_active:
             campos_str = ["description", "area", "workload_unit", "modality"]
             campos_int = ["workload_value", "vacancies"]
             campos_data = ["start_date", "start_time"]

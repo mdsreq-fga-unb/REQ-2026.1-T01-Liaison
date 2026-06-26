@@ -53,7 +53,7 @@ def vaga_rascunho(db, ong_user):
 
 @pytest.fixture
 def vaga_ativa(db, ong_user):
-    return Opportunity.objects.create(
+    vaga = Opportunity.objects.create(
         organization=ong_user.organization_profile,
         title="Tutoria de Matematica",
         area="educacao",
@@ -66,6 +66,7 @@ def vaga_ativa(db, ong_user):
         start_time="14:00",
         status=Opportunity.Status.ACTIVE
     )
+    return vaga
 
 
 @pytest.fixture
@@ -146,10 +147,10 @@ class TestEdicaoVagas:
         )
         assert response.status_code in [403, 404]
 
-    def test_campos_obrigatorios_nao_podem_ficar_vazios(self, api_client, ong_user, vaga_rascunho):
+    def test_campos_obrigatorios_nao_podem_ficar_vazios(self, api_client, ong_user, vaga_ativa):
         api_client.force_authenticate(user=ong_user)
         response = api_client.patch(
-            f'/api/v1/opportunities/{vaga_rascunho.id}/',
+            f'/api/v1/opportunities/{vaga_ativa.id}/',
             data={"title": ""},
             format="json"
         )

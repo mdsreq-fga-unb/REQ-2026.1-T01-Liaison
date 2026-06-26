@@ -88,17 +88,17 @@ urlpatterns = [
         name="admin-organization-list",
     ),
     path(
-        "api/v1/admin/organizations/<uuid:pk>/approve/",
+        "api/v1/admin/organizations/<int:pk>/approve/",
         AdminOrganizationViewSet.as_view({"post": "approve"}),
         name="admin-organization-approve",
     ),
     path(
-        "api/v1/admin/organizations/<uuid:pk>/reject/",
+        "api/v1/admin/organizations/<int:pk>/reject/",
         AdminOrganizationViewSet.as_view({"post": "reject"}),
         name="admin-organization-reject",
     ),
     path(
-        "api/v1/admin/organizations/<uuid:pk>/request-info/",
+        "api/v1/admin/organizations/<int:pk>/request-info/",
         AdminOrganizationViewSet.as_view({"post": "request_info"}),
         name="admin-organization-request-info",
     ),

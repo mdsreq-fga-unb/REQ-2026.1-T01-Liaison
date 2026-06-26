@@ -110,8 +110,12 @@ class AdminOrganizationViewSet(viewsets.ViewSet):
         # Paginate
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(qs, request)
-        serializer = OrganizationAdminSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        if page is not None:
+            serializer = OrganizationAdminSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
+        serializer = OrganizationAdminSerializer(qs, many=True)
+        return Response(serializer.data)
 
     @action(detail=True, methods=["post"])
     def approve(self, request, pk=None):

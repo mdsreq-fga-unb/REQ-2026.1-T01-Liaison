@@ -31,10 +31,15 @@ class OpportunityCreateSerializer(serializers.ModelSerializer):
         if not status_value:
             status_value = Opportunity.Status.DRAFT
 
+        # O título é obrigatório em QUALQUER situação (inclusive rascunho)
+        title_val = attrs.get("title", getattr(self.instance, "title", "") if self.instance else "")
+        if not str(title_val).strip():
+            raise serializers.ValidationError({"title": "O título é obrigatório, mesmo para rascunhos."})
+
         photos = attrs.get("photos", [])
         
         if status_value != Opportunity.Status.DRAFT:
-            campos_str = ["title", "description", "area", "workload_unit", "modality"]
+            campos_str = ["description", "area", "workload_unit", "modality"]
             campos_int = ["workload_value", "vacancies"]
             campos_data = ["start_date", "start_time"]
             

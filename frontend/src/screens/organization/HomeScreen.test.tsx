@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 import { jest } from '@jest/globals';
 
@@ -7,6 +7,7 @@ import OrgHomeScreen from './HomeScreen';
 // Mock navigation
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({ navigate: jest.fn() }),
+  useFocusEffect: jest.fn(),
 }));
 
 // Mock AuthContext
@@ -14,27 +15,39 @@ jest.mock('../../context/AuthContext', () => ({
   useAuth: () => ({
     user: { nome: 'ONG Teste', email: 'ong@test.com' },
     logout: jest.fn(),
+    accessToken: 'fake-token',
   }),
 }));
 
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 })
+}));
+
+jest.mock('../../services/opportunities', () => ({
+  getMyOpportunities: jest.fn(() => Promise.resolve([])),
+}));
+
 describe('OrgHomeScreen', () => {
-  it('renders the organization title', () => {
+  it('renders the header title and create button', async () => {
     render(<OrgHomeScreen />);
-    expect(screen.getByText('Organização')).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText('Minhas Vagas')).toBeTruthy();
+      expect(screen.getByText('Criar')).toBeTruthy();
+    });
   });
 
-  it('renders the welcome message with user name', () => {
+  it('renders the tabs', async () => {
     render(<OrgHomeScreen />);
-    expect(screen.getByText(/ONG Teste/)).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText(/Todas/)).toBeTruthy();
+      expect(screen.getByText(/Ativas/)).toBeTruthy();
+    });
   });
 
-  it('renders the profile link button', () => {
+  it('renders the search bar', async () => {
     render(<OrgHomeScreen />);
-    expect(screen.getByText(/Ver Perfil Institucional/i)).toBeTruthy();
-  });
-
-  it('renders the logout button', () => {
-    render(<OrgHomeScreen />);
-    expect(screen.getByText('Sair')).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Buscar vagas...')).toBeTruthy();
+    });
   });
 });

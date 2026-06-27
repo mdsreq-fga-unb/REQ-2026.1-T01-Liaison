@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { apiUrl } from '../config/api';
 
 // ── Profile API Types ──────────────────────────────────────────────
@@ -47,6 +48,16 @@ export interface UploadFile {
   uri: string;
   name: string;
   type: string;
+}
+
+export async function appendFileToForm(formData: FormData, field: string, file: UploadFile): Promise<void> {
+  if (Platform.OS === 'web') {
+    const res = await fetch(file.uri);
+    const blob = await res.blob();
+    formData.append(field, blob, file.name);
+  } else {
+    formData.append(field, { uri: file.uri, name: file.name, type: file.type } as any);
+  }
 }
 
 export interface StudentRegisterPayload {
@@ -401,11 +412,7 @@ export async function uploadAvatar(
 ): Promise<{ avatar_url: string }> {
   const url = apiUrl('/students/me/avatar/');
   const formData = new FormData();
-  formData.append('avatar', {
-    uri: file.uri,
-    name: file.name,
-    type: file.type,
-  } as any);
+  await appendFileToForm(formData, 'avatar', file);
 
   const response = await fetch(url, {
     method: 'POST',
@@ -429,11 +436,7 @@ export async function uploadBanner(
 ): Promise<{ banner_url: string }> {
   const url = apiUrl('/students/me/banner/');
   const formData = new FormData();
-  formData.append('banner', {
-    uri: file.uri,
-    name: file.name,
-    type: file.type,
-  } as any);
+  await appendFileToForm(formData, 'banner', file);
 
   const response = await fetch(url, {
     method: 'POST',
@@ -457,13 +460,9 @@ export async function uploadGalleryPhotos(
 ): Promise<GalleryPhoto[]> {
   const url = apiUrl('/students/me/gallery/');
   const formData = new FormData();
-  files.forEach((file) => {
-    formData.append('images', {
-      uri: file.uri,
-      name: file.name,
-      type: file.type,
-    } as any);
-  });
+  for (const file of files) {
+    await appendFileToForm(formData, 'images', file);
+  }
 
   const response = await fetch(url, {
     method: 'POST',
@@ -617,11 +616,7 @@ export async function uploadOrgLogo(
 ): Promise<{ logo_url: string }> {
   const url = apiUrl('/organizations/me/logo/');
   const formData = new FormData();
-  formData.append('logo', {
-    uri: file.uri,
-    name: file.name,
-    type: file.type,
-  } as any);
+  await appendFileToForm(formData, 'logo', file);
 
   const response = await fetch(url, {
     method: 'POST',
@@ -645,11 +640,7 @@ export async function uploadOrgBanner(
 ): Promise<{ banner_url: string }> {
   const url = apiUrl('/organizations/me/banner/');
   const formData = new FormData();
-  formData.append('banner', {
-    uri: file.uri,
-    name: file.name,
-    type: file.type,
-  } as any);
+  await appendFileToForm(formData, 'banner', file);
 
   const response = await fetch(url, {
     method: 'POST',
@@ -673,13 +664,9 @@ export async function uploadOrgGallery(
 ): Promise<OrgGalleryPhoto[]> {
   const url = apiUrl('/organizations/me/gallery/');
   const formData = new FormData();
-  files.forEach((file) => {
-    formData.append('images', {
-      uri: file.uri,
-      name: file.name,
-      type: file.type,
-    } as any);
-  });
+  for (const file of files) {
+    await appendFileToForm(formData, 'images', file);
+  }
 
   const response = await fetch(url, {
     method: 'POST',

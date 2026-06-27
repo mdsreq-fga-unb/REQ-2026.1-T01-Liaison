@@ -333,9 +333,9 @@ class TestDashboardSaudacao:
         """Simula horário de manhã — resultado deve ser 'Bom dia'."""
         from unittest.mock import patch
         from datetime import datetime
-        import pytz
+        from zoneinfo import ZoneInfo
 
-        morning = datetime(2026, 6, 13, 9, 0, 0, tzinfo=pytz.timezone("America/Sao_Paulo"))
+        morning = datetime(2026, 6, 13, 9, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
         with patch("django.utils.timezone.localtime") as mock_localtime:
             mock_localtime.return_value = morning
             api_client.force_authenticate(user=student_user)
@@ -350,9 +350,9 @@ class TestDashboardSaudacao:
     def test_saudacao_boa_tarde_at_afternoon(self, api_client, student_user):
         from unittest.mock import patch
         from datetime import datetime
-        import pytz
+        from zoneinfo import ZoneInfo
 
-        afternoon = datetime(2026, 6, 13, 14, 0, 0, tzinfo=pytz.timezone("America/Sao_Paulo"))
+        afternoon = datetime(2026, 6, 13, 14, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
         with patch("django.utils.timezone.localtime") as mock_localtime:
             mock_localtime.return_value = afternoon
             api_client.force_authenticate(user=student_user)
@@ -363,9 +363,9 @@ class TestDashboardSaudacao:
     def test_saudacao_boa_noite_at_evening(self, api_client, student_user):
         from unittest.mock import patch
         from datetime import datetime
-        import pytz
+        from zoneinfo import ZoneInfo
 
-        evening = datetime(2026, 6, 13, 21, 0, 0, tzinfo=pytz.timezone("America/Sao_Paulo"))
+        evening = datetime(2026, 6, 13, 21, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
         with patch("django.utils.timezone.localtime") as mock_localtime:
             mock_localtime.return_value = evening
             api_client.force_authenticate(user=student_user)

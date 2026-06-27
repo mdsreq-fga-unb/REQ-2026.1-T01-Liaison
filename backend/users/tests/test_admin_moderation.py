@@ -99,11 +99,11 @@ class TestAdminModeration:
             status="pending",
         )
 
-        response = api_client.post(f"/api/v1/admin/organizations/{org.id}/reject/", data={})
+        response = api_client.post(f"/api/v1/admin/organizations/{org.id}/reject/", data={}, format="json")
         assert response.status_code == 400
 
         # agora com motivo
-        response = api_client.post(f"/api/v1/admin/organizations/{org.id}/reject/", data={"reason": "Docs invalidos"})
+        response = api_client.post(f"/api/v1/admin/organizations/{org.id}/reject/", data={"reason": "Docs invalidos"}, format="json")
         assert response.status_code == 200
         org.refresh_from_db()
         assert org.status == "rejected"
@@ -129,9 +129,9 @@ class TestAdminModeration:
             status="pending",
         )
 
-        response = api_client.post(f"/api/v1/admin/organizations/{org.id}/request-info/", data={})
+        response = api_client.post(f"/api/v1/admin/organizations/{org.id}/request-info/", data={}, format="json")
         assert response.status_code == 400
 
-        response = api_client.post(f"/api/v1/admin/organizations/{org.id}/request-info/", data={"message": "Por favor envie estatuto."})
+        response = api_client.post(f"/api/v1/admin/organizations/{org.id}/request-info/", data={"message": "Por favor envie estatuto."}, format="json")
         assert response.status_code == 200
         assert AdminActionLog.objects.filter(organization=org, action=AdminActionLog.Action.REQUEST_INFO).exists()

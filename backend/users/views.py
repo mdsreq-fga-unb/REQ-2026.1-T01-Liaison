@@ -83,11 +83,15 @@ class UserViewSet(viewsets.ModelViewSet):
         return [IsAdminOrSelf()]
 
 
+class AdminPagination(PageNumberPagination):
+    page_size = 20
+
+
 class AdminOrganizationViewSet(viewsets.ViewSet):
     """Endpoints para moderacao de organizacoes."""
 
     permission_classes = [IsAdmin]
-    pagination_class = PageNumberPagination
+    pagination_class = AdminPagination
 
     def list(self, request):
         """GET /api/v1/admin/organizations/?status=&search=&page="""
@@ -110,8 +114,12 @@ class AdminOrganizationViewSet(viewsets.ViewSet):
         # Paginate
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(qs, request)
-        serializer = OrganizationAdminSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        if page is not None:
+            serializer = OrganizationAdminSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
+        serializer = OrganizationAdminSerializer(qs, many=True)
+        return Response(serializer.data)
 
     @action(detail=True, methods=["post"])
     def approve(self, request, pk=None):

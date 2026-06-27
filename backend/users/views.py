@@ -83,11 +83,15 @@ class UserViewSet(viewsets.ModelViewSet):
         return [IsAdminOrSelf()]
 
 
+class AdminPagination(PageNumberPagination):
+    page_size = 20
+
+
 class AdminOrganizationViewSet(viewsets.ViewSet):
     """Endpoints para moderacao de organizacoes."""
 
     permission_classes = [IsAdmin]
-    pagination_class = PageNumberPagination
+    pagination_class = AdminPagination
 
     def list(self, request):
         """GET /api/v1/admin/organizations/?status=&search=&page="""

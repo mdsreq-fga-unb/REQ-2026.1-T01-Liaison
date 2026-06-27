@@ -1,38 +1,39 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 import CreateOpportunityScreen from './CreateOpportunityScreen';
-import { createOpportunity } from '../../services/opportunities';
 
 jest.mock('../../services/opportunities');
 jest.mock('../../context/AuthContext', () => ({
   useAuth: () => ({ accessToken: 'fake-token' })
 }));
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 })
+}));
 
 describe('CreateOpportunityScreen', () => {
   it('renders step 1 initially', () => {
     const { getByText } = render(<CreateOpportunityScreen />);
-    expect(getByText('Passo 1 de 3')).toBeTruthy();
+    expect(getByText('Informações Básicas')).toBeTruthy();
   });
 
   it('navigates to step 2 when clicking Próximo', () => {
     const { getByText } = render(<CreateOpportunityScreen />);
-    fireEvent.press(getByText('Próximo'));
-    expect(getByText('Passo 2 de 3')).toBeTruthy();
+    fireEvent.press(getByText('Próximo →'));
+    expect(getByText('Local, Data & Cronograma')).toBeTruthy();
   });
 
   it('adds a requirement dynamically in step 3', () => {
-    const { getByText, getByPlaceholderText, queryByText } = render(<CreateOpportunityScreen />);
-    fireEvent.press(getByText('Próximo'));
-    fireEvent.press(getByText('Próximo'));
+    const { getByText, getAllByPlaceholderText } = render(<CreateOpportunityScreen />);
+    fireEvent.press(getByText('Próximo →'));
+    fireEvent.press(getByText('Próximo →'));
     
     // Check if we are on step 3
-    expect(getByText('Passo 3 de 3')).toBeTruthy();
+    expect(getByText('📸 Fotos da Atividade')).toBeTruthy();
     
     // Add requirement
-    const input = getByPlaceholderText('Digite um pré-requisito');
-    fireEvent.changeText(input, 'Saber Python');
-    fireEvent.press(getByText('Adicionar'));
+    const inputs = getAllByPlaceholderText('Ex: Ter notebook próprio');
+    fireEvent.changeText(inputs[0], 'Saber Python');
     
-    expect(getByText('Saber Python')).toBeTruthy();
+    expect(inputs[0].props.value).toBe('Saber Python');
   });
 });

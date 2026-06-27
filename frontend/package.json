@@ -28,6 +28,7 @@
     "@expo-google-fonts/dm-sans": "^0.4.2",
     "@expo-google-fonts/playfair-display": "^0.4.2",
     "@expo/vector-icons": "^15.1.1",
+    "@react-native-community/datetimepicker": "8.4.4",
     "@react-navigation/bottom-tabs": "^7.16.0",
     "@react-navigation/native": "^7.2.4",
     "@react-navigation/native-stack": "^7.15.0",

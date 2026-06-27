@@ -50,7 +50,7 @@ export interface UploadFile {
   type: string;
 }
 
-async function appendFileToForm(formData: FormData, field: string, file: UploadFile): Promise<void> {
+export async function appendFileToForm(formData: FormData, field: string, file: UploadFile): Promise<void> {
   if (Platform.OS === 'web') {
     const res = await fetch(file.uri);
     const blob = await res.blob();

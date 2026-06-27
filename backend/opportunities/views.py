@@ -1,5 +1,6 @@
 from rest_framework import viewsets, permissions, status, generics
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from .models import Opportunity
 from .serializers import OpportunitySerializer, OpportunityCreateSerializer
@@ -9,6 +10,7 @@ from .permissions import IsOwnerOrReadOnly
 class OpportunityViewSet(viewsets.ModelViewSet):
     queryset = Opportunity.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    parser_classes = [MultiPartParser, JSONParser]
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
@@ -20,6 +22,15 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         if user.role == "organizacao":
             return Opportunity.objects.filter(organization__user=user)
         return Opportunity.objects.filter(status=Opportunity.Status.ACTIVE)
+
+    def destroy(self, request, *args, **kwargs):
+        opportunity = self.get_object()
+        if opportunity.status != Opportunity.Status.DRAFT:
+            return Response(
+                {"detail": "Apenas vagas em rascunho podem ser excluídas fisicamente. Use o endpoint /close/ para encerrar vagas ativas."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().destroy(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         user = request.user

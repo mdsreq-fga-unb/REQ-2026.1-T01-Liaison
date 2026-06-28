@@ -31,6 +31,8 @@ export interface OpportunityParams {
   area?: string;
   featured?: boolean;
   modality?: string;
+  location?: string;
+  workload_max?: string;
   page?: number;
 }
 
@@ -40,6 +42,8 @@ export async function getOpportunities(token: string, params: OpportunityParams)
   if (params.area) queryParams.set('area', params.area);
   if (params.featured !== undefined) queryParams.set('featured', String(params.featured));
   if (params.modality) queryParams.set('modality', params.modality);
+  if (params.location) queryParams.set('location', params.location);
+  if (params.workload_max) queryParams.set('workload_max', params.workload_max);
   if (params.page) queryParams.set('page', String(params.page));
 
   const queryString = queryParams.toString();

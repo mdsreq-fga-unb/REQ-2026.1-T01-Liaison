@@ -1,30 +1,47 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 
-import { useAuth } from '../../context/AuthContext';
-import { colors } from '../../theme/colors';
-import { typography } from '../../theme/typography';
-import HoursProgressBar from '../../components/ui/HoursProgressBar';
-import SearchBar from '../../components/ui/SearchBar';
+import AdvancedFiltersModal, { AdvancedFilters } from '../../components/ui/AdvancedFiltersModal';
 import CategoryPill from '../../components/ui/CategoryPill';
+import CircularProgress from '../../components/ui/CircularProgress';
+import HoursProgressBar from '../../components/ui/HoursProgressBar';
 import OpportunityCard from '../../components/ui/OpportunityCard';
+import SearchBar from '../../components/ui/SearchBar';
+import StatCard from '../../components/ui/StatCard';
+import { useAuth } from '../../context/AuthContext';
 import {
+  getCategories,
   getDashboard,
   getOpportunities,
-  getCategories,
+  OpportunityParams,
   saveOpportunity,
   unsaveOpportunity,
-  OpportunityParams,
 } from '../../services/opportunities';
+import { categoryColor, colors } from '../../theme/colors';
+import { fontFamilies } from '../../theme/typography';
+
+const CATEGORY_ICONS: Record<string, React.ComponentProps<typeof Ionicons>['name']> = {
+  all: 'grid-outline',
+  educacao: 'school-outline',
+  saude: 'medkit-outline',
+  tecnologia: 'hardware-chip-outline',
+  meio_ambiente: 'leaf-outline',
+  assistencia_social: 'people-outline',
+  arte_cultura: 'color-palette-outline',
+  esporte: 'football-outline',
+};
 
 interface DashboardData {
   nome: string;
@@ -62,64 +79,100 @@ interface OpportunityData {
 }
 
 export default function StudentHomeScreen() {
-  const { accessToken, logout } = useAuth();
+  const { accessToken } = useAuth();
+  const navigation = useNavigation<any>();
 
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [opportunities, setOpportunities] = useState<OpportunityData[]>([]);
+  const [resultsCount, setResultsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedArea, setSelectedArea] = useState('all');
+  const [advanced, setAdvanced] = useState<AdvancedFilters>({ location: '', workload_max: '' });
+  const [showFilters, setShowFilters] = useState(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchAll = useCallback(async (params: OpportunityParams = {}) => {
-    if (!accessToken) return;
-    try {
-      const [dashData, catsData, oppsData] = await Promise.all([
-        getDashboard(accessToken),
-        getCategories(accessToken),
-        getOpportunities(accessToken, params),
-      ]);
-      setDashboard(dashData);
-      setCategories(catsData);
-      setOpportunities(oppsData.results ?? []);
-    } catch (err) {
-      // handle error silently
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, [accessToken]);
+  const buildParams = useCallback(
+    (overrides: Partial<{ search: string; area: string; adv: AdvancedFilters }> = {}): OpportunityParams => {
+      const search = overrides.search ?? searchText;
+      const area = overrides.area ?? selectedArea;
+      const adv = overrides.adv ?? advanced;
+      const params: OpportunityParams = {};
+      if (search) params.search = search;
+      if (area && area !== 'all') params.area = area;
+      if (adv.location) params.location = adv.location;
+      if (adv.workload_max) params.workload_max = adv.workload_max;
+      return params;
+    },
+    [searchText, selectedArea, advanced]
+  );
+
+  const applyOpportunities = useCallback((data: any) => {
+    setOpportunities(data?.results ?? []);
+    setResultsCount(data?.count ?? data?.results?.length ?? 0);
+  }, []);
+
+  const fetchAll = useCallback(
+    async (params: OpportunityParams = {}) => {
+      if (!accessToken) return;
+      try {
+        const [dashData, catsData, oppsData] = await Promise.all([
+          getDashboard(accessToken),
+          getCategories(accessToken),
+          getOpportunities(accessToken, params),
+        ]);
+        setDashboard(dashData);
+        setCategories(catsData);
+        applyOpportunities(oppsData);
+      } catch {
+        // handle error silently
+      } finally {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
+    },
+    [accessToken, applyOpportunities]
+  );
 
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
 
+  const refetch = useCallback(
+    (params: OpportunityParams) => {
+      if (!accessToken) return;
+      getOpportunities(accessToken, params).then(applyOpportunities).catch(() => {});
+    },
+    [accessToken, applyOpportunities]
+  );
+
   const handleSearchChange = (text: string) => {
     setSearchText(text);
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      const params: OpportunityParams = {};
-      if (text) params.search = text;
-      if (selectedArea !== 'all') params.area = selectedArea;
-      getOpportunities(accessToken!, params)
-        .then(data => setOpportunities(data.results ?? []))
-        .catch(() => {});
+      refetch(buildParams({ search: text }));
     }, 300);
   };
 
   const handleCategoryPress = (area: string) => {
     setSelectedArea(area);
-    const params: OpportunityParams = {};
-    if (searchText) params.search = searchText;
-    if (area !== 'all') params.area = area;
-    getOpportunities(accessToken!, params)
-      .then(data => setOpportunities(data.results ?? []))
-      .catch(() => {});
+    refetch(buildParams({ area }));
+  };
+
+  const handleApplyFilters = (filters: AdvancedFilters) => {
+    setAdvanced(filters);
+    setShowFilters(false);
+    refetch(buildParams({ adv: filters }));
+  };
+
+  const handleClearFilters = () => {
+    setSearchText('');
+    setSelectedArea('all');
+    setAdvanced({ location: '', workload_max: '' });
+    refetch({});
   };
 
   const handleSave = async (opp: OpportunityData) => {
@@ -130,9 +183,8 @@ export default function StudentHomeScreen() {
       } else {
         await saveOpportunity(accessToken, opp.id);
       }
-      // Toggle is_saved in local state
       setOpportunities(prev =>
-        prev.map(o => o.id === opp.id ? { ...o, is_saved: !o.is_saved } : o)
+        prev.map(o => (o.id === opp.id ? { ...o, is_saved: !o.is_saved } : o))
       );
     } catch {
       // ignore
@@ -141,7 +193,7 @@ export default function StudentHomeScreen() {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    fetchAll({ search: searchText, area: selectedArea !== 'all' ? selectedArea : undefined });
+    fetchAll(buildParams());
   };
 
   if (isLoading) {
@@ -152,80 +204,167 @@ export default function StudentHomeScreen() {
     );
   }
 
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          {dashboard && (
-            <>
-              <Text style={styles.greeting}>{dashboard.saudacao}</Text>
-              <Text style={styles.studentName}>{dashboard.nome}</Text>
-            </>
-          )}
+  const hoursLeft = dashboard
+    ? Math.max(0, dashboard.horas_exigidas - dashboard.horas_acumuladas)
+    : 0;
+  const initial = dashboard?.nome?.trim()?.charAt(0)?.toUpperCase() ?? '?';
+
+  const ListHeader = (
+    <View>
+      {/* Navy gradient header */}
+      <LinearGradient
+        colors={[colors.header.gradientFrom, colors.header.gradientTo]}
+        style={styles.header}
+      >
+        {/* Decorative rings */}
+        <View pointerEvents="none" style={styles.ringTopRight} />
+        <View pointerEvents="none" style={styles.ringBottomLeft} />
+
+        <View style={styles.headerTop}>
+          <TouchableOpacity
+            testID="header-avatar"
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('Perfil')}
+          >
+            <LinearGradient
+              colors={['#d4813a', '#f0b070']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.avatar}
+            >
+              <Text style={styles.avatarText}>{initial}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.headerIconBtn}>
+              <Ionicons name="search-outline" size={18} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.headerIconBtn}>
+              <Ionicons name="notifications-outline" size={18} color="#fff" />
+              <View style={styles.notifDot} />
+            </TouchableOpacity>
+          </View>
         </View>
-        <TouchableOpacity testID="logout-button" onPress={() => logout()} style={styles.logoutBtn}>
-          <Ionicons name="log-out-outline" size={22} color={colors.text.secondary} />
-        </TouchableOpacity>
+
+        {/* Greeting */}
+        {dashboard && (
+          <View style={styles.greetingRow}>
+            <Text style={styles.greeting}>{dashboard.saudacao}</Text>
+            <Text style={styles.greeting}>, </Text>
+            <Text style={styles.greeting}>{dashboard.nome}</Text>
+            <Text style={styles.greeting}> 👋</Text>
+          </View>
+        )}
+
+        <Text style={styles.headline}>
+          Descubra <Text style={styles.headlineAccent}>oportunidades</Text> que fazem a diferença
+        </Text>
+
+        {/* Stat cards */}
+        <View style={styles.statsRow}>
+          <StatCard value={`${dashboard?.horas_acumuladas ?? 0}h`} label="acumuladas" icon="time-outline" />
+          <StatCard value={dashboard?.inscricoes_ativas ?? 0} label="inscrições ativas" icon="document-text-outline" />
+          <StatCard value={dashboard?.vagas_salvas ?? 0} label="salvas" icon="bookmark-outline" />
+        </View>
+
+        {/* Goal ring */}
+        {dashboard && (
+          <View style={styles.goalRow}>
+            <CircularProgress percentage={dashboard.progresso_percentual} />
+            <View style={styles.goalText}>
+              <Text style={styles.goalTitle}>Meta de extensão</Text>
+              <Text style={styles.goalSubtitle}>
+                Faltam <Text style={styles.goalSubtitleStrong}>{hoursLeft}h</Text> para {dashboard.horas_exigidas}h
+              </Text>
+              <HoursProgressBar
+                variant="header"
+                filled={dashboard.horas_acumuladas}
+                total={dashboard.horas_exigidas}
+                percentage={dashboard.progresso_percentual}
+              />
+            </View>
+          </View>
+        )}
+      </LinearGradient>
+
+      {/* Search + filter */}
+      <View style={styles.searchWrap}>
+        <SearchBar
+          onChangeText={handleSearchChange}
+          value={searchText}
+          placeholder="Buscar por tema, ONG, local..."
+          onFilterPress={() => setShowFilters(true)}
+        />
       </View>
 
-      {/* Hours Progress */}
-      {dashboard && (
-        <HoursProgressBar
-          filled={dashboard.horas_acumuladas}
-          total={dashboard.horas_exigidas}
-          percentage={dashboard.progresso_percentual}
-        />
-      )}
-
-      {/* Search */}
-      <SearchBar
-        onChangeText={handleSearchChange}
-        value={searchText}
-        placeholder="Buscar vagas..."
-      />
-
-      {/* Category Pills */}
+      {/* Category pills */}
       {categories.length > 0 && (
-        <FlatList
+        <ScrollView
           horizontal
-          data={categories}
-          keyExtractor={item => item.area}
-          renderItem={({ item }) => (
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriesList}
+        >
+          {categories.map(item => (
             <CategoryPill
+              key={item.area}
               label={item.label}
               count={item.count}
               isSelected={selectedArea === item.area}
               onPress={() => handleCategoryPress(item.area)}
+              color={item.area === 'all' ? undefined : categoryColor(item.area)}
+              icon={CATEGORY_ICONS[item.area] ?? 'pricetag-outline'}
             />
-          )}
-          showsHorizontalScrollIndicator={false}
-          style={styles.categoriesList}
-        />
+          ))}
+        </ScrollView>
       )}
 
-      {/* Opportunities List or Empty State */}
+      {/* Section title + count */}
+      <View style={styles.sectionRow}>
+        <Text style={styles.sectionTitle}>Para você</Text>
+        <Text style={styles.sectionCount}>{resultsCount} oportunidades</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
       <FlatList
         data={opportunities}
         keyExtractor={item => item.id}
+        ListHeaderComponent={ListHeader}
         renderItem={({ item }) => (
-          <OpportunityCard
-            opportunity={item}
-            isSaved={item.is_saved}
-            onSave={() => handleSave(item)}
-            onPress={() => {}}
-          />
+          <View style={styles.cardWrap}>
+            <OpportunityCard
+              opportunity={item}
+              isSaved={item.is_saved}
+              onSave={() => handleSave(item)}
+              onPress={() => {}}
+              onApply={() => {}}
+            />
+          </View>
         )}
         ListEmptyComponent={
           <View testID="empty-state" style={styles.emptyState}>
             <Ionicons name="search-outline" size={48} color={colors.text.secondary} />
             <Text style={styles.emptyText}>Nenhuma vaga encontrada</Text>
+            <TouchableOpacity
+              testID="clear-filters-button"
+              style={styles.clearBtn}
+              onPress={handleClearFilters}
+            >
+              <Text style={styles.clearBtnText}>Limpar filtros</Text>
+            </TouchableOpacity>
           </View>
         }
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
-        }
-        style={styles.list}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+      />
+
+      <AdvancedFiltersModal
+        visible={showFilters}
+        onApply={handleApplyFilters}
+        onClose={() => setShowFilters(false)}
       />
     </View>
   );
@@ -235,8 +374,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.neutral.bg,
-    paddingHorizontal: 16,
-    paddingTop: 50,
   },
   loadingContainer: {
     flex: 1,
@@ -244,39 +381,186 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.neutral.bg,
   },
+  listContent: {
+    paddingBottom: 24,
+  },
+  cardWrap: {
+    paddingHorizontal: 20,
+  },
   header: {
+    paddingTop: 56,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    overflow: 'hidden',
+  },
+  ringTopRight: {
+    position: 'absolute',
+    top: -30,
+    right: -30,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 1.5,
+    borderColor: 'rgba(212,129,58,0.12)',
+  },
+  ringBottomLeft: {
+    position: 'absolute',
+    bottom: -20,
+    left: -20,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.04)',
+  },
+  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
+    alignItems: 'center',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerIconBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notifDot: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.brand.gold,
+    borderWidth: 2,
+    borderColor: colors.brand.navy,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontFamily: fontFamilies.playfairBold,
+    color: colors.brand.navy,
+    fontSize: 15,
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginTop: 16,
   },
   greeting: {
-    fontSize: 13,
-    color: colors.text.secondary,
+    fontFamily: fontFamilies.dmSansMedium,
+    fontSize: 11,
+    letterSpacing: 0.88,
+    textTransform: 'uppercase',
+    color: 'rgba(255,255,255,0.45)',
   },
-  studentName: {
+  headline: {
+    fontFamily: fontFamilies.playfairBold,
     fontSize: 20,
-    fontWeight: '700',
-    color: colors.text.primary,
+    color: '#fff',
+    marginTop: 6,
+    lineHeight: 26,
   },
-  logoutBtn: {
-    padding: 4,
+  headlineAccent: {
+    fontFamily: fontFamilies.playfairBoldItalic,
+    color: '#f0b070',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+  },
+  goalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.08)',
+  },
+  goalText: {
+    flex: 1,
+    gap: 4,
+  },
+  goalTitle: {
+    fontFamily: fontFamilies.dmSansSemiBold,
+    fontSize: 13,
+    color: '#fff',
+  },
+  goalSubtitle: {
+    fontFamily: fontFamilies.dmSansRegular,
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.45)',
+  },
+  goalSubtitleStrong: {
+    fontFamily: fontFamilies.dmSansBold,
+    color: '#f0b070',
+  },
+  searchWrap: {
+    paddingHorizontal: 20,
+    marginTop: -28,
   },
   categoriesList: {
-    marginVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
-  list: {
-    flex: 1,
-    marginTop: 8,
+  sectionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    paddingHorizontal: 20,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontFamily: fontFamilies.playfairBold,
+    fontSize: 20,
+    color: colors.text.primary,
+  },
+  sectionCount: {
+    fontFamily: fontFamilies.dmSansRegular,
+    fontSize: 11,
+    color: colors.text.secondary,
   },
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 60,
+    paddingTop: 40,
+    paddingHorizontal: 20,
   },
   emptyText: {
+    fontFamily: fontFamilies.dmSansRegular,
     fontSize: 14,
     color: colors.text.secondary,
     marginTop: 12,
+  },
+  clearBtn: {
+    marginTop: 16,
+    backgroundColor: colors.brand.navy,
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  clearBtnText: {
+    fontFamily: fontFamilies.dmSansSemiBold,
+    color: '#fff',
+    fontSize: 14,
   },
 });

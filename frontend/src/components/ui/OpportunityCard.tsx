@@ -1,6 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { categoryColor, colors } from '../../theme/colors';
+import { fontFamilies } from '../../theme/typography';
+import { radius } from '../../theme/spacing';
 
 interface OrganizationData {
   id?: string;
@@ -31,6 +34,7 @@ interface OpportunityCardProps {
   isSaved: boolean;
   onSave: () => void;
   onPress: () => void;
+  onApply?: () => void;
 }
 
 const AREA_LABELS: Record<string, string> = {
@@ -49,52 +53,95 @@ const MODALITY_LABELS: Record<string, string> = {
   hibrido: 'Híbrido',
 };
 
-export default function OpportunityCard({ opportunity, isSaved, onSave, onPress }: OpportunityCardProps) {
+function formatDate(value: string): string {
+  // value: 'YYYY-MM-DD' → 'DD/MM/YYYY' (no Date parsing to avoid TZ drift)
+  const parts = value?.split('-');
+  if (parts?.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return value;
+}
+
+export default function OpportunityCard({
+  opportunity,
+  isSaved,
+  onSave,
+  onPress,
+  onApply,
+}: OpportunityCardProps) {
+  const accent = categoryColor(opportunity.area);
+  const filledRatio =
+    opportunity.vacancies > 0
+      ? Math.min(1, opportunity.applicants_count / opportunity.vacancies)
+      : 0;
+
   return (
     <TouchableOpacity
       testID="opportunity-card"
       onPress={onPress}
       style={styles.card}
-      activeOpacity={0.8}
+      activeOpacity={0.9}
     >
-      {opportunity.featured && (
-        <View testID="featured-indicator" style={styles.featuredBadge}>
-          <Text style={styles.featuredText}>Destaque</Text>
+      {/* Body */}
+      <View style={styles.body}>
+        {/* Header: area badge + save */}
+        <View style={styles.headerRow}>
+          <View testID="opportunity-area-badge" style={[styles.areaBadge, { backgroundColor: accent + '1A' }]}>
+            <Text style={[styles.areaText, { color: accent }]}>
+              {(AREA_LABELS[opportunity.area] ?? opportunity.area).toUpperCase()}
+            </Text>
+          </View>
+          <TouchableOpacity testID="save-button" onPress={onSave} style={styles.saveButton} hitSlop={8}>
+            <Ionicons
+              name={isSaved ? 'heart' : 'heart-outline'}
+              size={18}
+              color={isSaved ? colors.brand.gold : colors.text.secondary}
+            />
+          </TouchableOpacity>
         </View>
-      )}
 
-      <View style={styles.header}>
-        <View testID="opportunity-area-badge" style={styles.areaBadge}>
-          <Text style={styles.areaText}>
-            {AREA_LABELS[opportunity.area] ?? opportunity.area}
-          </Text>
+        <Text style={styles.title}>{opportunity.title}</Text>
+        <Text style={styles.orgName}>{opportunity.organization.razao_social}</Text>
+
+        {/* Meta row — workload + (location | date), Figma 32:2 */}
+        <View style={styles.metaRow}>
+          <View style={styles.metaItem}>
+            <Ionicons name="time-outline" size={14} color={colors.text.secondary} />
+            <Text testID="opportunity-workload" style={styles.meta}>
+              <Text style={styles.metaStrong}>{opportunity.workload_value}{opportunity.workload_unit}</Text>
+            </Text>
+          </View>
+          {opportunity.location ? (
+            <View style={styles.metaItem}>
+              <Ionicons name="location-outline" size={14} color={colors.text.secondary} />
+              <Text testID="opportunity-modality" style={styles.meta}>
+                {MODALITY_LABELS[opportunity.modality] ?? opportunity.modality} · {opportunity.location}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.metaItem}>
+              <Ionicons name="calendar-outline" size={14} color={colors.text.secondary} />
+              <Text testID="opportunity-date" style={styles.meta}>{formatDate(opportunity.start_date)}</Text>
+            </View>
+          )}
         </View>
-        <TouchableOpacity testID="save-button" onPress={onSave} style={styles.saveButton}>
-          <Ionicons
-            name={isSaved ? 'bookmark' : 'bookmark-outline'}
-            size={20}
-            color={isSaved ? '#d4813a' : '#7a8299'}
-          />
-        </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>{opportunity.title}</Text>
-      <Text style={styles.orgName}>{opportunity.organization.razao_social}</Text>
+      {/* Footer: vacancies progress + apply */}
+      <View style={styles.footer}>
+        <View testID="opportunity-vacancies" style={styles.footerLeft}>
+          <View style={styles.vacanciesHeader}>
+            <Text style={styles.vacanciesLabel}>Vagas</Text>
+            <Text testID="vacancies-progress-label" style={styles.vacanciesCount}>
+              {opportunity.applicants_count} de {opportunity.vacancies}
+            </Text>
+          </View>
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: `${filledRatio * 100}%`, backgroundColor: accent }]} />
+          </View>
+        </View>
 
-      <View style={styles.details}>
-        <Text testID="opportunity-modality" style={styles.detail}>
-          {MODALITY_LABELS[opportunity.modality] ?? opportunity.modality}
-        </Text>
-        <Text style={styles.detail}>{opportunity.location}</Text>
-        <Text testID="opportunity-date" style={styles.detail}>
-          {opportunity.start_date}
-        </Text>
-        <Text testID="opportunity-workload" style={styles.detail}>
-          {opportunity.workload_value} {opportunity.workload_unit}
-        </Text>
-        <Text testID="opportunity-vacancies" style={styles.detail}>
-          {opportunity.vacancies} vagas
-        </Text>
+        <TouchableOpacity testID="apply-button" style={styles.applyButton} onPress={onApply} activeOpacity={0.85}>
+          <Text style={styles.applyText}>Candidatar →</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -103,61 +150,123 @@ export default function OpportunityCard({ opportunity, isSaved, onSave, onPress 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: radius.lg,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#ddd8ce',
+    borderColor: colors.neutral.border,
+    overflow: 'hidden',
   },
-  featuredBadge: {
-    backgroundColor: '#d4813a',
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+  body: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
+    gap: 8,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  areaBadge: {
     alignSelf: 'flex-start',
-    marginBottom: 8,
+    borderRadius: radius.round,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
   },
-  featuredText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '600',
+  areaText: {
+    fontFamily: fontFamilies.dmSansSemiBold,
+    fontSize: 10,
+    letterSpacing: 0.4,
   },
-  header: {
+  saveButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.neutral.bg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontFamily: fontFamilies.playfairBold,
+    fontSize: 17,
+    color: colors.text.primary,
+    lineHeight: 22,
+  },
+  orgName: {
+    fontFamily: fontFamilies.dmSansRegular,
+    fontSize: 13,
+    color: colors.text.secondary,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    flexWrap: 'wrap',
+    marginTop: 2,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  meta: {
+    fontFamily: fontFamilies.dmSansRegular,
+    fontSize: 13,
+    color: colors.text.secondary,
+  },
+  metaStrong: {
+    fontFamily: fontFamilies.dmSansSemiBold,
+    color: colors.text.primary,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.border,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+  },
+  footerLeft: {
+    flex: 1,
+    gap: 6,
+  },
+  vacanciesHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
   },
-  areaBadge: {
-    backgroundColor: '#fdf5ec',
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  areaText: {
-    color: '#d4813a',
+  vacanciesLabel: {
+    fontFamily: fontFamilies.dmSansRegular,
     fontSize: 11,
-    fontWeight: '600',
+    color: colors.text.secondary,
   },
-  saveButton: {
-    padding: 4,
+  vacanciesCount: {
+    fontFamily: fontFamilies.dmSansSemiBold,
+    fontSize: 11,
+    color: colors.text.primary,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a2744',
-    marginBottom: 4,
+  progressTrack: {
+    height: 4,
+    backgroundColor: '#e8e0d0',
+    borderRadius: radius.round,
+    overflow: 'hidden',
   },
-  orgName: {
+  progressFill: {
+    height: 4,
+    borderRadius: radius.round,
+  },
+  applyButton: {
+    backgroundColor: colors.brand.navy,
+    borderRadius: radius.sm,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    alignItems: 'center',
+  },
+  applyText: {
+    fontFamily: fontFamilies.dmSansSemiBold,
+    color: '#fff',
     fontSize: 13,
-    color: '#7a8299',
-    marginBottom: 12,
-  },
-  details: {
-    gap: 4,
-  },
-  detail: {
-    fontSize: 13,
-    color: '#3a4560',
   },
 });

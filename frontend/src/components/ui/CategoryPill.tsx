@@ -1,6 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../theme/colors';
+import { fontFamilies } from '../../theme/typography';
+import { radius } from '../../theme/spacing';
 
 interface CategoryPillProps {
   label: string;
@@ -8,9 +11,11 @@ interface CategoryPillProps {
   isSelected: boolean;
   onPress: () => void;
   color?: string;
+  icon?: React.ComponentProps<typeof Ionicons>['name'];
 }
 
-export default function CategoryPill({ label, count, isSelected, onPress, color }: CategoryPillProps) {
+export default function CategoryPill({ label, count, isSelected, onPress, color, icon }: CategoryPillProps) {
+  const iconColor = isSelected ? '#fff' : (color ?? colors.text.secondary);
   return (
     <TouchableOpacity
       testID="category-pill"
@@ -18,36 +23,36 @@ export default function CategoryPill({ label, count, isSelected, onPress, color 
       style={[
         styles.pill,
         isSelected ? styles.pillSelected : styles.pillUnselected,
-        color ? { borderColor: color } : null,
+        color && isSelected ? { borderColor: color } : null,
       ]}
       activeOpacity={0.7}
     >
-      {isSelected ? (
-        <View testID="category-pill-selected" style={styles.inner}>
-          <Text style={[styles.label, styles.labelSelected]}>{label}</Text>
-          <Text style={[styles.count, styles.countSelected]}>{String(count)}</Text>
+      <View
+        testID={isSelected ? 'category-pill-selected' : 'category-pill-unselected'}
+        style={styles.inner}
+      >
+        {icon && <Ionicons name={icon} size={14} color={iconColor} />}
+        <Text style={[styles.label, isSelected && styles.labelSelected]}>{label}</Text>
+        <View style={[styles.countBadge, isSelected ? styles.countBadgeSelected : styles.countBadgeUnselected]}>
+          <Text style={[styles.count, isSelected && styles.countSelected]}>{String(count)}</Text>
         </View>
-      ) : (
-        <View testID="category-pill-unselected" style={styles.inner}>
-          <Text style={styles.label}>{label}</Text>
-          <Text style={styles.count}>{String(count)}</Text>
-        </View>
-      )}
+      </View>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   pill: {
-    borderRadius: 20,
+    height: 36,
+    justifyContent: 'center',
+    borderRadius: radius.round,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderWidth: 1,
+    borderWidth: 1.5,
     marginRight: 8,
   },
   pillSelected: {
     backgroundColor: colors.brand.navy,
-    borderColor: colors.brand.gold,
+    borderColor: colors.brand.navy,
   },
   pillUnselected: {
     backgroundColor: '#fff',
@@ -56,21 +61,35 @@ const styles = StyleSheet.create({
   inner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
   label: {
+    fontFamily: fontFamilies.dmSansMedium,
     fontSize: 13,
-    color: '#1a2744',
-    fontWeight: '500',
+    color: colors.text.secondary,
   },
   labelSelected: {
     color: '#fff',
   },
+  countBadge: {
+    borderRadius: radius.round,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    minWidth: 16,
+    alignItems: 'center',
+  },
+  countBadgeUnselected: {
+    backgroundColor: '#e8e0d0',
+  },
+  countBadgeSelected: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
   count: {
-    fontSize: 11,
-    color: '#7a8299',
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 10,
+    color: colors.text.secondary,
   },
   countSelected: {
-    color: '#d4813a',
+    color: '#fff',
   },
 });

@@ -49,6 +49,7 @@ const DEFAULT_PROPS = {
   isSaved: false,
   onSave: jest.fn(),
   onPress: jest.fn(),
+  onApply: jest.fn(),
 };
 
 describe('OpportunityCard', () => {
@@ -79,12 +80,13 @@ describe('OpportunityCard', () => {
 
   it('renders the location', () => {
     render(<OpportunityCard {...DEFAULT_PROPS} />);
-    expect(screen.getByText('Brasília - DF')).toBeTruthy();
+    expect(screen.getByText(/Brasília - DF/)).toBeTruthy();
   });
 
-  it('renders the start date', () => {
-    render(<OpportunityCard {...DEFAULT_PROPS} />);
-    // Date should be displayed in some human-readable format
+  it('renders the start date when there is no location (event-style)', () => {
+    const eventOpp = { ...BASE_OPPORTUNITY, location: '' };
+    render(<OpportunityCard {...DEFAULT_PROPS} opportunity={eventOpp} />);
+    // Date is shown in place of location for date-driven opportunities
     expect(screen.getByTestId('opportunity-date')).toBeTruthy();
   });
 
@@ -129,17 +131,6 @@ describe('OpportunityCard', () => {
     expect(screen.getByText('[icon:bookmark-outline]')).toBeTruthy();
   });
 
-  it('renders featured indicator when opportunity is featured', () => {
-    const featuredOpp = { ...BASE_OPPORTUNITY, featured: true };
-    render(<OpportunityCard {...DEFAULT_PROPS} opportunity={featuredOpp} />);
-    expect(screen.getByTestId('featured-indicator')).toBeTruthy();
-  });
-
-  it('does not render featured indicator when not featured', () => {
-    render(<OpportunityCard {...DEFAULT_PROPS} />);
-    expect(screen.queryByTestId('featured-indicator')).toBeNull();
-  });
-
   it('renders card with testID opportunity-card', () => {
     render(<OpportunityCard {...DEFAULT_PROPS} />);
     expect(screen.getByTestId('opportunity-card')).toBeTruthy();
@@ -155,5 +146,27 @@ describe('OpportunityCard', () => {
     const hibridoOpp = { ...BASE_OPPORTUNITY, modality: 'hibrido' };
     render(<OpportunityCard {...DEFAULT_PROPS} opportunity={hibridoOpp} />);
     expect(screen.getByTestId('opportunity-modality')).toBeTruthy();
+  });
+
+  // ── Issue #20 redesign additions ─────────────────────────────
+
+  it('renders the apply button', () => {
+    render(<OpportunityCard {...DEFAULT_PROPS} />);
+    expect(screen.getByTestId('apply-button')).toBeTruthy();
+  });
+
+  it('calls onApply when apply button is pressed', () => {
+    const onApply = jest.fn();
+    render(<OpportunityCard {...DEFAULT_PROPS} onApply={onApply} />);
+    fireEvent.press(screen.getByTestId('apply-button'));
+    expect(onApply).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders the vacancies progress label "{applicants_count} de {vacancies}"', () => {
+    const opp = { ...BASE_OPPORTUNITY, applicants_count: 3, vacancies: 10 };
+    render(<OpportunityCard {...DEFAULT_PROPS} opportunity={opp} />);
+    const label = screen.getByTestId('vacancies-progress-label');
+    expect(label).toBeTruthy();
+    expect(screen.getByText('3 de 10')).toBeTruthy();
   });
 });

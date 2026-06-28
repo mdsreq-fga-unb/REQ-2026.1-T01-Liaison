@@ -117,17 +117,18 @@ def student_user2(db):
 
 
 def _make_opportunity(org, title="Vaga Teste", area="educacao", status="active",
-                       modality="presencial", featured=False, description="Desc padrão"):
+                       modality="presencial", featured=False, description="Desc padrão",
+                       location="Brasília - DF", workload_value=4):
     return Opportunity.objects.create(
         organization=org,
         title=title,
         area=area,
         description=description,
-        workload_value=4,
+        workload_value=workload_value,
         workload_unit="h/semana",
         vacancies=5,
         modality=modality,
-        location="Brasília - DF",
+        location=location,
         start_date="2026-07-01",
         start_time="09:00",
         status=status,
@@ -293,6 +294,133 @@ class TestModalityFilter:
         assert response.status_code == 200
         results = response.data.get("results", response.data)
         assert all(r["modality"] == "presencial" for r in results)
+
+
+# ────────────────────────────────────────────────────────────
+# 4b. Filtro por location (icontains, case-insensitive) — Issue #20
+# ────────────────────────────────────────────────────────────
+
+
+@pytest.mark.django_db
+class TestLocationFilter:
+    def test_filter_by_location_returns_only_matching(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="Em Brasília", location="Brasília - DF")
+        _make_opportunity(approved_org, title="Em São Paulo", location="São Paulo - SP")
+        api_client.force_authenticate(user=student_user)
+        response = api_client.get("/api/v1/opportunities/", {"location": "Brasília"})
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        titles = [r["title"] for r in results]
+        assert "Em Brasília" in titles
+        assert "Em São Paulo" not in titles
+
+    def test_filter_by_location_is_partial_icontains(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="Centro", location="Brasília - Plano Piloto")
+        _make_opportunity(approved_org, title="Outra", location="Goiânia - GO")
+        api_client.force_authenticate(user=student_user)
+        # partial substring should match
+        response = api_client.get("/api/v1/opportunities/", {"location": "Plano"})
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        titles = [r["title"] for r in results]
+        assert "Centro" in titles
+        assert "Outra" not in titles
+
+    def test_filter_by_location_case_insensitive(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="Em Brasília", location="Brasília - DF")
+        api_client.force_authenticate(user=student_user)
+        response = api_client.get("/api/v1/opportunities/", {"location": "brasília"})
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        titles = [r["title"] for r in results]
+        assert "Em Brasília" in titles
+
+    def test_filter_by_location_no_match_returns_empty(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="Em Brasília", location="Brasília - DF")
+        api_client.force_authenticate(user=student_user)
+        response = api_client.get("/api/v1/opportunities/", {"location": "Recife"})
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        assert len(results) == 0
+
+    def test_no_location_param_returns_all(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="A", location="Brasília - DF")
+        _make_opportunity(approved_org, title="B", location="São Paulo - SP")
+        api_client.force_authenticate(user=student_user)
+        response = api_client.get("/api/v1/opportunities/")
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        titles = [r["title"] for r in results]
+        assert "A" in titles and "B" in titles
+
+
+# ────────────────────────────────────────────────────────────
+# 4c. Filtro por workload_max (workload_value <= N) — Issue #20
+# ────────────────────────────────────────────────────────────
+
+
+@pytest.mark.django_db
+class TestWorkloadMaxFilter:
+    def test_filter_workload_max_returns_only_lte(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="Leve", workload_value=2)
+        _make_opportunity(approved_org, title="Média", workload_value=8)
+        _make_opportunity(approved_org, title="Pesada", workload_value=20)
+        api_client.force_authenticate(user=student_user)
+        response = api_client.get("/api/v1/opportunities/", {"workload_max": "8"})
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        titles = [r["title"] for r in results]
+        assert "Leve" in titles
+        assert "Média" in titles
+        assert "Pesada" not in titles
+
+    def test_filter_workload_max_inclusive_boundary(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="Exata", workload_value=10)
+        _make_opportunity(approved_org, title="Acima", workload_value=11)
+        api_client.force_authenticate(user=student_user)
+        response = api_client.get("/api/v1/opportunities/", {"workload_max": "10"})
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        titles = [r["title"] for r in results]
+        assert "Exata" in titles
+        assert "Acima" not in titles
+
+    def test_filter_workload_max_non_integer_is_ignored(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="Leve", workload_value=2)
+        _make_opportunity(approved_org, title="Pesada", workload_value=20)
+        api_client.force_authenticate(user=student_user)
+        # Non-integer value must be ignored → returns all (no filtering)
+        response = api_client.get("/api/v1/opportunities/", {"workload_max": "abc"})
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        titles = [r["title"] for r in results]
+        assert "Leve" in titles
+        assert "Pesada" in titles
+
+    def test_no_workload_max_param_returns_all(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="Leve", workload_value=2)
+        _make_opportunity(approved_org, title="Pesada", workload_value=20)
+        api_client.force_authenticate(user=student_user)
+        response = api_client.get("/api/v1/opportunities/")
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        titles = [r["title"] for r in results]
+        assert "Leve" in titles and "Pesada" in titles
+
+    def test_location_and_workload_max_combined(self, api_client, student_user, approved_org):
+        _make_opportunity(approved_org, title="Match", location="Brasília - DF", workload_value=4)
+        _make_opportunity(approved_org, title="WrongLocation", location="Recife - PE", workload_value=4)
+        _make_opportunity(approved_org, title="TooHeavy", location="Brasília - DF", workload_value=30)
+        api_client.force_authenticate(user=student_user)
+        response = api_client.get(
+            "/api/v1/opportunities/", {"location": "Brasília", "workload_max": "10"}
+        )
+        assert response.status_code == 200
+        results = response.data.get("results", response.data)
+        titles = [r["title"] for r in results]
+        assert "Match" in titles
+        assert "WrongLocation" not in titles
+        assert "TooHeavy" not in titles
 
 
 # ────────────────────────────────────────────────────────────

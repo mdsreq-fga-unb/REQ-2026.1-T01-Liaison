@@ -11,7 +11,8 @@
  * - Empty state quando sem resultados
  * - Pull-to-refresh
  * - Estado de loading (ActivityIndicator)
- * - Botão de logout ainda acessível
+ * - Avatar do header navega para o Perfil (logout vive no Perfil — decisão #20)
+ * - 3 StatCards, headline, contador de resultados, empty-state com ação, modal de filtros
  *
  * Cobre:
  * - Renderiza saudação do dashboard
@@ -24,7 +25,7 @@
  * - Chama dashboard API no mount
  * - Chama opportunities API no mount
  * - Chama getCategories no mount
- * - Logout button ainda existe
+ * - Avatar do header (header-avatar) navega
  */
 
 import {
@@ -36,10 +37,19 @@ import {
 } from '@testing-library/react-native';
 import React from 'react';
 
-// Mock navigation
+// Mock navigation — stable navigate ref so we can assert on it
+const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
-  useNavigation: () => ({ navigate: jest.fn(), goBack: jest.fn() }),
+  useNavigation: () => ({ navigate: mockNavigate, goBack: jest.fn() }),
 }));
+
+// expo-linear-gradient is used by the redesigned header (approved dep, may not be
+// installed in the test env yet) — virtual mock keeps the suite resolvable.
+jest.mock(
+  'expo-linear-gradient',
+  () => ({ LinearGradient: 'LinearGradient' }),
+  { virtual: true }
+);
 
 // Mock AuthContext with stable function references
 const mockAuthState = {
@@ -79,11 +89,11 @@ const mockUnsaveOpportunity = opportunitiesService.unsaveOpportunity as jest.Moc
 
 const MOCK_DASHBOARD = {
   nome: 'João Silva',
-  horas_acumuladas: 0,
+  horas_acumuladas: 16,
   horas_exigidas: 120,
-  progresso_percentual: 0,
-  inscricoes_ativas: 0,
-  vagas_salvas: 0,
+  progresso_percentual: 13,
+  inscricoes_ativas: 3,
+  vagas_salvas: 5,
   saudacao: 'Bom dia',
 };
 
@@ -206,20 +216,22 @@ describe('StudentHomeScreen (Opportunities Feed)', () => {
     });
   });
 
-  it('renders logout button', async () => {
+  // Decisão de escopo #20: o feed (Figma 32:2) não tem logout — o logout vive no
+  // tab Perfil. O avatar do header navega para o Perfil.
+  it('renders the header avatar', async () => {
     render(<StudentHomeScreen />);
     await waitFor(() => {
-      expect(screen.getByTestId('logout-button')).toBeTruthy();
+      expect(screen.getByTestId('header-avatar')).toBeTruthy();
     });
   });
 
-  it('calls logout when logout button pressed', async () => {
+  it('navigates when the header avatar is pressed', async () => {
     render(<StudentHomeScreen />);
     await waitFor(() => {
-      expect(screen.getByTestId('logout-button')).toBeTruthy();
+      expect(screen.getByTestId('header-avatar')).toBeTruthy();
     });
-    fireEvent.press(screen.getByTestId('logout-button'));
-    expect(mockAuthState.logout).toHaveBeenCalledTimes(1);
+    fireEvent.press(screen.getByTestId('header-avatar'));
+    expect(mockNavigate).toHaveBeenCalled();
   });
 
   it('calls getOpportunities with search term after typing', async () => {
@@ -247,6 +259,67 @@ describe('StudentHomeScreen (Opportunities Feed)', () => {
     await waitFor(() => {
       // HoursProgressBar should be present after dashboard loads
       expect(screen.getByTestId('hours-progress-bar')).toBeTruthy();
+    });
+  });
+
+  // ── Issue #20 feed redesign additions ────────────────────────
+
+  it('renders the 3 stat cards from the dashboard', async () => {
+    render(<StudentHomeScreen />);
+    await waitFor(() => {
+      expect(screen.getAllByTestId('stat-card')).toHaveLength(3);
+    });
+  });
+
+  it('renders the dashboard stat values (hours, active, saved)', async () => {
+    render(<StudentHomeScreen />);
+    await waitFor(() => {
+      // horas_acumuladas: 16, inscricoes_ativas: 3, vagas_salvas: 5
+      expect(screen.getByText(/acumuladas/i)).toBeTruthy();
+      expect(screen.getByText(/inscrições/i)).toBeTruthy();
+      expect(screen.getByText(/salvas/i)).toBeTruthy();
+    });
+  });
+
+  it('renders the headline containing "Descubra"', async () => {
+    render(<StudentHomeScreen />);
+    await waitFor(() => {
+      expect(screen.getByText(/Descubra/i)).toBeTruthy();
+    });
+  });
+
+  it('renders the results count label "{count} oportunidades"', async () => {
+    render(<StudentHomeScreen />);
+    await waitFor(() => {
+      // getOpportunities mock returns count: 1
+      expect(screen.getByText(/1 oportunidade/i)).toBeTruthy();
+    });
+  });
+
+  it('renders a clear-filters button in the empty state', async () => {
+    mockGetOpportunities.mockResolvedValueOnce({
+      count: 0,
+      results: [],
+      next: null,
+      previous: null,
+    });
+    render(<StudentHomeScreen />);
+    await waitFor(() => {
+      expect(screen.getByTestId('empty-state')).toBeTruthy();
+    });
+    expect(screen.getByTestId('clear-filters-button')).toBeTruthy();
+  });
+
+  it('opens the advanced filters modal when the filter button is pressed', async () => {
+    render(<StudentHomeScreen />);
+    await waitFor(() => {
+      expect(screen.getByTestId('search-filter-button')).toBeTruthy();
+    });
+    // Modal hidden initially
+    expect(screen.queryByTestId('filter-location-input')).toBeNull();
+    fireEvent.press(screen.getByTestId('search-filter-button'));
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-location-input')).toBeTruthy();
     });
   });
 });

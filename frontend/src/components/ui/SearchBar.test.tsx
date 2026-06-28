@@ -49,4 +49,16 @@ describe('SearchBar', () => {
     const input = screen.getByTestId('search-bar-input');
     expect(input.props.value).toBe('matemática');
   });
+
+  it('renders the filter button', () => {
+    render(<SearchBar onChangeText={jest.fn()} onFilterPress={jest.fn()} />);
+    expect(screen.getByTestId('search-filter-button')).toBeTruthy();
+  });
+
+  it('calls onFilterPress when filter button is pressed', () => {
+    const onFilterPress = jest.fn();
+    render(<SearchBar onChangeText={jest.fn()} onFilterPress={onFilterPress} />);
+    fireEvent.press(screen.getByTestId('search-filter-button'));
+    expect(onFilterPress).toHaveBeenCalledTimes(1);
+  });
 });

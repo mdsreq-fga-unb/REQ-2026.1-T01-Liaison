@@ -82,6 +82,17 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         if modality:
             qs = qs.filter(modality=modality)
 
+        location = params.get("location", "").strip()
+        if location:
+            qs = qs.filter(location__icontains=location)
+
+        workload_max = params.get("workload_max", "").strip()
+        if workload_max:
+            try:
+                qs = qs.filter(workload_value__lte=int(workload_max))
+            except ValueError:
+                pass  # non-integer → ignore the filter
+
         # Ordering: featured first, then newest
         qs = qs.order_by("-featured", "-created_at")
 

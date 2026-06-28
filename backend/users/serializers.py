@@ -144,7 +144,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # ── Login via email (estudante) — existing behaviour ──
         if self.username_field not in attrs:
-            raise AuthenticationFailed("É necessário informar e-mail ou CNPJ para realizar o login.")
+            raise serializers.ValidationError("É necessário informar e-mail ou CNPJ para realizar o login.")
 
         data = super().validate(attrs)
         user = self.user

@@ -359,6 +359,16 @@ export default function StudentProfileScreen() {
           </View>
         )}
 
+        <TouchableOpacity
+          testID="profile-logout-button"
+          style={styles.logoutButton}
+          onPress={logout}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="log-out-outline" size={20} color="#ef4444" />
+          <Text style={styles.logoutText}>Sair da conta</Text>
+        </TouchableOpacity>
+
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
@@ -750,5 +760,22 @@ const styles = StyleSheet.create({
 
   bottomSpacer: {
     height: 32,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginHorizontal: spacing.horizontal.step,
+    marginTop: 24,
+    paddingVertical: 14,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: '#ef4444',
+    backgroundColor: colors.neutral.white,
+  },
+  logoutText: {
+    ...typography.button,
+    color: '#ef4444',
   },
 });

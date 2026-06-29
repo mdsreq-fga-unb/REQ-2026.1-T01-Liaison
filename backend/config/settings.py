@@ -197,6 +197,13 @@ CORS_ALLOWED_ORIGINS = config(
 )
 CORS_ALLOW_CREDENTIALS = True
 
+# ─── Certificados ─────────────────────────────────────────────
+# URL base do portal público de validação (#30, ainda inexistente). O QR Code
+# do certificado aponta p/ "{base}/{validation_uuid}". Placeholder configurável.
+CERT_VALIDATION_BASE_URL = config(
+    "CERT_VALIDATION_BASE_URL", default="https://liaison.app/validar"
+)
+
 # ─── S3 Storage (mídia de usuários) ───────────────────────────
 # Ativado só quando USE_S3=True (servidor de produção). Em ambiente
 # local, sem a flag, o Django usa o storage padrão (sistema de arquivos).

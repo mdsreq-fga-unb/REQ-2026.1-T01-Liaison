@@ -106,6 +106,7 @@ urlpatterns = [
     path("api/v1/organizations/me/opportunities/", MyOpportunitiesList.as_view(), name="my-opportunities"),
     path("api/v1/opportunities/", include("opportunities.urls")),
     path("api/v1/applications/", include("applications.urls")),
+    path("api/v1/certificates/", include("certificates.urls")),
 ]
 
 # Serve media files in development (DEBUG=True only)

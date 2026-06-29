@@ -18,14 +18,11 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from num2words import num2words
 from reportlab.lib.colors import HexColor, white
-from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4, landscape
-from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Paragraph
 
 # Cores do tema (context/DESIGN.md + tokens do node).
 NAVY = HexColor("#1a2744")
@@ -51,8 +48,18 @@ if PLAYFAIR not in pdfmetrics.getRegisteredFontNames():
     pdfmetrics.registerFontFamily(DMSANS, normal=DMSANS, bold=DMSANS_SB)
 
 _MESES = [
-    "janeiro", "fevereiro", "março", "abril", "maio", "junho",
-    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
 ]
 
 
@@ -106,6 +113,45 @@ def _qr_reader(data: str) -> ImageReader:
     return ImageReader(buf)
 
 
+def _draw_paragraph(c, cx, first_baseline, leading, max_width, runs, size):
+    """Quebra runs (texto, negrito) em linhas ≤ max_width e centra cada uma.
+
+    Mede cada palavra com a fonte real (regular/semibold) — garante que a linha
+    nunca exceda a caixa e fique de fato centrada em cx.
+    """
+    space_w = pdfmetrics.stringWidth(" ", DMSANS, size)
+    # Palavras com flag de negrito (segmentos batem em espaços → split limpo).
+    words = []
+    for text, bold in runs:
+        for w in text.split(" "):
+            if w:
+                font = DMSANS_SB if bold else DMSANS
+                words.append((w, font, pdfmetrics.stringWidth(w, font, size)))
+
+    lines, cur, cur_w = [], [], 0.0
+    for w, font, ww in words:
+        add = ww if not cur else space_w + ww
+        if cur and cur_w + add > max_width:
+            lines.append(cur)
+            cur, cur_w = [(w, font, ww)], ww
+        else:
+            cur.append((w, font, ww))
+            cur_w += add
+    if cur:
+        lines.append(cur)
+
+    y = first_baseline
+    c.setFillColor(NAVY)
+    for line in lines:
+        total = sum(ww for _, _, ww in line) + space_w * (len(line) - 1)
+        x = cx - total / 2
+        for w, font, ww in line:
+            c.setFont(font, size)
+            c.drawString(x, y, w)
+            x += ww + space_w
+        y -= leading
+
+
 def _centered_text(c, x, y, text, font, size, color, tracking=0):
     # Largura real (stringWidth ignora o char-spacing → soma manual).
     w = pdfmetrics.stringWidth(text, font, size)
@@ -114,8 +160,9 @@ def _centered_text(c, x, y, text, font, size, color, tracking=0):
     to = c.beginText(x - w / 2, y)
     to.setFont(font, size)
     to.setFillColor(color)
-    if tracking:
-        to.setCharSpace(tracking)
+    # Tc (char spacing) persiste no graphics state após ET — sempre declarar
+    # (0 quando sem tracking) p/ não vazar para drawString do parágrafo.
+    to.setCharSpace(tracking)
     to.textOut(text)
     c.drawText(to)
 
@@ -156,39 +203,54 @@ def build_certificate_pdf(cert) -> ContentFile:
     c.setFillColor(GOLD)
     c.circle(cx + (title_w - 8 * S) / 2 + 8 * S, fy(104), 4 * S, fill=1, stroke=0)
     _centered_text(
-        c, cx, fy(130), "PLATAFORMA DE EXTENSÃO UNIVERSITÁRIA",
-        DMSANS_SB, 8.25, GRAY, tracking=3 * S,
+        c,
+        cx,
+        fy(130),
+        "PLATAFORMA DE EXTENSÃO UNIVERSITÁRIA",
+        DMSANS_SB,
+        8.25,
+        GRAY,
+        tracking=3 * S,
     )
 
     # ── Seção central (centralizada entre header e rodapé) ─────
     _centered_text(
-        c, cx, fy(274), "CERTIFICADO DE PARTICIPAÇÃO",
-        PLAYFAIR, 25.5, NAVY, tracking=2 * S,
+        c,
+        cx,
+        fy(274),
+        "CERTIFICADO DE PARTICIPAÇÃO",
+        PLAYFAIR,
+        25.5,
+        NAVY,
+        tracking=2 * S,
     )
     c.setFillColor(GOLD)
     c.roundRect(cx - 45 * S, fy(300), 90 * S, 3 * S, 1.5, fill=1, stroke=0)
     _centered_text(
-        c, cx, fy(334), "Certificamos para os devidos fins que",
-        DMSANS, 11.6, GRAY,
+        c,
+        cx,
+        fy(334),
+        "Certificamos para os devidos fins que",
+        DMSANS,
+        11.6,
+        GRAY,
     )
     _centered_text(c, cx, fy(384), f["student_name"], PLAYFAIR, 33, GOLD)
 
-    # Parágrafo com pesos mistos (Paragraph cuida de wrap + centralização).
-    body_style = ParagraphStyle(
-        "cert_body", fontName=DMSANS, fontSize=11.6, leading=19.2,
-        alignment=TA_CENTER, textColor=NAVY,
-    )
-    para = Paragraph(
-        f'participou da atividade de voluntariado <b>"{f["activity_title"]}"</b>, '
-        f'promovida por <b>{f["organization_name"]}</b> '
-        f'(CNPJ {f["organization_cnpj"]}), cumprindo a carga horária de '
-        f'<b>{f["hours_extenso"]}</b>, conforme registro de frequência '
-        f"validado na plataforma.",
-        body_style,
-    )
-    pw = 720 * S
-    _, ph = para.wrap(pw, H)
-    para.drawOn(c, cx - pw / 2, fy(422) - ph + 14)
+    # Parágrafo com pesos mistos — quebra + centralização manuais. O Paragraph
+    # do reportlab mede runs em negrito mais estreitos do que renderiza e
+    # transborda a caixa, descentralizando; aqui medimos cada palavra com a
+    # fonte real e centramos linha a linha.
+    runs = [
+        ("participou da atividade de voluntariado ", False),
+        (f'"{f["activity_title"]}",', True),
+        (" promovida por ", False),
+        (f"{f['organization_name']}", True),
+        (f" (CNPJ {f['organization_cnpj']}), cumprindo a carga horária de ", False),
+        (f"{f['hours_extenso']},", True),
+        (" conforme registro de frequência validado na plataforma.", False),
+    ]
+    _draw_paragraph(c, cx, fy(418), leading=18, max_width=640, runs=runs, size=11)
 
     # ── Rodapé: 3 colunas ──────────────────────────────────────
     left_cx = 205 * S
@@ -211,8 +273,14 @@ def build_certificate_pdf(cert) -> ContentFile:
     c.circle(cx, badge_cy, badge_r, fill=1, stroke=1)
     _centered_text(c, cx, badge_cy - 1, f"{f['hours']}h", PLAYFAIR, 16.5, white)
     _centered_text(
-        c, cx, badge_cy - 16 * S, "CERTIFICADAS",
-        DMSANS_SB, 5.25, GOLD_FRAME, tracking=1.2 * S,
+        c,
+        cx,
+        badge_cy - 16 * S,
+        "CERTIFICADAS",
+        DMSANS_SB,
+        5.25,
+        GOLD_FRAME,
+        tracking=1.2 * S,
     )
 
     # Direita: QR + código de validação.
@@ -224,7 +292,10 @@ def build_certificate_pdf(cert) -> ContentFile:
     c.rect(qr_x, fy(qr_top + qr_px), qr_size, qr_size, fill=1, stroke=0)
     c.drawImage(
         _qr_reader(f["validation_url"]),
-        qr_x + 1, fy(qr_top + qr_px) + 1, qr_size - 2, qr_size - 2,
+        qr_x + 1,
+        fy(qr_top + qr_px) + 1,
+        qr_size - 2,
+        qr_size - 2,
     )
     c.setStrokeColor(BORDER)
     c.setLineWidth(0.75)
@@ -232,10 +303,9 @@ def build_certificate_pdf(cert) -> ContentFile:
     _centered_text(
         c, right_cx, fy(700), "Código de validação", DMSANS, 8.25, GRAY, tracking=1 * S
     )
-    _centered_text(
-        c, right_cx, fy(716), f["validation_code"],
-        DMSANS_SB, 9, NAVY, tracking=1 * S,
-    )
+    # Sem tracking: charSpace faz extratores de PDF inserirem espaços entre as
+    # letras ao copiar o código. Mantém selecionável/copiável limpo.
+    _centered_text(c, right_cx, fy(716), f["validation_code"], DMSANS_SB, 9, NAVY)
 
     c.showPage()
     c.save()

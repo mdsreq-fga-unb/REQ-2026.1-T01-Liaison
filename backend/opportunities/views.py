@@ -9,7 +9,11 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Count, Exists, OuterRef, Q
 
 from .models import Opportunity, SavedOpportunity
-from .serializers import OpportunitySerializer, OpportunityCreateSerializer
+from .serializers import (
+    OpportunitySerializer,
+    OpportunityCreateSerializer,
+    OpportunityDetailSerializer,
+)
 from .permissions import IsOwnerOrReadOnly
 
 
@@ -28,7 +32,15 @@ class OpportunityViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
             return OpportunityCreateSerializer
+        if self.action == "retrieve":
+            return OpportunityDetailSerializer
         return OpportunitySerializer
+
+    def get_permissions(self):
+        # RF09: detalhe da vaga é público (active/paused/closed). Draft → 404.
+        if self.action == "retrieve":
+            return [permissions.AllowAny()]
+        return super().get_permissions()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -36,6 +48,17 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         return context
 
     def get_queryset(self):
+        # RF09: retrieve público — NÃO filtra status=ACTIVE (paused/closed devem
+        # abrir), só exclui draft. Branch antes de tocar user.role (anônimo não tem).
+        if self.action == "retrieve":
+            return (
+                Opportunity.objects
+                .exclude(status=Opportunity.Status.DRAFT)
+                .select_related("organization")
+                .prefetch_related("photos", "applications")
+                .annotate(_applicants_count=Count("applications"))
+            )
+
         user = self.request.user
         if user.role == "organizacao":
             qs = Opportunity.objects.filter(organization__user=user)
@@ -55,6 +78,9 @@ class OpportunityViewSet(viewsets.ModelViewSet):
                     )
                 except Exception:
                     pass
+
+        # Contagem real de candidatos para o card da listagem.
+        qs = qs.annotate(_applicants_count=Count("applications"))
 
         # Apply filters from query params
         params = self.request.query_params

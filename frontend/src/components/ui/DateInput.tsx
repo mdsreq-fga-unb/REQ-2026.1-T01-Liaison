@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
@@ -49,6 +49,23 @@ const DateInput = ({
     return new Date();
   };
 
+  // Web: picker nativo não existe → input digitável com máscara.
+  const maskInput = (text: string) => {
+    const digits = text.replace(/\D/g, '');
+    if (mode === 'date') {
+      const d = digits.slice(0, 8);
+      let out = d.slice(0, 2);
+      if (d.length > 2) out += '/' + d.slice(2, 4);
+      if (d.length > 4) out += '/' + d.slice(4, 8);
+      onChangeText(out);
+    } else {
+      const d = digits.slice(0, 4);
+      let out = d.slice(0, 2);
+      if (d.length > 2) out += ':' + d.slice(2, 4);
+      onChangeText(out);
+    }
+  };
+
   const onChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
       setShow(false);
@@ -81,24 +98,47 @@ const DateInput = ({
           {required && <Text style={styles.required}> *</Text>}
         </Text>
       )}
-      <TouchableOpacity
-        style={[
-          styles.input,
-          isFocused && styles.inputFocused,
-          error && styles.inputError,
-        ]}
-        onPress={() => {
-          setIsFocused(true);
-          setShow(true);
-        }}
-      >
-        <Text style={[styles.inputText, !value && styles.placeholderText]}>
-          {value || placeholder}
-        </Text>
-        <Ionicons name={mode === 'date' ? "calendar-outline" : "time-outline"} size={20} color={colors.text.secondary} />
-      </TouchableOpacity>
-      
-      {show && (
+      {Platform.OS === 'web' ? (
+        <View
+          style={[
+            styles.input,
+            isFocused && styles.inputFocused,
+            error && styles.inputError,
+          ]}
+        >
+          <TextInput
+            style={styles.inputText}
+            value={value}
+            onChangeText={maskInput}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder={placeholder || (mode === 'date' ? 'DD/MM/AAAA' : 'HH:MM')}
+            placeholderTextColor={colors.text.secondary}
+            keyboardType="numeric"
+            maxLength={mode === 'date' ? 10 : 5}
+          />
+          <Ionicons name={mode === 'date' ? 'calendar-outline' : 'time-outline'} size={20} color={colors.text.secondary} />
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={[
+            styles.input,
+            isFocused && styles.inputFocused,
+            error && styles.inputError,
+          ]}
+          onPress={() => {
+            setIsFocused(true);
+            setShow(true);
+          }}
+        >
+          <Text style={[styles.inputText, !value && styles.placeholderText]}>
+            {value || placeholder}
+          </Text>
+          <Ionicons name={mode === 'date' ? "calendar-outline" : "time-outline"} size={20} color={colors.text.secondary} />
+        </TouchableOpacity>
+      )}
+
+      {show && Platform.OS !== 'web' && (
         <DateTimePicker
           value={parseValueToDate(value)}
           mode={mode}

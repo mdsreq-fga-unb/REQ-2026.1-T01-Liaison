@@ -17,9 +17,21 @@ import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
-import * as api from '../../services/api';
 import { getMyOpportunities, publishOpportunity, closeOpportunity, reopenOpportunity, deleteOpportunity } from '../../services/opportunities';
-import { OpportunityData } from '../../services/api';
+
+interface OpportunityData {
+  id: string;
+  title: string;
+  area?: string;
+  status: string;
+  start_date?: string;
+  end_date?: string;
+  workload_value?: number;
+  workload_unit?: string;
+  modality?: string;
+  vacancies?: number;
+  applicants_count?: number;
+}
 
 type FilterTab = 'all' | 'active' | 'draft' | 'closed';
 
@@ -40,7 +52,8 @@ export default function OrgHomeScreen() {
       setError(null);
       if (accessToken) {
         const data = await getMyOpportunities(accessToken);
-        setOpportunities(data);
+        // Aceita lista pura ou resposta paginada {results}.
+        setOpportunities(Array.isArray(data) ? data : (data?.results ?? []));
       }
     } catch (err: any) {
       setError('Erro ao carregar vagas');
@@ -160,7 +173,7 @@ export default function OrgHomeScreen() {
     } else if (start) {
       return `A partir de ${formatDate(start)}`;
     } else {
-      return `Até ${formatDate(end)}`;
+      return `Até ${formatDate(end ?? '')}`;
     }
   };
 
@@ -211,15 +224,15 @@ export default function OrgHomeScreen() {
           </View>
         </View>
 
-        {/* Progress Bar (Mocked for now as we don't have filled_spots in response yet) */}
+        {/* Progress Bar — vagas preenchidas (applicants_count) / total (vacancies) */}
         {item.status !== 'closed' && (
           <View style={styles.progressContainer}>
             <View style={styles.progressHeader}>
               <Text style={styles.progressLabel}>Vagas</Text>
-              <Text style={styles.progressValue}>{item.filled_spots || 0} de {item.available_spots}</Text>
+              <Text style={styles.progressValue}>{item.applicants_count || 0} de {item.vacancies || 0}</Text>
             </View>
             <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: `${Math.min(((item.filled_spots || 0) / item.available_spots) * 100, 100)}%` }]} />
+              <View style={[styles.progressBarFill, { width: `${item.vacancies ? Math.min(((item.applicants_count || 0) / item.vacancies) * 100, 100) : 0}%` }]} />
             </View>
           </View>
         )}
@@ -253,7 +266,7 @@ export default function OrgHomeScreen() {
                 style={[styles.outlineButton, { flex: 1.5 }]}
                 onPress={() => Alert.alert('Em breve', 'A tela de candidatos ainda não foi implementada.')}
               >
-                <Text style={styles.outlineButtonText}>Candidatos ({(item.filled_spots || 0)})</Text>
+                <Text style={styles.outlineButtonText}>Candidatos ({(item.applicants_count || 0)})</Text>
               </TouchableOpacity>
               
               {item.status === 'closed' ? (
@@ -351,7 +364,7 @@ export default function OrgHomeScreen() {
       {/* Content */}
       {loading ? (
         <View style={styles.centerContainer} testID="loading-indicator">
-          <ActivityIndicator size="large" color={colors.brand.primary} />
+          <ActivityIndicator size="large" color={colors.brand.navy} />
         </View>
       ) : error ? (
         <View style={styles.centerContainer}>

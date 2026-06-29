@@ -41,6 +41,10 @@ import React from 'react';
 const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({ navigate: mockNavigate, goBack: jest.fn() }),
+  useFocusEffect: (cb: any) => {
+    const React = require('react');
+    React.useEffect(cb, []);
+  },
 }));
 
 // expo-linear-gradient is used by the redesigned header (approved dep, may not be

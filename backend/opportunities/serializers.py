@@ -44,7 +44,10 @@ class OpportunitySerializer(serializers.ModelSerializer):
         return SavedOpportunity.objects.filter(student=profile, opportunity=obj).exists()
 
     def get_applicants_count(self, obj):
-        return 0
+        # Usa anotação do queryset (evita N+1); fallback p/ contagem direta.
+        if hasattr(obj, "_applicants_count"):
+            return obj._applicants_count
+        return obj.applications.count()
 
     def get_organization(self, obj):
         org = obj.organization
@@ -52,6 +55,44 @@ class OpportunitySerializer(serializers.ModelSerializer):
             "id": str(org.id),
             "razao_social": org.razao_social,
         }
+
+
+class OpportunityDetailSerializer(OpportunitySerializer):
+    """Serializer de detalhe (RF09): organização expandida + contagem real de
+    candidaturas + already_applied para o estudante autenticado."""
+
+    already_applied = serializers.SerializerMethodField()
+
+    class Meta(OpportunitySerializer.Meta):
+        fields = OpportunitySerializer.Meta.fields + ["already_applied"]
+
+    def get_organization(self, obj):
+        org = obj.organization
+        request = self.context.get("request")
+        logo = None
+        if request and org.logo:
+            logo = request.build_absolute_uri(org.logo.url)
+        return {
+            "id": str(org.id),
+            "razao_social": org.razao_social,
+            "nome_fantasia": org.nome_fantasia,
+            "logo": logo,
+            "mission": org.mission,
+            "areas_de_atuacao": org.areas_de_atuacao,
+        }
+
+    def get_already_applied(self, obj):
+        request = self.context.get("request")
+        if request is None or not request.user.is_authenticated:
+            return False
+        user = request.user
+        if user.role != "estudante":
+            return False
+        try:
+            profile = user.student_profile
+        except Exception:
+            return False
+        return obj.applications.filter(student=profile).exists()
 
 
 class OpportunityCreateSerializer(serializers.ModelSerializer):

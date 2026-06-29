@@ -15,7 +15,8 @@ export const createOpportunity = async (token: string, data: FormData) => {
 };
 
 export const getMyOpportunities = async (token: string) => {
-  const response = await fetch(apiUrl('/opportunities/'), {
+  // Endpoint dedicado da org → lista pura (sem paginação).
+  const response = await fetch(apiUrl('/organizations/me/opportunities/'), {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -53,6 +54,17 @@ export async function getOpportunities(token: string, params: OpportunityParams)
     headers: {
       Authorization: `Bearer ${token}`,
     },
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function getOpportunity(id: string, token?: string | null) {
+  // RF09: detalhe é público — token é opcional (só personaliza is_saved/already_applied).
+  const response = await fetch(apiUrl(`/opportunities/${id}/`), {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
   if (!response.ok) {
     throw new Error(`HTTP error ${response.status}`);

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -137,9 +137,12 @@ export default function StudentHomeScreen() {
     [accessToken, applyOpportunities]
   );
 
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+  // Refetch ao focar (volta do detalhe após candidatar → atualiza vagas/contadores).
+  useFocusEffect(
+    useCallback(() => {
+      fetchAll(buildParams());
+    }, [fetchAll, buildParams])
+  );
 
   const refetch = useCallback(
     (params: OpportunityParams) => {
@@ -236,8 +239,12 @@ export default function StudentHomeScreen() {
             </LinearGradient>
           </TouchableOpacity>
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.headerIconBtn}>
-              <Ionicons name="search-outline" size={18} color="#fff" />
+            <TouchableOpacity
+              testID="my-applications-button"
+              style={styles.headerIconBtn}
+              onPress={() => navigation.navigate('MyApplications')}
+            >
+              <Ionicons name="document-text-outline" size={18} color="#fff" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerIconBtn}>
               <Ionicons name="notifications-outline" size={18} color="#fff" />
@@ -338,8 +345,8 @@ export default function StudentHomeScreen() {
               opportunity={item}
               isSaved={item.is_saved}
               onSave={() => handleSave(item)}
-              onPress={() => {}}
-              onApply={() => {}}
+              onPress={() => navigation.navigate('OpportunityDetail', { id: item.id })}
+              onApply={() => navigation.navigate('OpportunityDetail', { id: item.id })}
             />
           </View>
         )}

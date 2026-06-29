@@ -201,6 +201,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // Interceptor global de 401: qualquer request autenticada (Bearer) que volte
+  // 401 → token inválido/expirado → desloga e cai no Login. Sem refresh automático.
+  // ponytail: monkeypatch de global.fetch em 1 lugar cobre todos os services
+  // sem migrá-los para um wrapper comum.
+  useEffect(() => {
+    const originalFetch = global.fetch;
+    global.fetch = async (input: any, init?: any) => {
+      const response = await originalFetch(input, init);
+      if (response.status === 401) {
+        const headers = (init?.headers ?? {}) as Record<string, string>;
+        const auth = headers.Authorization || headers.authorization;
+        if (typeof auth === 'string' && auth.startsWith('Bearer ')) {
+          logout();
+        }
+      }
+      return response;
+    };
+    return () => {
+      global.fetch = originalFetch;
+    };
+  }, []);
+
   const value: AuthContextValue = {
     isAuthenticated: !!user,
     isLoading: isLoading || !isHydrated,

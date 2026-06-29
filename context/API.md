@@ -92,6 +92,13 @@
 | GET | `/certificates/{uuid}/download/` | PDF (attachment, `application/pdf`). 404 se não for dono |
 | POST | `/certificates/issue/` | **Temporário** (até #27). Org dona da vaga emite: `{ application: uuid, hours: int }` → 201 `{id, validation_uuid, issued_at}`. 403 não-org; 404 application de outra org; 400 não-aprovada / já emitida |
 
+### Validação pública de certificado (HTML, fora de `/api/v1/`, `AllowAny`)
+Views Django puras (`TemplateResponse`), **não** DRF — sem JSON. QR Code e código curto do PDF apontam aqui.
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/validar/<uuid>/` | Página HTML de validação. 200 com nome/ONG/atividade/horas/emissão + selo ✓ Válido (ou ✗ Revogado se `revoked_at`). 404 página genérica se uuid inexistente |
+| GET | `/validar/?codigo=` | Form de código curto. Sem código → form vazio. Código válido → mesma página de resultado (lookup por prefixo do uuid, normaliza hífen/case). Código inexistente → 200 form com erro |
+
 ---
 
 ## 3. Response Conventions

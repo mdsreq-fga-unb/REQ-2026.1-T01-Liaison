@@ -198,10 +198,12 @@ CORS_ALLOWED_ORIGINS = config(
 CORS_ALLOW_CREDENTIALS = True
 
 # ─── Certificados ─────────────────────────────────────────────
-# URL base do portal público de validação (#30, ainda inexistente). O QR Code
-# do certificado aponta p/ "{base}/{validation_uuid}". Placeholder configurável.
+# URL base do portal público de validação (servido pelo próprio backend em
+# /validar/). O QR Code do certificado aponta p/ "{base}/{validation_uuid}".
+# Sem domínio fixo: env-driven por IP (LOCAL_IP:8000 em dev, endereço público
+# do backend em prod via .env).
 CERT_VALIDATION_BASE_URL = config(
-    "CERT_VALIDATION_BASE_URL", default="https://liaison.app/validar"
+    "CERT_VALIDATION_BASE_URL", default="http://localhost:8000/validar"
 )
 
 # ─── S3 Storage (mídia de usuários) ───────────────────────────

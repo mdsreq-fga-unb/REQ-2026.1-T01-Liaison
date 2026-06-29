@@ -34,6 +34,7 @@ from users.views import (
     AdminOrganizationViewSet,
 )
 from opportunities.views import MyOpportunitiesList, StudentDashboardView
+from certificates.views import validate_certificate, validate_form
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -107,6 +108,9 @@ urlpatterns = [
     path("api/v1/opportunities/", include("opportunities.urls")),
     path("api/v1/applications/", include("applications.urls")),
     path("api/v1/certificates/", include("certificates.urls")),
+    # Validação pública de certificado (HTML, sem auth) — QR/código apontam aqui.
+    path("validar/", validate_form, name="certificate-validate-form"),
+    path("validar/<uuid:validation_uuid>/", validate_certificate, name="certificate-validate"),
 ]
 
 # Serve media files in development (DEBUG=True only)

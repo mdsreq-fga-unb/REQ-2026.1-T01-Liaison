@@ -1,14 +1,16 @@
 from django.core.exceptions import ValidationError
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 
 from applications.models import Application
 
 from .models import Certificate
+from .pdf import certificate_fields
 from .serializers import CertificateIssueSerializer, CertificateListSerializer
-from .services import issue_certificate
+from .services import find_by_code, issue_certificate
 
 
 class CertificateViewSet(viewsets.GenericViewSet):
@@ -81,3 +83,52 @@ class CertificateViewSet(viewsets.GenericViewSet):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+# ─── Validação pública (HTML, fora de /api/v1/, sem auth) ──────
+
+
+def _render_result(request, cert):
+    """Página de resultado: campos do PDF + status válido/revogado."""
+    fields = certificate_fields(cert)
+    return TemplateResponse(
+        request,
+        "certificates/validate.html",
+        {
+            "fields": fields,
+            "is_revoked": cert.revoked_at is not None,
+            "revoked_at": cert.revoked_at,
+        },
+    )
+
+
+def validate_certificate(request, validation_uuid):
+    """GET /validar/<uuid>/ — página pública de validação (QR aponta aqui)."""
+    cert = Certificate.objects.filter(validation_uuid=validation_uuid).first()
+    if cert is None:
+        # Página genérica 404 — não vaza nada sobre o uuid consultado.
+        return TemplateResponse(
+            request, "certificates/validate.html", {"not_found": True}, status=404
+        )
+    return _render_result(request, cert)
+
+
+def validate_form(request):
+    """GET /validar/?codigo= — form de código curto + resultado.
+
+    Sem código → form vazio. Código achado → mesma página de resultado.
+    Código não achado → form com erro (200, é fluxo de form, não 404).
+    """
+    code = request.GET.get("codigo")
+    if not code:
+        return TemplateResponse(
+            request, "certificates/validate.html", {"show_form": True}
+        )
+    cert = find_by_code(code)
+    if cert is None:
+        return TemplateResponse(
+            request,
+            "certificates/validate.html",
+            {"show_form": True, "error": "Código não encontrado", "code": code},
+        )
+    return _render_result(request, cert)

@@ -13,7 +13,8 @@ from django.db import transaction
 
 from applications.models import Application
 from certificates.models import Certificate
-from certificates.pdf import build_certificate_pdf
+from certificates.pdf import build_certificate_pdf, validation_url
+from certificates.services import issue_certificate
 from opportunities.models import Opportunity
 from users.models import OrganizationProfile, StudentProfile, User
 
@@ -24,11 +25,18 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--output", default="/app/sample_cert.pdf")
         parser.add_argument("--hours", type=int, default=20)
+        parser.add_argument("--title", default="Apoio em Eventos Comunitários")
         parser.add_argument(
-            "--title", default="Apoio em Eventos Comunitários"
+            "--persist",
+            action="store_true",
+            help=(
+                "Salva o certificado no banco (via issue_certificate) p/ testar "
+                "a validação. Sem a flag, só gera o PDF e dá rollback."
+            ),
         )
 
     def handle(self, *args, **opts):
+        persist = opts["persist"]
         try:
             with transaction.atomic():
                 org, student = self._actors()
@@ -41,11 +49,19 @@ class Command(BaseCommand):
                 app = Application.objects.create(
                     student=student, opportunity=opp, status="approved"
                 )
-                cert = Certificate.objects.create(application=app, hours=opts["hours"])
-                pdf = build_certificate_pdf(cert)
+                if persist:
+                    # Caminho real: grava Certificate no DB + PDF no storage.
+                    cert = issue_certificate(app, opts["hours"])
+                    pdf_bytes = cert.pdf_file.read()
+                else:
+                    cert = Certificate.objects.create(
+                        application=app, hours=opts["hours"]
+                    )
+                    pdf_bytes = build_certificate_pdf(cert).read()
                 with open(opts["output"], "wb") as fh:
-                    fh.write(pdf.read())
-                transaction.set_rollback(True)  # descarta os objetos de amostra
+                    fh.write(pdf_bytes)
+                if not persist:
+                    transaction.set_rollback(True)  # descarta tudo
         except OSError as exc:
             raise CommandError(f"Falha ao escrever {opts['output']}: {exc}")
 
@@ -55,6 +71,21 @@ class Command(BaseCommand):
                 f"({student.user.nome} · {org.razao_social} · {opts['hours']}h)"
             )
         )
+        if persist:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Certificado SALVO no banco · id={cert.id}\n"
+                    f"  validation_uuid: {cert.validation_uuid}\n"
+                    f"  validar em:      {validation_url(cert)}"
+                )
+            )
+        else:
+            self.stdout.write(
+                self.style.WARNING(
+                    "Modo amostra (rollback): NÃO foi salvo no banco — a "
+                    "validação vai falhar. Use --persist p/ testar a validação."
+                )
+            )
 
     def _actors(self):
         """Org aprovada + estudante existentes, ou cria descartáveis."""

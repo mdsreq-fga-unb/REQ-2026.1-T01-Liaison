@@ -45,12 +45,23 @@ class Opportunity(models.Model):
     accepts_any_course = models.BooleanField(default=True)
     preferred_courses = models.JSONField(default=list, blank=True)
     
+    featured = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "opportunities_opportunity"
+
+class SavedOpportunity(models.Model):
+    student = models.ForeignKey("users.StudentProfile", on_delete=models.CASCADE, related_name="saved_opportunities")
+    opportunity = models.ForeignKey(Opportunity, on_delete=models.CASCADE, related_name="saved_by")
+    saved_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "opportunities_savedopportunity"
+        unique_together = [("student", "opportunity")]
+
 
 class OpportunityPhoto(models.Model):
     opportunity = models.ForeignKey(Opportunity, on_delete=models.CASCADE, related_name="photos")

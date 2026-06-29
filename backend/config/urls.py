@@ -33,7 +33,7 @@ from users.views import (
     OrgChangePasswordView,
     AdminOrganizationViewSet,
 )
-from opportunities.views import MyOpportunitiesList
+from opportunities.views import MyOpportunitiesList, StudentDashboardView
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -46,7 +46,6 @@ user_list = UserViewSet.as_view({"get": "list", "post": "create"})
 user_detail = UserViewSet.as_view(
     {"get": "retrieve", "put": "update", "patch": "partial_update", "delete": "destroy"}
 )
-
 
 
 urlpatterns = [
@@ -73,6 +72,7 @@ urlpatterns = [
     path("api/v1/students/me/gallery/", GalleryUploadView.as_view(), name="student-gallery-upload"),
     path("api/v1/students/me/gallery/<uuid:photo_id>/", GalleryDeleteView.as_view(), name="student-gallery-delete"),
     path("api/v1/students/me/change-password/", ChangePasswordView.as_view(), name="student-change-password"),
+    path("api/v1/students/dashboard/", StudentDashboardView.as_view(), name="student-dashboard"),
     # Perfil da organização
     path("api/v1/organizations/me/", OrganizationProfileView.as_view(), name="org-profile-detail"),
     path("api/v1/organizations/me/update/", OrganizationProfileUpdateView.as_view(), name="org-profile-update"),

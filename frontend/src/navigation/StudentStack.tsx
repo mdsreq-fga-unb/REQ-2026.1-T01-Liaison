@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
-import StudentHomeScreen from '../screens/student/HomeScreen';
+import StudentTabNavigator from './StudentTabNavigator';
 import StudentProfileScreen from '../screens/student/StudentProfileScreen';
 import StudentProfileEditScreen from '../screens/student/StudentProfileEditScreen';
 import GalleryFullScreen from '../screens/student/GalleryFullScreen';
@@ -20,8 +20,8 @@ export default function StudentStack() {
     <Stack.Navigator>
       <Stack.Screen
         name="StudentHome"
-        component={StudentHomeScreen}
-        options={{ title: 'Início — Estudante' }}
+        component={StudentTabNavigator}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="StudentProfile"

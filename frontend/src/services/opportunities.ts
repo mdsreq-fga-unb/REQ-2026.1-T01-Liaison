@@ -6,7 +6,6 @@ export const createOpportunity = async (token: string, data: FormData) => {
     body: data,
     headers: {
       Authorization: `Bearer ${token}`,
-      // FormData should NOT have Content-Type set manually (let browser/fetch set boundary)
     },
   });
   if (!response.ok) {
@@ -26,6 +25,98 @@ export const getMyOpportunities = async (token: string) => {
   }
   return response.json();
 };
+
+export interface OpportunityParams {
+  search?: string;
+  area?: string;
+  featured?: boolean;
+  modality?: string;
+  location?: string;
+  workload_max?: string;
+  page?: number;
+}
+
+export async function getOpportunities(token: string, params: OpportunityParams) {
+  const queryParams = new URLSearchParams();
+  if (params.search) queryParams.set('search', params.search);
+  if (params.area) queryParams.set('area', params.area);
+  if (params.featured !== undefined) queryParams.set('featured', String(params.featured));
+  if (params.modality) queryParams.set('modality', params.modality);
+  if (params.location) queryParams.set('location', params.location);
+  if (params.workload_max) queryParams.set('workload_max', params.workload_max);
+  if (params.page) queryParams.set('page', String(params.page));
+
+  const queryString = queryParams.toString();
+  const url = apiUrl('/opportunities/') + (queryString ? `?${queryString}` : '');
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function getDashboard(token: string) {
+  const response = await fetch(apiUrl('/students/dashboard/'), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function saveOpportunity(token: string, id: string) {
+  const response = await fetch(apiUrl(`/opportunities/${id}/save/`), {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function unsaveOpportunity(token: string, id: string) {
+  const response = await fetch(apiUrl(`/opportunities/${id}/save/`), {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error ${response.status}`);
+  }
+  // 204 No Content — no JSON body
+  if (response.status === 204) {
+    return null;
+  }
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function getCategories(token: string) {
+  const response = await fetch(apiUrl('/opportunities/categories/'), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error ${response.status}`);
+  }
+  return response.json();
+}
 
 export const updateOpportunity = async (token: string, id: string, data: FormData) => {
   const response = await fetch(apiUrl(`/opportunities/${id}/`), {

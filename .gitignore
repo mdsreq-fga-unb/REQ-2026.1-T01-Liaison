@@ -92,3 +92,6 @@ android/.gradle/
 .dockerignore
 *.pem
 PROJECT_CONTEXT.md
+
+# Claude Code (local agent state)
+.claude/

@@ -4,6 +4,7 @@
 .env.*.local
 .opencode
 .opencode/*
+.claude
 venv/
 site/
 
@@ -46,6 +47,9 @@ media/
 staticfiles/
 *.log
 local_settings.py
+
+# Certificados — PDFs de amostra gerados pelo management command (sample_certificate)
+backend/*.pdf
 
 # Node / JS
 node_modules/

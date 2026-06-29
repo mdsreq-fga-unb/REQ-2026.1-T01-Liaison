@@ -199,9 +199,13 @@ CORS_ALLOW_CREDENTIALS = True
 
 # ─── Certificados ─────────────────────────────────────────────
 # URL base do portal público de validação (servido pelo próprio backend em
-# /validar/). O QR Code do certificado aponta p/ "{base}/{validation_uuid}".
-# Sem domínio fixo: env-driven por IP (LOCAL_IP:8000 em dev, endereço público
-# do backend em prod via .env).
+# /validar/). O QR Code do certificado escreve "{base}/{validation_uuid}" no
+# PDF, NA EMISSÃO (congela; mudar a env não reescreve PDFs já emitidos).
+#
+# ⚠️ OBRIGATÓRIO setar em produção com endereço alcançável pela internet
+# (domínio estável de preferência, não IP que muda). O default abaixo é só pra
+# dev: "localhost" aponta pro aparelho de quem lê o QR (loopback), não pro
+# servidor → todo QR fica quebrado se subir em prod sem trocar isto.
 CERT_VALIDATION_BASE_URL = config(
     "CERT_VALIDATION_BASE_URL", default="http://localhost:8000/validar"
 )

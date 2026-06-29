@@ -160,18 +160,18 @@ def build_certificate_pdf(cert) -> ContentFile:
         DMSANS_SB, 8.25, GRAY, tracking=3 * S,
     )
 
-    # ── Seção central ──────────────────────────────────────────
+    # ── Seção central (centralizada entre header e rodapé) ─────
     _centered_text(
-        c, cx, fy(322), "CERTIFICADO DE PARTICIPAÇÃO",
+        c, cx, fy(274), "CERTIFICADO DE PARTICIPAÇÃO",
         PLAYFAIR, 25.5, NAVY, tracking=2 * S,
     )
     c.setFillColor(GOLD)
-    c.roundRect(cx - 45 * S, fy(348), 90 * S, 3 * S, 1.5, fill=1, stroke=0)
+    c.roundRect(cx - 45 * S, fy(300), 90 * S, 3 * S, 1.5, fill=1, stroke=0)
     _centered_text(
-        c, cx, fy(382), "Certificamos para os devidos fins que",
+        c, cx, fy(334), "Certificamos para os devidos fins que",
         DMSANS, 11.6, GRAY,
     )
-    _centered_text(c, cx, fy(432), f["student_name"], PLAYFAIR, 33, GOLD)
+    _centered_text(c, cx, fy(384), f["student_name"], PLAYFAIR, 33, GOLD)
 
     # Parágrafo com pesos mistos (Paragraph cuida de wrap + centralização).
     body_style = ParagraphStyle(
@@ -188,7 +188,7 @@ def build_certificate_pdf(cert) -> ContentFile:
     )
     pw = 720 * S
     _, ph = para.wrap(pw, H)
-    para.drawOn(c, cx - pw / 2, fy(470) - ph + 14)
+    para.drawOn(c, cx - pw / 2, fy(422) - ph + 14)
 
     # ── Rodapé: 3 colunas ──────────────────────────────────────
     left_cx = 205 * S

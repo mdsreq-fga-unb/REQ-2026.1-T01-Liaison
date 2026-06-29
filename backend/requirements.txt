@@ -9,6 +9,7 @@ Pillow>=10.2.0
 # Certificados (geração de PDF + QR Code)
 reportlab>=4.0
 qrcode[pil]>=7.4
+num2words>=0.5
 
 # Storage (S3)
 django-storages>=1.14

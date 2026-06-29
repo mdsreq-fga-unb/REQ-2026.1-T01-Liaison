@@ -146,9 +146,13 @@ class TestCertificateFields:
         f = certificate_fields(cert)
         assert f["student_name"] == "João Silva"
         assert f["activity_title"] == "Tutoria de Matemática"
-        assert "40" in f["hours"]
+        assert f["hours"] == 40
+        assert f["hours_extenso"] == "40 (quarenta) horas"
         assert f["organization_name"] == "ONG Ltda"
-        assert f["organization_cnpj"] == "11222333000181"
+        assert f["organization_cnpj"] == "11.222.333/0001-81"  # máscara aplicada
+        assert "2026" in f["issued_at"] and "Brasília" in f["issued_at"]
+        # Código curto de validação: 4 grupos de 4 hex derivados do UUID.
+        assert f["validation_code"].count("-") == 3
         assert str(cert.validation_uuid) in f["validation_url"]
 
 

@@ -110,13 +110,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             try:
                 org = OrganizationProfile.objects.get(cnpj=cnpj)
             except OrganizationProfile.DoesNotExist:
-                raise serializers.ValidationError("CNPJ ou senha inválidos.")
+                raise AuthenticationFailed("CNPJ ou senha inválidos.")
 
             if not org.user.is_active:
-                raise serializers.ValidationError("CNPJ ou senha inválidos.")
+                raise AuthenticationFailed("CNPJ ou senha inválidos.")
 
             if org.status != "approved":
-                raise serializers.ValidationError(
+                raise PermissionDenied(
                     "Organização pendente de aprovação. Aguarde a análise do administrador."
                 )
 
@@ -128,7 +128,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             user = authenticate(**authenticate_kwargs)
 
             if user is None or not user.is_active:
-                raise serializers.ValidationError("CNPJ ou senha inválidos.")
+                raise AuthenticationFailed("CNPJ ou senha inválidos.")
 
             self.user = user
 
@@ -143,6 +143,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             return data
 
         # ── Login via email (estudante) — existing behaviour ──
+        if self.username_field not in attrs:
+            raise serializers.ValidationError("É necessário informar e-mail ou CNPJ para realizar o login.")
+
         data = super().validate(attrs)
         user = self.user
 

@@ -1,3 +1,5 @@
+from django.db import transaction
+from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -106,6 +108,10 @@ class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
         applications = Application.objects.filter(opportunity=opportunity).select_related(
             "student__user"
         )
+        # RF13 — filtro opcional por status (ex.: ?status=approved lista só aprovados).
+        status_param = request.query_params.get("status", "").strip()
+        if status_param:
+            applications = applications.filter(status=status_param)
         serializer = ApplicationEvaluationSerializer(applications, many=True)
         return Response(serializer.data)
 
@@ -150,5 +156,71 @@ class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
 
         application.status = new_status
         application.save(update_fields=["status", "updated_at"])
+
+        return Response(ApplicationEvaluationSerializer(application).data)
+
+    def complete(self, request, pk=None):
+        """RF14 — registrar frequência/carga horária: approved → completed."""
+        org = self._get_org_profile(request)
+        if org is None:
+            return Response(
+                {"detail": "Apenas organizações podem registrar frequência."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        try:
+            application = Application.objects.select_related(
+                "opportunity__organization"
+            ).get(pk=pk)
+        except Application.DoesNotExist:
+            return Response({"detail": "Candidatura não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+        if application.opportunity.organization != org:
+            return Response(
+                {"detail": "Você não tem permissão para registrar frequência desta candidatura."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        # Imutável pós-conclusão (RNF08).
+        if application.status == Application.Status.COMPLETED:
+            return Response(
+                {"detail": "Esta candidatura já foi concluída e não pode ser alterada."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if application.status != Application.Status.APPROVED:
+            return Response(
+                {"detail": "Só é possível registrar frequência de candidaturas aprovadas."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        attendance = request.data.get("attendance")
+        if attendance not in Application.Attendance.values:
+            return Response(
+                {"detail": "Frequência inválida. Use 'present', 'partial' ou 'absent'."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Ausente não tem carga cumprida; demais exigem horas inteiras ≥ 0.
+        if attendance == Application.Attendance.ABSENT:
+            hours = 0
+        else:
+            hours = request.data.get("hours_completed")
+            # bool é subclasse de int — rejeitar explicitamente.
+            if isinstance(hours, bool) or not isinstance(hours, int) or hours < 0:
+                return Response(
+                    {"detail": "Informe a carga horária cumprida (horas inteiras ≥ 0)."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        with transaction.atomic():
+            application.status = Application.Status.COMPLETED
+            application.attendance = attendance
+            application.hours_completed = hours
+            application.completed_at = timezone.now()
+            application.save(
+                update_fields=[
+                    "status", "attendance", "hours_completed", "completed_at", "updated_at"
+                ]
+            )
 
         return Response(ApplicationEvaluationSerializer(application).data)

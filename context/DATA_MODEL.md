@@ -9,7 +9,7 @@
 
 ## 1. Entity Overview
 
-`User` (UUID PK, AbstractUser, login por email) tem 1:1 com `StudentProfile` **ou** `OrganizationProfile` conforme `role`. Cada perfil tem galeria de fotos (1:N). `OrganizationProfile` passa por moderação admin (`status` + `AdminActionLog`). `OrganizationProfile` publica `Opportunity` (1:N), cada vaga com fotos (1:N). `StudentProfile` candidata-se a `Opportunity` via `Application` (1:N, `unique_together`). App `certificates` ainda é placeholder.
+`User` (UUID PK, AbstractUser, login por email) tem 1:1 com `StudentProfile` **ou** `OrganizationProfile` conforme `role`. Cada perfil tem galeria de fotos (1:N). `OrganizationProfile` passa por moderação admin (`status` + `AdminActionLog`). `OrganizationProfile` publica `Opportunity` (1:N), cada vaga com fotos (1:N). `StudentProfile` candidata-se a `Opportunity` via `Application` (1:N, `unique_together`). `Application` aprovada+concluída gera `Certificate` (1:1, write-once, PDF + QR de validação).
 
 ---
 
@@ -117,10 +117,13 @@
 **Table:** `opportunities_opportunityphoto` — `FK(Opportunity)` CASCADE `related_name=photos`, `image` upload_to `opportunities/photos/`.
 
 ### Application
-**Table:** `applications_application` — `id` UUID PK. `FK(StudentProfile)` CASCADE `related_name=applications`, `FK(Opportunity)` CASCADE `related_name=applications`. `status` choices `pending`/`approved`/`rejected`/`cancelled` (default `pending`). `created_at`/`updated_at` auto. **`unique_together(student, opportunity)`** impede candidatura duplicada. `ordering=["-created_at"]`.
+**Table:** `applications_application` — `id` UUID PK. `FK(StudentProfile)` CASCADE `related_name=applications`, `FK(Opportunity)` CASCADE `related_name=applications`. `status` choices `pending`/`approved`/`rejected`/`cancelled`/`completed` (default `pending`). Frequência: `hours_completed` (PositiveInt null), `completed_at` (DateTime null) — preenchidos na conclusão (marcação vem no #27). `created_at`/`updated_at` auto. **`unique_together(student, opportunity)`** impede candidatura duplicada. `ordering=["-created_at"]`.
+
+### Certificate
+**Table:** `certificates_certificate` — `id` UUID PK. `OneToOne(Application)` **PROTECT** `related_name=certificate` (1 cert por application → 1 por student/opportunity). `hours` PositiveInt (snapshot da carga atestada). `pdf_file` FileField `upload_to=certificates/` (local ou S3). `validation_uuid` UUID unique (código público de validação, #30). `issued_at` auto. `revoked_at` DateTime null (revogação futura). **Write-once (RNF08):** `save()` em objeto persistido só aceita `update_fields ⊆ {pdf_file, revoked_at}`; qualquer outro update levanta `ValidationError`. student/opportunity/org acessados via `cert.application.*`. `ordering=["-issued_at"]`.
 
 ### Planejado (placeholders)
-`Attendance` (imutável), `Certificate` (imutável, hash de validação, PDF via Celery).
+`Attendance` — descartado: frequência virou estado de `Application` (campos `status=completed`/`hours_completed`/`completed_at`), sem tabela separada.
 
 ---
 

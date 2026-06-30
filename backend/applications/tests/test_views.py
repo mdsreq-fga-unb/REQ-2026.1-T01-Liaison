@@ -103,9 +103,9 @@ class TestApplicationList:
         api_client.force_authenticate(user=student_user)
         resp = api_client.get("/api/v1/applications/")
         assert resp.status_code == 200
-        assert len(resp.data) == 1
-        assert resp.data[0]["opportunity"]["title"] == "Tutoria"
-        assert resp.data[0]["opportunity"]["status"] == "active"
+        assert len(resp.data["results"]) == 1
+        assert resp.data["results"][0]["opportunity"]["title"] == "Tutoria"
+        assert resp.data["results"][0]["opportunity"]["status"] == "active"
 
     def test_unique_together_enforced(self, db, org, student_user):
         from django.db import IntegrityError, transaction

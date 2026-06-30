@@ -5,6 +5,7 @@ import CreateOpportunityScreen from '../screens/organization/CreateOpportunitySc
 import OrgProfileScreen from '../screens/organization/OrgProfileScreen';
 import OrgProfileEditScreen from '../screens/organization/OrgProfileEditScreen';
 import OpportunityApplicantsScreen from '../screens/organization/OpportunityApplicantsScreen';
+import OpportunityAttendanceScreen from '../screens/organization/OpportunityAttendanceScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import PublicStudentProfileScreen from '../screens/student/PublicStudentProfileScreen';
 import PublicOrgProfileScreen from '../screens/organization/PublicOrgProfileScreen';
@@ -15,6 +16,7 @@ export type OrgStackParamList = {
   OrgProfile: undefined;
   OrgProfileEdit: undefined;
   OpportunityApplicants: { opportunityId: string; opportunityTitle: string };
+  OpportunityAttendance: { opportunityId: string; opportunityTitle: string; expectedHours?: number };
   Notifications: undefined;
   PublicStudentProfile: { userId: string };
   PublicOrgProfile: { orgId: string };
@@ -30,6 +32,7 @@ export default function OrgStack() {
       <Stack.Screen name="OrgProfile" component={OrgProfileScreen} options={{ title: 'Perfil Institucional' }} />
       <Stack.Screen name="OrgProfileEdit" component={OrgProfileEditScreen} options={{ title: 'Editar Perfil' }} />
       <Stack.Screen name="OpportunityApplicants" component={OpportunityApplicantsScreen} options={{ title: 'Candidatos' }} />
+      <Stack.Screen name="OpportunityAttendance" component={OpportunityAttendanceScreen} options={{ title: 'Frequência' }} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PublicStudentProfile" component={PublicStudentProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PublicOrgProfile" component={PublicOrgProfileScreen} options={{ headerShown: false }} />

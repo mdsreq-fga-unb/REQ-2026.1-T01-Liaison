@@ -236,3 +236,152 @@ class TestApplicationEvaluate:
         api_client.force_authenticate(user=org.user)
         resp = api_client.patch(f"/api/v1/applications/{app.id}/evaluate/", {"status": "cancelled"}, format="json")
         assert resp.status_code == 400
+
+
+@pytest.mark.django_db
+class TestApprovedFilter:
+    """RF13 — listagem de aprovados via ?status=approved."""
+
+    def test_filter_returns_only_approved(self, api_client, org, student_user):
+        opp = _opp(org)
+        Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        other = _student(email="m@e.com", username="maria", matricula="999")
+        Application.objects.create(student=other.student_profile, opportunity=opp, status="pending")
+        api_client.force_authenticate(user=org.user)
+        resp = api_client.get(f"/api/v1/applications/opportunities/{opp.id}/?status=approved")
+        assert resp.status_code == 200
+        assert len(resp.data) == 1
+        assert resp.data[0]["status"] == "approved"
+
+
+@pytest.mark.django_db
+class TestApplicationComplete:
+    """RF14 — registrar frequência: approved → completed."""
+
+    def test_complete_present_records_hours(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        api_client.force_authenticate(user=org.user)
+        resp = api_client.patch(
+            f"/api/v1/applications/{app.id}/complete/",
+            {"attendance": "present", "hours_completed": 20}, format="json",
+        )
+        assert resp.status_code == 200
+        assert resp.data["status"] == "completed"
+        assert resp.data["attendance"] == "present"
+        assert resp.data["hours_completed"] == 20
+        assert resp.data["completed_at"] is not None
+        app.refresh_from_db()
+        assert app.status == "completed"
+        assert app.attendance == "present"
+        assert app.hours_completed == 20
+        assert app.completed_at is not None
+
+    def test_complete_partial_records_hours(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        api_client.force_authenticate(user=org.user)
+        resp = api_client.patch(
+            f"/api/v1/applications/{app.id}/complete/",
+            {"attendance": "partial", "hours_completed": 14}, format="json",
+        )
+        assert resp.status_code == 200
+        assert resp.data["attendance"] == "partial"
+        assert resp.data["hours_completed"] == 14
+
+    def test_complete_absent_forces_zero_hours(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        api_client.force_authenticate(user=org.user)
+        # hours_completed ignorado quando ausente.
+        resp = api_client.patch(
+            f"/api/v1/applications/{app.id}/complete/",
+            {"attendance": "absent", "hours_completed": 99}, format="json",
+        )
+        assert resp.status_code == 200
+        assert resp.data["attendance"] == "absent"
+        assert resp.data["hours_completed"] == 0
+
+    def test_complete_invalid_attendance_returns_400(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        api_client.force_authenticate(user=org.user)
+        for bad in ["foo", None, ""]:
+            resp = api_client.patch(
+                f"/api/v1/applications/{app.id}/complete/",
+                {"attendance": bad, "hours_completed": 10}, format="json",
+            )
+            assert resp.status_code == 400, f"attendance={bad!r} deveria ser 400"
+
+    def test_complete_non_approved_returns_400(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="pending")
+        api_client.force_authenticate(user=org.user)
+        resp = api_client.patch(
+            f"/api/v1/applications/{app.id}/complete/",
+            {"attendance": "present", "hours_completed": 10}, format="json",
+        )
+        assert resp.status_code == 400
+
+    def test_complete_already_completed_returns_400(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(
+            student=student_user.student_profile, opportunity=opp,
+            status="completed", attendance="present", hours_completed=20,
+        )
+        api_client.force_authenticate(user=org.user)
+        resp = api_client.patch(
+            f"/api/v1/applications/{app.id}/complete/",
+            {"attendance": "partial", "hours_completed": 5}, format="json",
+        )
+        assert resp.status_code == 400
+        app.refresh_from_db()
+        assert app.hours_completed == 20  # imutável (RNF08)
+        assert app.attendance == "present"
+
+    def test_complete_invalid_hours_returns_400(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        api_client.force_authenticate(user=org.user)
+        for bad in [-1, "abc", True, None]:
+            resp = api_client.patch(
+                f"/api/v1/applications/{app.id}/complete/",
+                {"attendance": "present", "hours_completed": bad}, format="json",
+            )
+            assert resp.status_code == 400, f"hours={bad!r} deveria ser 400"
+
+    def test_complete_other_org_returns_403(self, api_client, db, student_user):
+        owner_user = User.objects.create_user(
+            email="owner@example.com", username="owner_org", password="Pass1234",
+            role="organizacao", nome="Owner ONG",
+        )
+        owner_org = OrganizationProfile.objects.create(
+            user=owner_user, cnpj="11222333000181", razao_social="Owner ONG Ltda",
+            telefone="61999999999", nome_responsavel="Resp", status="approved",
+        )
+        opp = _opp(owner_org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        attacker_user = User.objects.create_user(
+            email="attacker@example.com", username="attacker_org", password="Pass1234",
+            role="organizacao", nome="Attacker ONG",
+        )
+        OrganizationProfile.objects.create(
+            user=attacker_user, cnpj="22333444000195", razao_social="Attacker ONG Ltda",
+            telefone="61999999998", nome_responsavel="Resp2", status="approved",
+        )
+        api_client.force_authenticate(user=attacker_user)
+        resp = api_client.patch(
+            f"/api/v1/applications/{app.id}/complete/",
+            {"attendance": "present", "hours_completed": 10}, format="json",
+        )
+        assert resp.status_code == 403
+
+    def test_complete_student_returns_403(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        api_client.force_authenticate(user=student_user)
+        resp = api_client.patch(
+            f"/api/v1/applications/{app.id}/complete/",
+            {"attendance": "present", "hours_completed": 10}, format="json",
+        )
+        assert resp.status_code == 403

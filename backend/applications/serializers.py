@@ -68,4 +68,7 @@ class ApplicationEvaluationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
-        fields = ["id", "student", "status", "created_at"]
+        fields = [
+            "id", "student", "status", "created_at",
+            "attendance", "hours_completed", "completed_at",
+        ]

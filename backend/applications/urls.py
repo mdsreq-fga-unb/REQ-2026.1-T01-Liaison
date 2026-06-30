@@ -20,4 +20,10 @@ urlpatterns = [
         OpportunityApplicationsViewSet.as_view({"patch": "evaluate"}),
         name="application-evaluate",
     ),
+    # RF14 — registrar frequência/carga horária (organização)
+    path(
+        "<uuid:pk>/complete/",
+        OpportunityApplicationsViewSet.as_view({"patch": "complete"}),
+        name="application-complete",
+    ),
 ]

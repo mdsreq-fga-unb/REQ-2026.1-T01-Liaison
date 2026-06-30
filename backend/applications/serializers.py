@@ -33,3 +33,22 @@ class ApplicationListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         fields = ["id", "opportunity", "status", "created_at"]
+
+
+
+class ApplicationStudentSummarySerializer(serializers.ModelSerializer):
+    nome = serializers.CharField(source="user.nome")
+    curso = serializers.CharField()
+    universidade = serializers.CharField()
+
+    class Meta:
+        model = __import__("users.models", fromlist=["StudentProfile"]).StudentProfile
+        fields = ["nome", "curso", "universidade"]
+
+
+class ApplicationEvaluationSerializer(serializers.ModelSerializer):
+    student = ApplicationStudentSummarySerializer(read_only=True)
+
+    class Meta:
+        model = Application
+        fields = ["id", "student", "status", "created_at"]

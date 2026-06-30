@@ -264,7 +264,7 @@ export default function OrgHomeScreen() {
             <>
               <TouchableOpacity 
                 style={[styles.outlineButton, { flex: 1.5 }]}
-                onPress={() => Alert.alert('Em breve', 'A tela de candidatos ainda não foi implementada.')}
+                onPress={() => navigation.navigate('OpportunityApplicants', { opportunityId: item.id, opportunityTitle: item.title })}
               >
                 <Text style={styles.outlineButtonText}>Candidatos ({(item.applicants_count || 0)})</Text>
               </TouchableOpacity>
@@ -404,7 +404,7 @@ export default function OrgHomeScreen() {
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => Alert.alert('Em breve', 'A tela de candidatos ainda não foi implementada.')}
+          onPress={() => Alert.alert('Candidatos', 'Selecione uma vaga para ver os candidatos.')}
         >
           <Ionicons name="people-outline" size={24} color="#7a8299" />
           <Text style={styles.navText}>Candidatos</Text>

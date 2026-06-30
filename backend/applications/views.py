@@ -112,7 +112,9 @@ class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
         status_param = request.query_params.get("status", "").strip()
         if status_param:
             applications = applications.filter(status=status_param)
-        serializer = ApplicationEvaluationSerializer(applications, many=True)
+        serializer = ApplicationEvaluationSerializer(
+            applications, many=True, context={"request": request}
+        )
         return Response(serializer.data)
 
     def evaluate(self, request, pk=None):

@@ -8,6 +8,8 @@ import GalleryFullScreen from '../screens/student/GalleryFullScreen';
 import OpportunityDetailScreen from '../screens/student/OpportunityDetailScreen';
 import MyApplicationsScreen from '../screens/student/MyApplicationsScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import PublicStudentProfileScreen from '../screens/student/PublicStudentProfileScreen';
+import PublicOrgProfileScreen from '../screens/organization/PublicOrgProfileScreen';
 
 export type StudentStackParamList = {
   StudentHome: undefined;
@@ -17,6 +19,8 @@ export type StudentStackParamList = {
   OpportunityDetail: { id: string };
   MyApplications: undefined;
   Notifications: undefined;
+  PublicStudentProfile: { userId: string };
+  PublicOrgProfile: { orgId: string };
 };
 
 const Stack = createNativeStackNavigator<StudentStackParamList>();
@@ -57,6 +61,16 @@ export default function StudentStack() {
       <Stack.Screen
         name="Notifications"
         component={NotificationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PublicStudentProfile"
+        component={PublicStudentProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PublicOrgProfile"
+        component={PublicOrgProfileScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

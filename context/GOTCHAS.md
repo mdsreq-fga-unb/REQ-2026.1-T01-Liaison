@@ -43,6 +43,9 @@ Default DRF é `IsAuthenticated`. Esquecer `@permission_classes([AllowAny])` →
 ### Login por CNPJ
 CNPJ armazenado como dígitos puros. Strip da máscara antes de validar/buscar.
 
+### `id` de profile ≠ `user.id`
+`StudentProfile`/`OrganizationProfile` têm PK **inteiro** (AutoField). O `id` canônico exposto pela API (`/me/`, login, registro, detail serializers via `source="user.id"`) é o **UUID do User**. Rotas públicas de perfil keyam por `user_id`, não pelo PK do profile. `opportunity.organization.id` é o PK inteiro do profile (legado) — para navegar ao perfil público use `organization.user_id`.
+
 ---
 
 ## Frontend — Expo / React Native

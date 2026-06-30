@@ -50,6 +50,14 @@
 | DELETE | `/students/me/gallery/{photo_id}/` | Remove foto |
 | POST | `/students/me/change-password/` | Troca de senha |
 
+### Perfis públicos (`IsAuthenticated`, qualquer role)
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/students/{user_id}/` | Perfil do estudante — mesma representação de `/students/me/` (read-only). 404 se inexistente |
+| GET | `/organizations/{user_id}/` | Perfil da org — mesma representação de `/organizations/me/` (read-only). Só `status=approved`; pending/rejected/inexistente → 404 |
+
+Reusam os Detail serializers de `/me/` (mesmos campos, incl. contato). Lookup por `user_id` (UUID do User), mesma chave de `id` em `/me/`, login e registro. Payload de oportunidade expõe `organization.user_id` para navegação.
+
 ### Organização — perfil próprio (`IsAuthenticated + IsOrganizacao`)
 | Method | Path | Description |
 |--------|------|-------------|

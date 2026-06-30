@@ -22,9 +22,18 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
 
 
 class ApplicationOpportunitySummarySerializer(serializers.ModelSerializer):
+    organization = serializers.SerializerMethodField()
+
     class Meta:
         model = Opportunity
-        fields = ["id", "title", "status"]
+        fields = ["id", "title", "status", "organization"]
+
+    def get_organization(self, obj):
+        org = obj.organization
+        return {
+            "user_id": str(org.user_id),
+            "razao_social": org.razao_social,
+        }
 
 
 class ApplicationListSerializer(serializers.ModelSerializer):
@@ -37,13 +46,21 @@ class ApplicationListSerializer(serializers.ModelSerializer):
 
 
 class ApplicationStudentSummarySerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source="user.id", read_only=True)
     nome = serializers.CharField(source="user.nome")
     curso = serializers.CharField()
     universidade = serializers.CharField()
+    avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = __import__("users.models", fromlist=["StudentProfile"]).StudentProfile
-        fields = ["nome", "curso", "universidade"]
+        fields = ["id", "nome", "curso", "universidade", "avatar_url"]
+
+    def get_avatar_url(self, obj):
+        request = self.context.get("request")
+        if obj.avatar and obj.avatar.name and request:
+            return request.build_absolute_uri(obj.avatar.url)
+        return None
 
 
 class ApplicationEvaluationSerializer(serializers.ModelSerializer):

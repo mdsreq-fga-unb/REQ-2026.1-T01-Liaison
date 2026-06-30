@@ -7,6 +7,7 @@ import { radius } from '../../theme/spacing';
 
 interface OrganizationData {
   id?: string;
+  user_id?: string;
   razao_social: string;
 }
 
@@ -35,6 +36,7 @@ interface OpportunityCardProps {
   onSave: () => void;
   onPress: () => void;
   onApply?: () => void;
+  onOrgPress?: () => void;
 }
 
 const AREA_LABELS: Record<string, string> = {
@@ -66,6 +68,7 @@ export default function OpportunityCard({
   onSave,
   onPress,
   onApply,
+  onOrgPress,
 }: OpportunityCardProps) {
   const accent = categoryColor(opportunity.area);
   const filledRatio =
@@ -99,7 +102,13 @@ export default function OpportunityCard({
         </View>
 
         <Text style={styles.title}>{opportunity.title}</Text>
-        <Text style={styles.orgName}>{opportunity.organization.razao_social}</Text>
+        {onOrgPress ? (
+          <TouchableOpacity testID="card-org-link" onPress={onOrgPress} hitSlop={6} activeOpacity={0.7}>
+            <Text style={[styles.orgName, styles.orgNameLink]}>{opportunity.organization.razao_social}</Text>
+          </TouchableOpacity>
+        ) : (
+          <Text style={styles.orgName}>{opportunity.organization.razao_social}</Text>
+        )}
 
         {/* Meta row — workload + (location | date), Figma 32:2 */}
         <View style={styles.metaRow}>
@@ -196,6 +205,10 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.dmSansRegular,
     fontSize: 13,
     color: colors.text.secondary,
+  },
+  orgNameLink: {
+    color: colors.brand.navy,
+    textDecorationLine: 'underline',
   },
   metaRow: {
     flexDirection: 'row',

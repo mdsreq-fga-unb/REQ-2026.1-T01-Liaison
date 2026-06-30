@@ -18,6 +18,7 @@ from users.views import (
     student_register,
     organization_register,
     StudentProfileView,
+    StudentPublicProfileView,
     StudentProfileUpdateView,
     AvatarUploadView,
     BannerUploadView,
@@ -25,6 +26,7 @@ from users.views import (
     GalleryDeleteView,
     ChangePasswordView,
     OrganizationProfileView,
+    OrganizationPublicProfileView,
     OrganizationProfileUpdateView,
     OrgLogoUploadView,
     OrgBannerUploadView,
@@ -74,6 +76,8 @@ urlpatterns = [
     path("api/v1/students/me/gallery/<uuid:photo_id>/", GalleryDeleteView.as_view(), name="student-gallery-delete"),
     path("api/v1/students/me/change-password/", ChangePasswordView.as_view(), name="student-change-password"),
     path("api/v1/students/dashboard/", StudentDashboardView.as_view(), name="student-dashboard"),
+    # Perfil público de estudante (qualquer role autenticada)
+    path("api/v1/students/<uuid:pk>/", StudentPublicProfileView.as_view(), name="student-public-profile"),
     # Perfil da organização
     path("api/v1/organizations/me/", OrganizationProfileView.as_view(), name="org-profile-detail"),
     path("api/v1/organizations/me/update/", OrganizationProfileUpdateView.as_view(), name="org-profile-update"),
@@ -82,6 +86,8 @@ urlpatterns = [
     path("api/v1/organizations/me/gallery/", OrgGalleryUploadView.as_view(), name="org-gallery-upload"),
     path("api/v1/organizations/me/gallery/<uuid:photo_id>/", OrgGalleryDeleteView.as_view(), name="org-gallery-delete"),
     path("api/v1/organizations/me/change-password/", OrgChangePasswordView.as_view(), name="org-change-password"),
+    # Perfil público de organização (qualquer role autenticada)
+    path("api/v1/organizations/<uuid:pk>/", OrganizationPublicProfileView.as_view(), name="org-public-profile"),
     # Endpoints de verificação e moderação de organizações
     path(
         "api/v1/admin/organizations/",

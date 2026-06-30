@@ -1,9 +1,11 @@
 import { apiUrl } from '../config/api';
 
 export interface ApplicationStudent {
+  id: string;
   nome: string;
   curso: string;
   universidade: string;
+  avatar_url: string | null;
 }
 
 export type AttendanceStatus = 'present' | 'partial' | 'absent';

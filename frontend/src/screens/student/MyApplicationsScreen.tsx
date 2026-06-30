@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  RefreshControl,
 } from 'react-native';
 
 import { useAuth } from '../../context/AuthContext';
@@ -17,15 +18,30 @@ import { fontFamilies } from '../../theme/typography';
 import { radius } from '../../theme/spacing';
 
 const STATUS_LABELS: Record<string, string> = {
+  
   pending: 'Aguardando avaliação',
   approved: 'Aprovada',
   rejected: 'Rejeitada',
   cancelled: 'Cancelada',
 };
+type FilterTab = 'all' | 'pending' | 'approved' | 'rejected' | 'cancelled';
+
+const TABS: { key: FilterTab; label: string }[] = [
+  { key: 'all', label: 'Todas' },
+  { key: 'pending', label: 'Aguardando' },
+  { key: 'approved', label: 'Aprovadas' },
+  { key: 'rejected', label: 'Rejeitadas' },
+  { key: 'cancelled', label: 'Canceladas' },
+];
 
 interface ApplicationItem {
   id: string;
-  opportunity: { id: string; title: string; status: string };
+  opportunity: { 
+    id: string; 
+    title: string; 
+    status: string; 
+    organization: { name: string };
+  };
   status: string;
   created_at: string;
 }
@@ -41,6 +57,8 @@ export default function MyApplicationsScreen() {
   const { accessToken } = useAuth();
   const [items, setItems] = useState<ApplicationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<FilterTab>('all');
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     if (!accessToken) return;
@@ -54,9 +72,29 @@ export default function MyApplicationsScreen() {
     }
   }, [accessToken]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
   useEffect(() => {
     load();
   }, [load]);
+
+  const filteredItems = useMemo(() => {
+  if (activeTab === 'all') return items;
+  return items.filter((item) => item.status === activeTab);
+}, [items, activeTab]);
+
+const tabCounts = useMemo(() => {
+  const counts: Record<string, number> = { all: items.length };
+  for (const tab of TABS) {
+    if (tab.key === 'all') continue;
+    counts[tab.key] = items.filter((item) => item.status === tab.key).length;
+  }
+  return counts;
+}, [items]);
 
   if (isLoading) {
     return (
@@ -76,8 +114,35 @@ export default function MyApplicationsScreen() {
         <View style={{ width: 22 }} />
       </View>
 
+   <View style={styles.tabsRow}>
+        <FlatList
+          data={TABS}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          refreshControl={
+          <RefreshControl 
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[colors.brand.navy]}
+          />}
+          keyExtractor={(tab) => tab.key}
+          contentContainerStyle={styles.tabsContent}
+          renderItem={({ item: tab }) => (
+            <TouchableOpacity
+              testID={`tab-${tab.key}`}
+              style={[styles.tab, activeTab === tab.key && styles.activeTab]}
+              onPress={() => setActiveTab(tab.key)}
+            >
+              <Text style={[styles.tabLabel, activeTab === tab.key && styles.activeTabLabel]}>
+                {tab.label} · {tabCounts[tab.key] ?? 0}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
       <FlatList
-        data={items}
+        data={filteredItems}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
@@ -86,6 +151,10 @@ export default function MyApplicationsScreen() {
             onPress={() => navigation.navigate('OpportunityDetail', { id: item.opportunity.id })}
           >
             <Text style={styles.cardTitle}>{item.opportunity.title}</Text>
+            <Text style={{ fontSize: 13, color: colors.text.secondary, marginBottom: 8 }}>
+              {item.opportunity.organization?.name}
+            </Text>
+
             <View style={styles.cardMeta}>
               <View style={styles.statusBadge}>
                 <Text style={styles.statusText}>
@@ -94,12 +163,39 @@ export default function MyApplicationsScreen() {
               </View>
               <Text style={styles.date}>Candidatura em {formatDate(item.created_at)}</Text>
             </View>
+
+            {item.status === 'pending' && (
+              <TouchableOpacity 
+                style={{ marginTop: 12, padding: 8, backgroundColor: colors.neutral.border, borderRadius: radius.sm, alignItems: 'center' }}
+                onPress={() => {
+                  // Aqui você chama a função do endpoint de cancelamento (US2.9)
+                }}
+              >
+                <Text style={{ color: colors.text.primary, fontFamily: fontFamilies.dmSansSemiBold }}>
+                  Cancelar Candidatura
+                </Text>
+              </TouchableOpacity>
+            )}
           </TouchableOpacity>
         )}
         ListEmptyComponent={
           <View testID="empty-state" style={styles.empty}>
             <Ionicons name="document-text-outline" size={48} color={colors.text.secondary} />
-            <Text style={styles.emptyText}>Você ainda não se candidatou a nenhuma vaga</Text>
+            <Text style={styles.emptyText}>
+              {items.length === 0
+                ? 'Você ainda não se candidatou a nenhuma vaga'
+                : 'Nenhuma candidatura com esse status'}
+            </Text>
+            {items.length === 0 && (
+    <TouchableOpacity 
+      style={{ marginTop: 16, paddingVertical: 10, paddingHorizontal: 20, backgroundColor: colors.brand.navy, borderRadius: radius.md }}
+      onPress={() => navigation.navigate('SearchOpportunities')} // Substitua pelo nome exato da sua rota de busca de vagas
+    >
+      <Text style={{ color: colors.neutral.white, fontFamily: fontFamilies.dmSansSemiBold }}>
+        Buscar vagas
+      </Text>
+    </TouchableOpacity>
+  )}
           </View>
         }
       />
@@ -122,6 +218,36 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.neutral.white, borderRadius: radius.md, padding: 16,
     borderWidth: 1, borderColor: colors.neutral.border, gap: 8,
+  },
+  tabsRow: {
+    backgroundColor: colors.neutral.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.neutral.border,
+  },
+  tabsContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  tab: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: radius.round,
+    backgroundColor: colors.neutral.bg,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+  },
+  activeTab: {
+    backgroundColor: colors.brand.navy,
+    borderColor: colors.brand.navy,
+  },
+  tabLabel: {
+    fontFamily: fontFamilies.dmSansSemiBold,
+    fontSize: 12,
+    color: colors.text.secondary,
+  },
+  activeTabLabel: {
+    color: colors.neutral.white,
   },
   cardTitle: { fontFamily: fontFamilies.dmSansSemiBold, fontSize: 15, color: colors.text.primary },
   cardMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 },

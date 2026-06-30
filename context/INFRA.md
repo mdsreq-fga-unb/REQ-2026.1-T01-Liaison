@@ -52,9 +52,19 @@ SECRET_KEY=<chave-secreta-django>
 ALLOWED_HOSTS=<ip-do-servidor>,localhost,127.0.0.1
 DATABASE_URL=postgres://<usuario>:<senha>@<endpoint-rds>:5432/<nome-banco>
 LOCAL_IP=<ip-do-servidor>
+CERT_VALIDATION_BASE_URL=https://<dominio-ou-ip-publico>/validar
 ```
 
 Solicitar os valores reais ao @HenriqueFontenelle.
+
+> ⚠️ **`CERT_VALIDATION_BASE_URL` é obrigatória em produção.** É o endereço que o
+> QR Code e o código curto do certificado escrevem **no PDF, na emissão**. O default
+> (`http://localhost:8000/validar`) só serve pra dev — `localhost` aponta pro
+> aparelho de quem lê o QR (loopback), não pro servidor, então **todo QR fica
+> quebrado** se subir sem setar isto. Use um **endereço alcançável pela internet**
+> (domínio estável de preferência, não IP que muda). Setar **antes** da primeira
+> emissão real — PDFs já emitidos não se atualizam ao mudar a env. Trocou de
+> domínio depois? Mantenha o antigo redirecionando (`301`) pros QRs já impressos.
 
 > Variáveis adicionais do armazenamento de mídia (S3) estão documentadas na seção **Armazenamento de Mídia (Amazon S3)**.
 

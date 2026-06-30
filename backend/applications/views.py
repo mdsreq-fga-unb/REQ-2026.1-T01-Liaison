@@ -1,13 +1,21 @@
 from rest_framework import viewsets, permissions, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from opportunities.models import Opportunity
 from .models import Application
-from .serializers import ApplicationCreateSerializer, ApplicationListSerializer
+from .serializers import ApplicationCreateSerializer, ApplicationEvaluationSerializer, ApplicationListSerializer
+
+
+class ApplicationPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 class ApplicationViewSet(viewsets.GenericViewSet):
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = ApplicationPagination
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -15,13 +23,23 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         return ApplicationListSerializer
 
     def get_queryset(self):
-        return (
+        qs = (
             Application.objects.filter(student__user=self.request.user)
-            .select_related("opportunity")
+            .select_related("opportunity", "opportunity__organization")
+            .order_by("-created_at")
         )
+        status_param = self.request.query_params.get("status", "").strip()
+        if status_param:
+            qs = qs.filter(status=status_param)
+        return qs
 
     def list(self, request, *args, **kwargs):
-        serializer = self.get_serializer(self.get_queryset(), many=True)
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
@@ -57,11 +75,6 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         )
 
 
-
-from rest_framework.decorators import action
-from opportunities.models import Opportunity
-
-
 class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
     """Endpoints da organização para avaliar candidaturas."""
 
@@ -90,7 +103,6 @@ class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        from .serializers import ApplicationEvaluationSerializer
         applications = Application.objects.filter(opportunity=opportunity).select_related(
             "student__user"
         )
@@ -139,5 +151,4 @@ class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
         application.status = new_status
         application.save(update_fields=["status", "updated_at"])
 
-        from .serializers import ApplicationEvaluationSerializer
         return Response(ApplicationEvaluationSerializer(application).data)

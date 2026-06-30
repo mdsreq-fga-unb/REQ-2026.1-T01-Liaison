@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  RefreshControl,
 } from 'react-native';
 
 import { useAuth } from '../../context/AuthContext';
@@ -57,6 +58,7 @@ export default function MyApplicationsScreen() {
   const [items, setItems] = useState<ApplicationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     if (!accessToken) return;
@@ -69,6 +71,12 @@ export default function MyApplicationsScreen() {
       setIsLoading(false);
     }
   }, [accessToken]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
 
   useEffect(() => {
     load();
@@ -111,6 +119,12 @@ const tabCounts = useMemo(() => {
           data={TABS}
           horizontal
           showsHorizontalScrollIndicator={false}
+          refreshControl={
+          <RefreshControl 
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[colors.brand.navy]}
+          />}
           keyExtractor={(tab) => tab.key}
           contentContainerStyle={styles.tabsContent}
           renderItem={({ item: tab }) => (

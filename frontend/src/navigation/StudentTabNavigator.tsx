@@ -10,6 +10,7 @@ import StudentProfileScreen from '../screens/student/StudentProfileScreen';
 import { getDashboard } from '../services/opportunities';
 import { colors } from '../theme/colors';
 import { fontFamilies } from '../theme/typography';
+import MyApplicationsScreen from '../screens/student/MyApplicationsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -88,7 +89,7 @@ export default function StudentTabNavigator() {
       />
       <Tab.Screen
         name="Inscrições"
-        component={() => <PlaceholderScreen title="Inscrições" />}
+        component={MyApplicationsScreen}
         options={{
           tabBarBadge: activeCount > 0 ? activeCount : undefined,
           tabBarIcon: ({ color }) => (

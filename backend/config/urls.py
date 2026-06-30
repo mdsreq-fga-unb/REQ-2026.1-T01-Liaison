@@ -107,6 +107,7 @@ urlpatterns = [
     path("api/v1/organizations/me/opportunities/", MyOpportunitiesList.as_view(), name="my-opportunities"),
     path("api/v1/opportunities/", include("opportunities.urls")),
     path("api/v1/applications/", include("applications.urls")),
+    path("api/v1/notifications/", include("notifications.urls")),
     path("api/v1/certificates/", include("certificates.urls")),
     # Validação pública de certificado (HTML, sem auth) — QR/código apontam aqui.
     path("validar/", validate_form, name="certificate-validate-form"),

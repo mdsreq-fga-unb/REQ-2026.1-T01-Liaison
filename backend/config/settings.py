@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "opportunities",
     "applications",
     "certificates",
+    "notifications",
 ]
 
 MIDDLEWARE = [

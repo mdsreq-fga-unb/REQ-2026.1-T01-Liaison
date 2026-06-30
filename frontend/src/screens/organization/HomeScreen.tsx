@@ -1,24 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
-  View, 
-  FlatList, 
+import React, { useState, useCallback } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  FlatList,
   TextInput,
   ActivityIndicator,
   Alert,
   ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
-import { radius, spacing } from '../../theme/spacing';
-import { typography } from '../../theme/typography';
+import { spacing } from '../../theme/spacing';
+import { typography, fontFamilies } from '../../theme/typography';
 import { getMyOpportunities, publishOpportunity, closeOpportunity, reopenOpportunity, deleteOpportunity } from '../../services/opportunities';
-import NotificationBell from '../../components/NotificationBell';
 
 interface OpportunityData {
   id: string;
@@ -39,8 +39,8 @@ type FilterTab = 'all' | 'active' | 'draft' | 'closed';
 export default function OrgHomeScreen() {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-  const { accessToken, logout } = useAuth();
-  
+  const { accessToken } = useAuth();
+
   const [opportunities, setOpportunities] = useState<OpportunityData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +53,6 @@ export default function OrgHomeScreen() {
       setError(null);
       if (accessToken) {
         const data = await getMyOpportunities(accessToken);
-        // Aceita lista pura ou resposta paginada {results}.
         setOpportunities(Array.isArray(data) ? data : (data?.results ?? []));
       }
     } catch (err: any) {
@@ -69,7 +68,7 @@ export default function OrgHomeScreen() {
       if (accessToken) {
         await publishOpportunity(accessToken, id);
         Alert.alert('Sucesso', 'Sua vaga foi publicada com sucesso!');
-        fetchOpportunities(); // Recarrega a lista para mostrar o novo status
+        fetchOpportunities();
       }
     } catch (err: any) {
       Alert.alert('Atenção', err.message);
@@ -106,8 +105,8 @@ export default function OrgHomeScreen() {
       'Tem certeza que deseja excluir este rascunho permanentemente?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Excluir', 
+        {
+          text: 'Excluir',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -131,11 +130,11 @@ export default function OrgHomeScreen() {
     }, [accessToken])
   );
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
       case 'active': return { color: '#1d7a4a', bg: 'rgba(29,122,74,0.08)', text: '● Ativa' };
       case 'draft': return { color: '#7a8299', bg: 'rgba(122,130,153,0.1)', text: '◎ Rascunho' };
-      case 'closed': return { color: '#1a2744', bg: 'rgba(26,39,68,0.12)', text: '✓ Encerrada' };
+      case 'closed': return { color: colors.brand.navy, bg: 'rgba(26,39,68,0.12)', text: '✓ Encerrada' };
       default: return { color: '#7a8299', bg: '#f0f0f0', text: status };
     }
   };
@@ -147,7 +146,18 @@ export default function OrgHomeScreen() {
     if (cat.includes('saúd') || cat.includes('saud')) return '🏥';
     if (cat.includes('tec')) return '💻';
     if (cat.includes('social')) return '🤝';
+    if (cat.includes('arte') || cat.includes('cultu')) return '🎨';
+    if (cat.includes('esporte')) return '⚽';
+    if (cat.includes('ambiente')) return '🌿';
     return '📋';
+  };
+
+  const getModalityLabel = (modality?: string) => {
+    if (!modality) return '📍 Presencial';
+    const m = modality.toLowerCase();
+    if (m.includes('remot') || m.includes('online')) return '🔗 Remoto';
+    if (m.includes('híbrid') || m.includes('hibrid') || m.includes('misto')) return '🔀 Híbrido';
+    return '📍 Presencial';
   };
 
   const filteredOpportunities = opportunities.filter(opp => {
@@ -158,45 +168,60 @@ export default function OrgHomeScreen() {
 
   const formatCardDate = (start?: string, end?: string) => {
     if (!start && !end) return 'Data a definir';
-    
     const formatDate = (dateStr: string) => {
       try {
         const [year, month, day] = dateStr.split('T')[0].split('-');
         const date = new Date(Number(year), Number(month) - 1, Number(day));
         return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
-      } catch (e) {
+      } catch {
         return dateStr;
       }
     };
-
-    if (start && end) {
-      return `${formatDate(start)} a ${formatDate(end)}`;
-    } else if (start) {
-      return `A partir de ${formatDate(start)}`;
-    } else {
-      return `Até ${formatDate(end ?? '')}`;
-    }
+    if (start && end) return `${formatDate(start)} – ${formatDate(end)}`;
+    if (start) return `A partir de ${formatDate(start)}`;
+    return `Até ${formatDate(end ?? '')}`;
   };
 
   const formatWorkload = (val?: number | string, unit?: string) => {
     if (!val) return 'Carga a definir';
-    if (unit === 'total' || unit === 'h/total') return `${val}h/total`;
-    if (unit === 'h/semana' || unit === 'h/mês') return `${val}${unit}`;
+    if (unit === 'total' || unit === 'h/total') return `${val}h /Total`;
+    if (unit === 'h/semana') return `${val}h/semana`;
+    if (unit === 'h/mês') return `${val}h/Mês`;
     return `${val} ${unit}`;
   };
 
+  const isNearFull = (item: OpportunityData) => {
+    if (!item.vacancies || item.vacancies === 0) return false;
+    return (item.applicants_count || 0) / item.vacancies >= 0.85;
+  };
+
   const renderCard = ({ item }: { item: OpportunityData }) => {
-    const statusStyle = getStatusColor(item.status);
-    
+    const statusStyle = getStatusStyle(item.status);
+    const nearFull = item.status === 'active' && isNearFull(item);
+    const fillRatio = item.vacancies ? Math.min(((item.applicants_count || 0) / item.vacancies), 1) : 0;
+    const isClosed = item.status === 'closed';
+
     return (
       <View style={styles.cardContainer}>
         {/* Card Header */}
         <View style={styles.cardHeader}>
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{getCategoryIcon(item.area)} {(item.area || 'Diversos').toUpperCase()}</Text>
+          <View style={[
+            styles.categoryBadge,
+            isClosed && styles.categoryBadgeClosed,
+          ]}>
+            <Text style={[styles.categoryText, isClosed && styles.categoryTextClosed]}>
+              {getCategoryIcon(item.area)} {(item.area || 'Diversos').toUpperCase()}
+            </Text>
           </View>
-          <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
-            <Text style={[styles.statusText, { color: statusStyle.color }]}>{statusStyle.text}</Text>
+          <View style={styles.statusRow}>
+            <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
+              <Text style={[styles.statusText, { color: statusStyle.color }]}>{statusStyle.text}</Text>
+            </View>
+            {nearFull && (
+              <View style={styles.nearFullBadge}>
+                <Text style={styles.nearFullText}>🔥 Quase cheio</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -207,105 +232,114 @@ export default function OrgHomeScreen() {
         <View style={styles.metadataRow}>
           <View style={styles.metadataItem}>
             <Ionicons name="calendar-outline" size={14} color="#3a4560" />
-            <Text style={styles.metadataText}>
-              {formatCardDate(item.start_date, item.end_date)}
-            </Text>
+            <Text style={styles.metadataText}>{formatCardDate(item.start_date, item.end_date)}</Text>
           </View>
           <View style={styles.metadataItem}>
             <Ionicons name="time-outline" size={14} color="#3a4560" />
-            <Text style={styles.metadataText}>
-              {formatWorkload(item.workload_value, item.workload_unit)}
-            </Text>
+            <Text style={styles.metadataText}>{formatWorkload(item.workload_value, item.workload_unit)}</Text>
           </View>
           <View style={styles.metadataItem}>
-            <Ionicons name="location-outline" size={14} color="#3a4560" />
-            <Text style={styles.metadataText}>
-              {item.modality ? (item.modality.charAt(0).toUpperCase() + item.modality.slice(1)) : 'Local a definir'}
-            </Text>
+            <Text style={styles.metadataText}>{getModalityLabel(item.modality)}</Text>
           </View>
         </View>
 
-        {/* Progress Bar — vagas preenchidas (applicants_count) / total (vacancies) */}
-        {item.status !== 'closed' && (
+        {/* Vagas section — varies by status */}
+        {item.status === 'active' && (
           <View style={styles.progressContainer}>
             <View style={styles.progressHeader}>
               <Text style={styles.progressLabel}>Vagas</Text>
-              <Text style={styles.progressValue}>{item.applicants_count || 0} de {item.vacancies || 0}</Text>
+              <Text style={[styles.progressValue, nearFull && { color: '#ef4444' }]}>
+                {item.applicants_count || 0} de {item.vacancies || 0}
+              </Text>
             </View>
             <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: `${item.vacancies ? Math.min(((item.applicants_count || 0) / item.vacancies) * 100, 100) : 0}%` }]} />
+              <LinearGradient
+                colors={nearFull ? ['#ef4444', '#f87171'] : [colors.brand.navy, colors.brand.gold]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.progressBarFill, { width: `${fillRatio * 100}%` }]}
+              />
             </View>
           </View>
         )}
 
+        {item.status === 'draft' && (
+          <Text style={styles.draftStats}>
+            {item.applicants_count || 0} de {item.vacancies || 0} vagas · não publicada
+          </Text>
+        )}
+
+        {item.status === 'closed' && (
+          <Text style={styles.closedStats}>
+            {item.applicants_count || 0} de {item.vacancies || 0} voluntários concluíram
+          </Text>
+        )}
+
         {/* Actions */}
         <View style={styles.actionsRow}>
-          {item.status === 'draft' ? (
+          {item.status === 'draft' && (
             <>
-              <TouchableOpacity 
-                style={[styles.outlineButton, { flex: 1.5 }]}
+              <TouchableOpacity
+                style={[styles.goldOutlineButton, { flex: 1 }]}
                 onPress={() => navigation.navigate('CreateOpportunity', { draft: item })}
               >
-                <Text style={styles.outlineButtonText}>Continuar editando</Text>
+                <Text style={styles.goldOutlineButtonText}>Continuar{'\n'}editando</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.solidDarkButton, { flex: 1 }]}
+              <TouchableOpacity
+                style={[styles.navyButton, { flex: 1 }]}
                 onPress={() => handlePublish(item.id)}
               >
-                <Text style={styles.solidDarkButtonText}>Publicar</Text>
+                <Text style={styles.navyButtonText}>Publicar</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.outlineDangerButton, { width: 36, flex: undefined }]}
+              <TouchableOpacity
+                style={[styles.redOutlineButton, { flex: 1 }]}
                 onPress={() => confirmDelete(item.id)}
               >
-                <Ionicons name="trash-outline" size={18} color="#ef4444" />
+                <Text style={styles.redOutlineButtonText}>Excluir</Text>
               </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <TouchableOpacity 
-                style={[styles.outlineButton, { flex: 1.5 }]}
-                onPress={() => navigation.navigate('OpportunityApplicants', { opportunityId: item.id, opportunityTitle: item.title })}
-              >
-                <Text style={styles.outlineButtonText}>Candidatos ({(item.applicants_count || 0)})</Text>
-              </TouchableOpacity>
-              
-              {item.status === 'closed' ? (
-                <TouchableOpacity 
-                  style={[styles.solidBrandButton, { flex: 1 }]}
-                  onPress={() => handleReopen(item.id)}
-                >
-                  <Text style={styles.solidBrandButtonText}>Reabrir</Text>
-                </TouchableOpacity>
-              ) : (
-                <>
-                  <TouchableOpacity 
-                    style={[styles.solidBrandButton, { flex: 1 }]}
-                    onPress={() => navigation.navigate('CreateOpportunity', { draft: item })}
-                  >
-                    <Text style={styles.solidBrandButtonText}>Editar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.outlineDangerButton, { flex: 1 }]}
-                    onPress={() => handleClose(item.id)}
-                  >
-                    <Text style={styles.outlineDangerButtonText}>Encerrar</Text>
-                  </TouchableOpacity>
-                </>
-              )}
             </>
           )}
+
+          {item.status === 'active' && (
+            <>
+              <TouchableOpacity
+                style={[styles.goldButton, { flex: 1 }]}
+                onPress={() => navigation.navigate('CreateOpportunity', { draft: item })}
+              >
+                <Text style={styles.goldButtonText}>Editar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.redOutlineButton, { flex: 1 }]}
+                onPress={() => handleClose(item.id)}
+              >
+                <Text style={styles.redOutlineButtonText}>Encerrar</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {item.status === 'closed' && (
+            <TouchableOpacity
+              style={[styles.navyOutlineButton, { flex: 1 }]}
+              onPress={() => handleReopen(item.id)}
+            >
+              <Text style={styles.navyOutlineButtonText}>Reabrir</Text>
+            </TouchableOpacity>
+          )}
         </View>
-        
+
         {/* Footer info */}
         <Text style={styles.footerInfo}>
-          {item.status === 'draft' ? 'Rascunho salvo' : `Publicada há alguns dias · Criada por você`}
+          {item.status === 'draft'
+            ? 'Rascunho salvo'
+            : item.status === 'closed'
+            ? 'Encerrada · Criada por você'
+            : 'Publicada · Criada por você'}
         </Text>
       </View>
     );
   };
 
-  const tabs = [
+  const tabs: { key: FilterTab; label: string; count: number }[] = [
     { key: 'all', label: 'Todas', count: opportunities.length },
     { key: 'active', label: 'Ativas', count: opportunities.filter(o => o.status === 'active').length },
     { key: 'draft', label: 'Rascunho', count: opportunities.filter(o => o.status === 'draft').length },
@@ -314,42 +348,41 @@ export default function OrgHomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
+      {/* Status bar area */}
+      <View style={{ height: insets.top, backgroundColor: colors.brand.navy }} />
+
+      {/* Header Banner */}
+      <View style={styles.header}>
         <Text style={styles.headerTitle}>Minhas Vagas</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <NotificationBell
-            iconColor="white"
-            iconSize={22}
-            onNavigate={() => navigation.navigate('Notifications')}
-          />
-          <TouchableOpacity onPress={logout} style={{ padding: 4 }}>
-            <Ionicons name="log-out-outline" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.createButton}
-            onPress={() => navigation.navigate('CreateOpportunity')}
-          >
-            <Ionicons name="add" size={16} color="white" />
-            <Text style={styles.createButtonText}>Criar</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={styles.createButton}
+          onPress={() => navigation.navigate('CreateOpportunity')}
+        >
+          <Ionicons name="add" size={14} color="white" />
+          <Text style={styles.createButtonText}>Criar</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Tabs */}
       <View style={styles.tabsWrapper}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsContainer}>
-          {tabs.map(tab => (
-            <TouchableOpacity 
-              key={tab.key} 
-              style={[styles.tab, activeTab === tab.key && styles.activeTab]}
-              onPress={() => setActiveTab(tab.key as FilterTab)}
-            >
-              <Text style={[styles.tabLabel, activeTab === tab.key && styles.activeTabLabel]}>
-                {tab.label} <Text style={styles.tabCount}>· {tab.count}</Text>
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {tabs.map(tab => {
+            const isActive = activeTab === tab.key;
+            return (
+              <TouchableOpacity
+                key={tab.key}
+                style={[styles.tab, isActive && styles.activeTab]}
+                onPress={() => setActiveTab(tab.key)}
+              >
+                <Text style={[styles.tabLabel, isActive && styles.activeTabLabel]}>
+                  {tab.label}{' '}
+                  <Text style={[styles.tabCount, isActive && styles.activeTabCount]}>
+                    · {tab.count}
+                  </Text>
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
 
@@ -357,7 +390,7 @@ export default function OrgHomeScreen() {
       <View style={styles.searchContainer}>
         <View style={styles.searchInputWrapper}>
           <Ionicons name="search" size={18} color={colors.text.secondary} />
-          <TextInput 
+          <TextInput
             style={styles.searchInput}
             placeholder="Buscar vagas..."
             value={searchQuery}
@@ -375,8 +408,8 @@ export default function OrgHomeScreen() {
       ) : error ? (
         <View style={styles.centerContainer}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.outlineButton} onPress={fetchOpportunities}>
-            <Text style={styles.outlineButtonText}>Tentar novamente</Text>
+          <TouchableOpacity style={styles.navyOutlineButton} onPress={fetchOpportunities}>
+            <Text style={styles.navyOutlineButtonText}>Tentar novamente</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -394,32 +427,32 @@ export default function OrgHomeScreen() {
         />
       )}
 
-      {/* Floating Action Button */}
-      <TouchableOpacity 
+      {/* FAB */}
+      <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom + 80 }]}
         onPress={() => navigation.navigate('CreateOpportunity')}
       >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation */}
       <View style={[styles.bottomNav, { paddingBottom: insets.bottom + 8 }]}>
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="briefcase" size={24} color="#d4813a" />
-          <Text style={[styles.navText, { color: '#d4813a', fontWeight: 'bold' }]}>Vagas</Text>
+          <Ionicons name="briefcase" size={24} color={colors.brand.gold} />
+          <Text style={[styles.navText, { color: colors.brand.gold, fontFamily: fontFamilies.dmSansBold }]}>Vagas</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.navItem}
           onPress={() => Alert.alert('Candidatos', 'Selecione uma vaga para ver os candidatos.')}
         >
-          <Ionicons name="people-outline" size={24} color="#7a8299" />
+          <Ionicons name="people-outline" size={24} color={colors.text.secondary} />
           <Text style={styles.navText}>Candidatos</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.navItem}
           onPress={() => navigation.navigate('OrgProfile')}
         >
-          <Ionicons name="person-outline" size={24} color="#7a8299" />
+          <Ionicons name="person-outline" size={24} color={colors.text.secondary} />
           <Text style={styles.navText}>Perfil</Text>
         </TouchableOpacity>
       </View>
@@ -430,99 +463,113 @@ export default function OrgHomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#faf8f4',
+    backgroundColor: colors.neutral.bg,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 16,
   },
   header: {
-    backgroundColor: '#1a2744',
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    backgroundColor: colors.brand.navy,
+    height: 52,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   headerTitle: {
-    ...typography.h2,
-    color: 'white',
+    fontFamily: fontFamilies.playfairBold,
+    fontSize: 18,
+    color: colors.neutral.white,
+    flex: 1,
+    textAlign: 'center',
   },
   createButton: {
-    backgroundColor: '#d4813a',
+    backgroundColor: colors.brand.gold,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    height: 29,
+    borderRadius: 999,
     gap: 4,
   },
   createButtonText: {
-    ...typography.button,
-    color: 'white',
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 13,
+    color: colors.neutral.white,
   },
   tabsWrapper: {
-    backgroundColor: 'white',
+    backgroundColor: colors.neutral.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd8ce',
+    borderBottomColor: colors.neutral.border,
   },
   tabsContainer: {
     flexDirection: 'row',
     paddingHorizontal: 10,
   },
   tab: {
-    paddingVertical: 14,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#d4813a',
+    borderBottomColor: colors.brand.gold,
   },
   tabLabel: {
-    ...typography.button,
-    color: '#7a8299',
+    fontFamily: fontFamilies.dmSansSemiBold,
+    fontSize: 13,
+    color: colors.text.secondary,
   },
   activeTabLabel: {
-    color: '#1a2744',
-    fontWeight: 'bold',
+    fontFamily: fontFamilies.dmSansBold,
+    color: colors.brand.navy,
   },
   tabCount: {
+    fontFamily: fontFamilies.dmSansRegular,
     fontSize: 12,
-    fontWeight: 'normal',
+    color: colors.text.secondary,
+  },
+  activeTabCount: {
+    color: colors.brand.gold,
   },
   searchContainer: {
-    padding: 16,
-    backgroundColor: '#faf8f4',
+    paddingTop: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 4,
+    backgroundColor: colors.neutral.bg,
   },
   searchInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: colors.neutral.white,
     borderWidth: 1,
-    borderColor: '#1a2744',
+    borderColor: colors.brand.navy,
     borderRadius: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 13,
     height: 42,
     gap: 8,
   },
   searchInput: {
-    ...typography.body,
+    fontFamily: fontFamilies.dmSansRegular,
+    fontSize: 14,
     flex: 1,
     color: '#3a4560',
   },
   listContainer: {
     paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 100,
     gap: 16,
   },
   cardContainer: {
-    backgroundColor: 'white',
+    backgroundColor: colors.neutral.white,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#ddd8ce',
+    borderColor: colors.neutral.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -531,37 +578,62 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoryBadge: {
-    backgroundColor: '#fdf5ec',
+    backgroundColor: colors.accent.lightBg,
     borderWidth: 1,
     borderColor: 'rgba(212,129,58,0.3)',
-    borderRadius: 12,
-    paddingHorizontal: 8,
+    borderRadius: 999,
+    paddingHorizontal: 11,
     paddingVertical: 4,
+  },
+  categoryBadgeClosed: {
+    backgroundColor: 'rgba(26,39,68,0.1)',
+    borderColor: 'rgba(26,39,68,0.2)',
   },
   categoryText: {
-    ...typography['label-sm'],
-    color: '#d4813a',
-    fontWeight: 'bold',
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 11,
+    color: colors.brand.gold,
+  },
+  categoryTextClosed: {
+    color: colors.brand.navy,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   statusBadge: {
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
   },
   statusText: {
-    ...typography['label-sm'],
-    fontWeight: 'bold',
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 11,
+  },
+  nearFullBadge: {
+    backgroundColor: 'rgba(239,68,68,0.1)',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  nearFullText: {
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 10,
+    color: '#ef4444',
   },
   cardTitle: {
-    ...typography.button,
-    color: '#1a2744',
-    marginBottom: 12,
+    fontFamily: fontFamilies.playfairBold,
+    fontSize: 15,
+    lineHeight: 19.5,
+    color: colors.brand.navy,
+    marginBottom: 10,
   },
   metadataRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 16,
+    gap: 10,
+    marginBottom: 14,
   },
   metadataItem: {
     flexDirection: 'row',
@@ -569,11 +641,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   metadataText: {
-    ...typography['label-sm'],
+    fontFamily: fontFamilies.dmSansMedium,
+    fontSize: 12,
     color: '#3a4560',
   },
   progressContainer: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   progressHeader: {
     flexDirection: 'row',
@@ -581,83 +654,115 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   progressLabel: {
-    ...typography['label-sm'],
+    fontFamily: fontFamilies.dmSansSemiBold,
+    fontSize: 12,
     color: '#3a4560',
   },
   progressValue: {
-    ...typography['label-sm'],
-    fontWeight: 'bold',
-    color: '#1a2744',
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 12,
+    color: colors.brand.navy,
   },
   progressBarBg: {
     height: 6,
-    backgroundColor: '#ddd8ce',
-    borderRadius: 3,
+    backgroundColor: colors.neutral.border,
+    borderRadius: 999,
     overflow: 'hidden',
   },
   progressBarFill: {
-    height: '100%',
-    backgroundColor: '#1a2744',
-    borderRadius: 3,
+    height: 6,
+    borderRadius: 999,
+  },
+  draftStats: {
+    fontFamily: fontFamilies.dmSansMedium,
+    fontSize: 12,
+    color: colors.text.secondary,
+    marginBottom: 14,
+  },
+  closedStats: {
+    fontFamily: fontFamilies.dmSansSemiBold,
+    fontSize: 13,
+    color: '#1d7a4a',
+    marginBottom: 14,
   },
   actionsRow: {
     flexDirection: 'row',
     gap: 10,
     marginBottom: 12,
   },
-  outlineButton: {
-    flex: 1,
+  goldButton: {
+    backgroundColor: colors.brand.gold,
+    borderRadius: 999,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  goldButtonText: {
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 13,
+    color: colors.neutral.white,
+  },
+  goldOutlineButton: {
     borderWidth: 1,
-    borderColor: '#1a2744',
-    borderRadius: 20,
+    borderColor: colors.brand.gold,
+    borderRadius: 999,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 12,
   },
-  outlineButtonText: {
-    ...typography.label,
-    color: '#1a2744',
+  goldOutlineButtonText: {
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 13,
+    color: colors.brand.gold,
+    textAlign: 'center',
   },
-  outlineDangerButton: {
-    flex: 1,
+  navyButton: {
+    backgroundColor: colors.brand.navy,
+    borderRadius: 999,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  navyButtonText: {
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 13,
+    color: colors.neutral.white,
+  },
+  navyOutlineButton: {
     borderWidth: 1,
-    borderColor: '#ef4444',
-    borderRadius: 20,
+    borderColor: colors.brand.navy,
+    borderRadius: 999,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 16,
   },
-  outlineDangerButtonText: {
-    ...typography.label,
-    color: '#ef4444',
+  navyOutlineButtonText: {
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 13,
+    color: colors.brand.navy,
   },
-  solidDarkButton: {
-    flex: 1,
-    backgroundColor: '#1a2744',
-    borderRadius: 20,
+  redOutlineButton: {
+    borderWidth: 1,
+    borderColor: '#dc2626',
+    borderRadius: 999,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 16,
   },
-  solidDarkButtonText: {
-    ...typography.label,
-    color: 'white',
-  },
-  solidBrandButton: {
-    flex: 1,
-    backgroundColor: '#d4813a',
-    borderRadius: 20,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  solidBrandButtonText: {
-    ...typography.label,
-    color: 'white',
+  redOutlineButtonText: {
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 13,
+    color: '#c0392b',
   },
   footerInfo: {
-    ...typography['body-sm'],
-    color: '#7a8299',
+    fontFamily: fontFamilies.dmSansMedium,
+    fontSize: 11,
+    color: colors.text.secondary,
   },
   errorText: {
     fontSize: 16,
@@ -678,20 +783,20 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#1a2744',
+    backgroundColor: colors.brand.navy,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
-    shadowColor: '#1a2744',
+    shadowColor: colors.brand.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 8,
   },
   bottomNav: {
     flexDirection: 'row',
-    backgroundColor: 'white',
+    backgroundColor: colors.neutral.white,
     borderTopWidth: 1,
-    borderTopColor: '#ddd8ce',
+    borderTopColor: colors.neutral.border,
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -702,8 +807,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   navText: {
-    ...typography['label-sm'],
-    color: '#7a8299',
+    fontFamily: fontFamilies.dmSansMedium,
+    fontSize: 11,
+    color: colors.text.secondary,
     marginTop: 4,
-  }
+  },
 });

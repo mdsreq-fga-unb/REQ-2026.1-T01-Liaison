@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
@@ -91,6 +92,10 @@ export default function OpportunityApplicantsScreen() {
     }
   };
 
+  const goToProfile = (userId: string) => {
+    navigation.navigate('PublicStudentProfile', { userId });
+  };
+
   const filtered = applications.filter(a => a.status === activeTab);
 
   const renderCard = ({ item }: { item: Application }) => {
@@ -98,7 +103,15 @@ export default function OpportunityApplicantsScreen() {
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <Ionicons name="person-circle-outline" size={40} color="#1a2744" />
+          <TouchableOpacity onPress={() => goToProfile(item.student.id)}>
+            {item.student.avatar_url ? (
+              <Image source={{ uri: item.student.avatar_url }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarFallback}>
+                <Ionicons name="person" size={22} color="#7a8299" />
+              </View>
+            )}
+          </TouchableOpacity>
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={styles.studentName}>{item.student.nome}</Text>
             <Text style={styles.studentInfo}>{item.student.curso} · {item.student.universidade}</Text>
@@ -106,6 +119,12 @@ export default function OpportunityApplicantsScreen() {
               Inscrito em {new Date(item.created_at).toLocaleDateString('pt-BR')}
             </Text>
           </View>
+          <TouchableOpacity
+            style={styles.detailButton}
+            onPress={() => goToProfile(item.student.id)}
+          >
+            <Ionicons name="chevron-forward" size={18} color="#d4813a" />
+          </TouchableOpacity>
         </View>
 
         {isPending && (
@@ -235,6 +254,16 @@ const styles = StyleSheet.create({
     borderColor: '#ddd8ce',
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  avatar: { width: 44, height: 44, borderRadius: 22 },
+  avatarFallback: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#f0eee9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  detailButton: { padding: 4 },
   studentName: { fontSize: 15, fontWeight: 'bold', color: '#1a2744' },
   studentInfo: { fontSize: 13, color: '#3a4560', marginTop: 2 },
   studentDate: { fontSize: 12, color: '#7a8299', marginTop: 2 },

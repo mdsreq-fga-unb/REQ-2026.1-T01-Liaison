@@ -84,6 +84,9 @@
 |--------|------|-------------|
 | POST | `/applications/` | `{ opportunity: uuid }` → 201. Só `estudante` (403 senão); 400 duplicata/vaga fechada |
 | GET | `/applications/` | Lista candidaturas do estudante autenticado (`opportunity` resumida + `status` + `created_at`) |
+| GET | `/applications/opportunities/{uuid}/` | Lista candidaturas da vaga (org dona; 403 senão). Filtro opcional `?status=` (ex.: `approved` → RF13 aprovados). Campos: `id, student{nome,curso,universidade}, status, created_at, attendance, hours_completed, completed_at` |
+| PATCH | `/applications/{uuid}/evaluate/` | RF11. `{ status: approved\|rejected, confirmed? }` → 200. Só org dona (403); reversão sem `confirmed` → 409 |
+| PATCH | `/applications/{uuid}/complete/` | RF14. `{ attendance: present\|partial\|absent, hours_completed: int≥0 }` → 200 `status=completed`. `absent` força `hours_completed=0`. Só org dona (403); 400 attendance/horas inválidos ou não-`approved`; 400 imutável se já `completed` (RNF08) |
 
 ### Certificados (`IsAuthenticated`)
 | Method | Path | Description |

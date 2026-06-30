@@ -9,6 +9,7 @@ class Application(models.Model):
         APPROVED = "approved", "Aprovada"
         REJECTED = "rejected", "Rejeitada"
         CANCELLED = "cancelled", "Cancelada"
+        COMPLETED = "completed", "Concluída"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey(
@@ -24,6 +25,9 @@ class Application(models.Model):
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING
     )
+    # Frequência (preenchido na conclusão da participação — marcação vem no #27).
+    hours_completed = models.PositiveIntegerField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

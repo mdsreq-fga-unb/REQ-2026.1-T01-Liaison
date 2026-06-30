@@ -185,6 +185,17 @@ export default function OpportunityApplicantsScreen() {
           keyExtractor={item => item.id}
           renderItem={renderCard}
           contentContainerStyle={styles.list}
+          ListHeaderComponent={
+            activeTab === 'approved' && filtered.length > 0 ? (
+              <TouchableOpacity
+                style={styles.attendanceButton}
+                onPress={() => navigation.navigate('OpportunityAttendance', { opportunityId, opportunityTitle })}
+              >
+                <Ionicons name="checkbox-outline" size={16} color="white" />
+                <Text style={styles.attendanceButtonText}>Registrar Frequência</Text>
+              </TouchableOpacity>
+            ) : null
+          }
           ListEmptyComponent={
             <View style={styles.center}>
               <Text style={styles.emptyText}>Nenhum candidato nesta categoria.</Text>
@@ -274,5 +285,16 @@ const styles = StyleSheet.create({
     height: 36,
   },
   reverseButtonText: { color: '#3a4560', fontSize: 13 },
+  attendanceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#1d7a4a',
+    borderRadius: 24,
+    height: 48,
+    marginBottom: 4,
+  },
+  attendanceButtonText: { color: 'white', fontWeight: 'bold', fontSize: 15 },
   emptyText: { color: '#7a8299', fontSize: 15 },
 });

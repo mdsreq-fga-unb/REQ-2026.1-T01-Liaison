@@ -79,5 +79,18 @@ Como **<persona>**, quero **<ação>** para **<benefício>**
 
 ---
 
+
+## Checklist de DoR (Definition of Ready)
+- [ ] **Padrão da História:** Escrita em "Como / Quero / Para".
+- [ ] **Critérios de Aceite:** Possui cenário no formato "Dado / Quando / Então".
+- [ ] **Escopo:** Escopo em tamanho adequado (até 3 dias de trabalho).
+- [ ] **Técnico:** Dependências e endpoints mapeados.
+- [ ] **Validação:** Refinada e validada pela equipe.
+- [ ] **Design:** Link do Figma anexado (se aplicável).
+
+**Status do DoR:** ( ) Pendente | ( ) Parcial | ( ) Atendido
+
 ## Notas
 - <edge cases, requisitos não-funcionais adicionais, considerações de segurança, decisões de escopo, débitos técnicos, etc.>
+
+---

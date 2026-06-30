@@ -53,6 +53,7 @@ class OpportunitySerializer(serializers.ModelSerializer):
         org = obj.organization
         return {
             "id": str(org.id),
+            "user_id": str(org.user_id),
             "razao_social": org.razao_social,
         }
 
@@ -74,6 +75,7 @@ class OpportunityDetailSerializer(OpportunitySerializer):
             logo = request.build_absolute_uri(org.logo.url)
         return {
             "id": str(org.id),
+            "user_id": str(org.user_id),
             "razao_social": org.razao_social,
             "nome_fantasia": org.nome_fantasia,
             "logo": logo,

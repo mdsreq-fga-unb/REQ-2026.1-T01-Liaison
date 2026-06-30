@@ -379,6 +379,25 @@ export async function getStudentProfile(token: string): Promise<ProfileData> {
 }
 
 /**
+ * Fetch another student's public profile (no email/matricula).
+ * GET /students/<userId>/
+ */
+export async function getStudentPublicProfile(
+  token: string,
+  userId: string,
+): Promise<ProfileData> {
+  const url = apiUrl(`/students/${userId}/`);
+  const response = await fetch(url, {
+    headers: { ...authHeaders(token) },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to fetch profile', data, response.status);
+  }
+  return data as ProfileData;
+}
+
+/**
  * Update the authenticated student's profile.
  * PATCH /students/me/update/
  */
@@ -572,6 +591,25 @@ export interface OrgProfileData {
  */
 export async function getOrgProfile(token: string): Promise<OrgProfileData> {
   const url = apiUrl('/organizations/me/');
+  const response = await fetch(url, {
+    headers: { ...authHeaders(token) },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError('Failed to fetch org profile', data, response.status);
+  }
+  return data as OrgProfileData;
+}
+
+/**
+ * Fetch an organization's public profile (no email/cnpj/telefone/nome_responsavel).
+ * GET /organizations/<orgId>/
+ */
+export async function getOrgPublicProfile(
+  token: string,
+  orgId: string,
+): Promise<OrgProfileData> {
+  const url = apiUrl(`/organizations/${orgId}/`);
   const response = await fetch(url, {
     headers: { ...authHeaders(token) },
   });

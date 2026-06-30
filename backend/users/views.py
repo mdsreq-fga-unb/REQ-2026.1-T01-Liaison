@@ -327,6 +327,22 @@ class StudentProfileView(APIView):
         return Response(serializer.data)
 
 
+class StudentPublicProfileView(APIView):
+    """GET /api/v1/students/<uuid:pk>/ — perfil público de um estudante (RF23/US2.13).
+
+    Mesma representação de /students/me/ (read-only). Sem ações de dono no front.
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        profile = get_object_or_404(StudentProfile, user_id=pk)
+        serializer = StudentProfileDetailSerializer(
+            profile, context={"request": request}
+        )
+        return Response(serializer.data)
+
+
 class StudentProfileUpdateView(APIView):
     """PATCH /api/v1/students/me/update/ — atualiza dados do perfil."""
 
@@ -493,6 +509,24 @@ class OrganizationProfileView(APIView):
                 {"detail": "Perfil de organização não encontrado."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+        serializer = OrganizationProfileDetailSerializer(
+            profile, context={"request": request}
+        )
+        return Response(serializer.data)
+
+
+class OrganizationPublicProfileView(APIView):
+    """GET /api/v1/organizations/<uuid:pk>/ — perfil público de uma org (RF22/US2.12).
+
+    Só orgs aprovadas são visíveis — pending/rejected retornam 404.
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        profile = get_object_or_404(
+            OrganizationProfile, user_id=pk, status="approved"
+        )
         serializer = OrganizationProfileDetailSerializer(
             profile, context={"request": request}
         )

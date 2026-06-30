@@ -22,9 +22,18 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
 
 
 class ApplicationOpportunitySummarySerializer(serializers.ModelSerializer):
+    organization = serializers.SerializerMethodField()
+
     class Meta:
         model = Opportunity
-        fields = ["id", "title", "status"]
+        fields = ["id", "title", "status", "organization"]
+
+    def get_organization(self, obj):
+        org = obj.organization
+        return {
+            "user_id": str(org.user_id),
+            "razao_social": org.razao_social,
+        }
 
 
 class ApplicationListSerializer(serializers.ModelSerializer):

@@ -161,6 +161,17 @@ class TestOpportunityApplicationsList:
         resp = api_client.get(f"/api/v1/applications/opportunities/{opp.id}/")
         assert resp.status_code == 403
 
+    def test_student_fields_include_id_and_avatar_url(self, api_client, org, student_user):
+        opp = _opp(org)
+        Application.objects.create(student=student_user.student_profile, opportunity=opp)
+        api_client.force_authenticate(user=org.user)
+        resp = api_client.get(f"/api/v1/applications/opportunities/{opp.id}/")
+        assert resp.status_code == 200
+        student = resp.data[0]["student"]
+        assert str(student_user.id) == str(student["id"])
+        assert "avatar_url" in student
+        assert student["avatar_url"] is None  # sem avatar → null
+
 
 @pytest.mark.django_db
 class TestApplicationEvaluate:

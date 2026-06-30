@@ -106,7 +106,9 @@ class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
         applications = Application.objects.filter(opportunity=opportunity).select_related(
             "student__user"
         )
-        serializer = ApplicationEvaluationSerializer(applications, many=True)
+        serializer = ApplicationEvaluationSerializer(
+            applications, many=True, context={"request": request}
+        )
         return Response(serializer.data)
 
     def evaluate(self, request, pk=None):

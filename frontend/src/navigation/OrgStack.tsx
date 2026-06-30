@@ -6,6 +6,8 @@ import OrgProfileScreen from '../screens/organization/OrgProfileScreen';
 import OrgProfileEditScreen from '../screens/organization/OrgProfileEditScreen';
 import OpportunityApplicantsScreen from '../screens/organization/OpportunityApplicantsScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import PublicStudentProfileScreen from '../screens/student/PublicStudentProfileScreen';
+import PublicOrgProfileScreen from '../screens/organization/PublicOrgProfileScreen';
 
 export type OrgStackParamList = {
   OrgHome: undefined;
@@ -14,6 +16,8 @@ export type OrgStackParamList = {
   OrgProfileEdit: undefined;
   OpportunityApplicants: { opportunityId: string; opportunityTitle: string };
   Notifications: undefined;
+  PublicStudentProfile: { userId: string };
+  PublicOrgProfile: { orgId: string };
 };
 
 const Stack = createNativeStackNavigator<OrgStackParamList>();
@@ -27,6 +31,8 @@ export default function OrgStack() {
       <Stack.Screen name="OrgProfileEdit" component={OrgProfileEditScreen} options={{ title: 'Editar Perfil' }} />
       <Stack.Screen name="OpportunityApplicants" component={OpportunityApplicantsScreen} options={{ title: 'Candidatos' }} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="PublicStudentProfile" component={PublicStudentProfileScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="PublicOrgProfile" component={PublicOrgProfileScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

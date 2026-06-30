@@ -53,6 +53,7 @@ const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', '
 
 interface Organization {
   id: string;
+  user_id?: string;
   razao_social: string;
   nome_fantasia?: string;
   logo?: string | null;
@@ -227,6 +228,10 @@ export default function OpportunityDetailScreen() {
     ? `${shortDate(opportunity.start_date)}${opportunity.end_date ? ` — ${shortDate(opportunity.end_date)}` : ''}`
     : '';
   const sessLabel = sessionLabel(opportunity.session_duration);
+  const orgId = opportunity.organization.user_id;
+  const openOrgProfile = () => {
+    if (orgId) navigation.navigate('PublicOrgProfile', { orgId });
+  };
   const courses = [
     ...(opportunity.accepts_any_course ? ['Qualquer curso'] : []),
     ...(opportunity.preferred_courses ?? []),
@@ -297,7 +302,13 @@ export default function OpportunityDetailScreen() {
 
           <Text style={styles.title}>{opportunity.title}</Text>
 
-          <View style={styles.heroOrgRow}>
+          <TouchableOpacity
+            testID="hero-org-link"
+            style={styles.heroOrgRow}
+            onPress={openOrgProfile}
+            disabled={!orgId}
+            activeOpacity={0.7}
+          >
             {opportunity.organization.logo ? (
               <Image source={{ uri: opportunity.organization.logo }} style={styles.heroOrgLogo} />
             ) : (
@@ -306,7 +317,7 @@ export default function OpportunityDetailScreen() {
               </View>
             )}
             <Text style={styles.heroOrgName}>{orgName}</Text>
-          </View>
+          </TouchableOpacity>
 
           <View style={styles.heroDivider} />
 
@@ -462,7 +473,13 @@ export default function OpportunityDetailScreen() {
 
         {/* Organização */}
         <Card title="Organização">
-          <View style={styles.orgCardRow}>
+          <TouchableOpacity
+            testID="org-card-link"
+            style={styles.orgCardRow}
+            onPress={openOrgProfile}
+            disabled={!orgId}
+            activeOpacity={0.7}
+          >
             {opportunity.organization.logo ? (
               <Image source={{ uri: opportunity.organization.logo }} style={styles.orgLogoLg} />
             ) : (
@@ -474,7 +491,10 @@ export default function OpportunityDetailScreen() {
               <Text style={styles.orgNameLg}>{orgName}</Text>
               <Text style={styles.orgMetaLg}>{opportunity.organization.razao_social}</Text>
             </View>
-          </View>
+            {orgId ? (
+              <Ionicons name="chevron-forward" size={20} color={colors.text.secondary} />
+            ) : null}
+          </TouchableOpacity>
           {!!opportunity.organization.mission && (
             <Text style={styles.orgMission}>{opportunity.organization.mission}</Text>
           )}

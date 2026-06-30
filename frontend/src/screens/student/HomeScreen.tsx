@@ -63,7 +63,7 @@ interface CategoryData {
 interface OpportunityData {
   id: string;
   title: string;
-  organization: { id?: string; razao_social: string };
+  organization: { id?: string; user_id?: string; razao_social: string };
   area: string;
   description: string;
   workload_value: number;
@@ -350,6 +350,11 @@ export default function StudentHomeScreen() {
               onSave={() => handleSave(item)}
               onPress={() => navigation.navigate('OpportunityDetail', { id: item.id })}
               onApply={() => navigation.navigate('OpportunityDetail', { id: item.id })}
+              onOrgPress={
+                item.organization.user_id
+                  ? () => navigation.navigate('PublicOrgProfile', { orgId: item.organization.user_id })
+                  : undefined
+              }
             />
           </View>
         )}

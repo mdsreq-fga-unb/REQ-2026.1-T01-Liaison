@@ -18,6 +18,7 @@ import { colors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
 import { getMyOpportunities, publishOpportunity, closeOpportunity, reopenOpportunity, deleteOpportunity } from '../../services/opportunities';
+import NotificationBell from '../../components/NotificationBell';
 
 interface OpportunityData {
   id: string;
@@ -317,6 +318,11 @@ export default function OrgHomeScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={styles.headerTitle}>Minhas Vagas</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <NotificationBell
+            iconColor="white"
+            iconSize={22}
+            onNavigate={() => navigation.navigate('Notifications')}
+          />
           <TouchableOpacity onPress={logout} style={{ padding: 4 }}>
             <Ionicons name="log-out-outline" size={24} color="white" />
           </TouchableOpacity>

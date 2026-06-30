@@ -7,6 +7,7 @@ import StudentProfileEditScreen from '../screens/student/StudentProfileEditScree
 import GalleryFullScreen from '../screens/student/GalleryFullScreen';
 import OpportunityDetailScreen from '../screens/student/OpportunityDetailScreen';
 import MyApplicationsScreen from '../screens/student/MyApplicationsScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
 
 export type StudentStackParamList = {
   StudentHome: undefined;
@@ -15,6 +16,7 @@ export type StudentStackParamList = {
   GalleryFull: undefined;
   OpportunityDetail: { id: string };
   MyApplications: undefined;
+  Notifications: undefined;
 };
 
 const Stack = createNativeStackNavigator<StudentStackParamList>();
@@ -50,6 +52,11 @@ export default function StudentStack() {
       <Stack.Screen
         name="MyApplications"
         component={MyApplicationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

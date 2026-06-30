@@ -19,6 +19,7 @@ import CircularProgress from '../../components/ui/CircularProgress';
 import HoursProgressBar from '../../components/ui/HoursProgressBar';
 import OpportunityCard from '../../components/ui/OpportunityCard';
 import SearchBar from '../../components/ui/SearchBar';
+import NotificationBell from '../../components/NotificationBell';
 import StatCard from '../../components/ui/StatCard';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -246,10 +247,12 @@ export default function StudentHomeScreen() {
             >
               <Ionicons name="document-text-outline" size={18} color="#fff" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.headerIconBtn}>
-              <Ionicons name="notifications-outline" size={18} color="#fff" />
-              <View style={styles.notifDot} />
-            </TouchableOpacity>
+            <NotificationBell
+              containerStyle={styles.headerIconBtn}
+              iconSize={18}
+              iconColor="#fff"
+              onNavigate={() => navigation.navigate('Notifications')}
+            />
           </View>
         </View>
 

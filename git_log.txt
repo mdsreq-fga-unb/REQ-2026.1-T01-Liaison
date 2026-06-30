@@ -1,0 +1,89 @@
+2026-06-03 | HenriqueFontenelle | chore: adiciona script de deploy automatizado
+2026-06-02 | HenriqueFontenelle | docs: documenta configuração do S3 no INFRA.md
+2026-06-02 | HenriqueFontenelle | feat: adiciona armazenamento de mídia no S3
+2026-06-02 | HenriqueFontenelle | chore: ignora arquivos .pem para proteger chave SSH
+2026-06-01 | Danilo Barros | fix(tests): corrigir URL dos testes de JWT (/auth/token/ -> /auth/login/)
+2026-06-01 | Danilo Barros | feat(auth): implementar autenticação de usuários com JWT (US1.3)
+2026-05-31 | Luis Guilherme Borges | Merge pull request #47 from mdsreq-fga-unb/feature/infra-readme
+2026-05-30 | HenriqueFontenelle | docs: atualiza papel do Henrique incluindo responsabilidade de infraestrutura AWS
+2026-05-29 | Gustavo Cintra | feat(auth): implement student registration flow (US1.1) (#55)
+2026-05-29 | Gustavo Cintra | test(users): atualiza testes para remocao de campos do User
+2026-05-29 | Gustavo Cintra | refactor(users): remove campos fora do escopo estudante do User
+2026-05-29 | Gustavo Cintra | fix(migrations): estabiliza cadeia de migrations incrementais
+2026-05-28 | HenriqueFontenelle | fix: renomeia migration 0002 para 0003 e atualiza dependencia para evitar conflito com PR #55
+2026-05-27 | Gustavo Cintra | fix(auth): fix test failures from async validation and UI updates
+2026-05-27 | Gustavo Cintra | chore(config): update dependencies and project configuration
+2026-05-27 | Gustavo Cintra | test(auth): add tests for auth screens, navigation, and components
+2026-05-27 | Gustavo Cintra | feat(auth): implement multi-step student registration screens
+2026-05-27 | Gustavo Cintra | test(auth): add tests for registration models, serializers, and views
+2026-05-27 | Gustavo Cintra | feat(auth): add registration endpoint with password validators
+2026-05-27 | Gustavo Cintra | feat(auth): add StudentProfile model and migrations
+2026-05-26 | Gustavo Cintra | docs: sync main documentation changes to develop (#53)
+2026-05-26 | Gustavo Cintra | docs: update backlog do produto
+2026-05-26 | Gustavo Cintra | docs: add issue template para padronização de issues
+2026-05-23 | HenriqueFontenelle | Revert "docs: adiciona secao de gerenciamento de usuarios ao INFRA.md"
+2026-05-23 | HenriqueFontenelle | docs: adiciona secao de gerenciamento de usuarios ao INFRA.md
+2026-05-23 | HenriqueFontenelle | docs: adiciona secao de gerenciamento de usuarios ao INFRA.md
+2026-05-23 | HenriqueFontenelle | feat: adiciona migration 0002 com campos nome, telefone, cnpj, endereco e matricula ao model User
+2026-05-23 | HenriqueFontenelle | docs: adiciona INFRA.md com documentação do ambiente de produção AWS
+2026-05-20 | Borges061 | feat: Criação do Crud e organização de artefartos
+2026-05-20 | Gustavo da Costa Cintra | docs(backlog): update backlog prioritization with MoSCoW funnel and ICE scoring
+2026-05-19 |  | Deployed ed1c291 with MkDocs version: 1.6.1
+2026-05-19 | Borges061 | update: video entrega unidade 2
+2026-05-19 | Borges061 | Add video entrega 2
+2026-05-19 | Danilo Barros | adicionando novamente o vídeo da unidade 2
+2026-05-19 | Danilo Barros | adicionando vídeo da unidade 2
+2026-05-19 | Pedrovargas10 | feat: adicionado entrega vídeo unidade 2
+2026-05-19 | Gustavo da Costa Cintra | chore: trigger deploy to refresh PDF cache
+2026-05-19 | Gustavo da Costa Cintra | docs: update Matriz and MoSCoW PDFs
+2026-05-19 | Gustavo da Costa Cintra | docs: remove emojis and add MVP section (Must Have — MoSCoW)
+2026-05-18 | Gustavo da Costa Cintra | merge: integra PDFs da main mantendo matriz de priorizacao local
+2026-05-18 | Gustavo da Costa Cintra | docs: atualiza matriz de priorizacao e ICE scores
+2026-05-18 | Pedrovargas10 | fix: adicionada biblioteca permitindo embed de pdf
+2026-05-18 | Pedrovargas10 | feat: adicionado embed da matriz e MoSCoW
+2026-05-18 | Pedrovargas10 | fix: organizado tabela de priorização em ordem de prioridade sugerida
+2026-05-18 | Borges061 | feat adicionado DoR e DoD
+2026-05-18 | Gustavo da Costa Cintra | docs: replace RF07 with RF18-RF21 and populate ICE scores
+2026-05-18 | Pedrovargas10 | feat:adicionado página do backlog
+2026-05-18 | Pedro Vargas | Merge pull request #42 from mdsreq-fga-unb/feature/intervencao-social
+2026-05-18 | Pedrovargas10 | docs: refatora documento
+2026-05-18 | Pedro Vargas | Merge pull request #43 from mdsreq-fga-unb/feature/backlog-produto
+2026-05-18 | Pedro Vargas | Merge branch 'main' into feature/backlog-produto
+2026-05-18 | Pedrovargas10 | docs: alterado documento seguindo template
+2026-05-18 | Pedro Vargas | Merge pull request #45 from mdsreq-fga-unb/docs/licoesAprendidas2
+2026-05-18 | Pedrovargas10 | docs: adicionado lições da unidade 2
+2026-05-18 | Henrique Fontenelle | Update mkdocs.yml
+2026-05-18 | Henrique Fontenelle | Create backlog_produto.md
+2026-05-18 | Henrique Fontenelle | Update mkdocs.yml
+2026-05-18 | Henrique Fontenelle | Create intervencao_social.md
+2026-05-15 | Gustavo Cintra | chore(infra): setup inicial completo do ambiente - Django + Expo SDK 54 + PostgreSQL (#38)
+2026-05-14 | Pedro Vargas | Merge pull request #40 from mdsreq-fga-unb/HenriqueFontenelle-patch-2
+2026-05-14 | Pedro Vargas | Merge pull request #39 from mdsreq-fga-unb/HenriqueFontenelle-patch-1
+2026-05-14 | Pedro Vargas | Merge pull request #37 from mdsreq-fga-unb/docs/issue-6-cronograma-entregas
+2026-05-14 | Pedrovargas10 | feat: adicionado referências a cada CP
+2026-05-12 | Henrique Fontenelle | Update requisitos.md
+2026-05-12 | Henrique Fontenelle | Update interacao.md
+2026-05-12 | Gustavo da Costa Cintra | feat(frontend): refactor api.ts with localhost default and deterministic apiUrl helper
+2026-05-12 | Gustavo da Costa Cintra | chore(frontend): remove stale Dockerfile (mobile-first: Metro runs locally)
+2026-05-12 | Gustavo da Costa Cintra | feat(backend): add placeholder Django apps (applications, certificates, opportunities)
+2026-05-12 | Gustavo da Costa Cintra | feat(frontend): pin Node 20, fix jest versions, add env local template
+2026-05-12 | Gustavo da Costa Cintra | docs(readme): rewrite comprehensive setup and troubleshooting guide
+2026-05-12 | Gustavo da Costa Cintra | feat(infra): centralize LOCAL_IP config, remove frontend Docker, fix gitignore
+2026-05-12 | Gustavo da Costa Cintra | docs(readme): update setup instructions for docker compose
+2026-05-12 | Gustavo da Costa Cintra | chore(frontend): add expo project with react navigation and 3 flow placeholders
+2026-05-12 | Gustavo da Costa Cintra | chore(backend): add django project with drf, jwt and custom user model
+2026-05-12 | Gustavo da Costa Cintra | chore(docker): add docker compose with postgres, backend and frontend services
+2026-05-11 | Gustavo da Costa Cintra | docs: schedule adjustments
+2026-05-11 | Pedrovargas10 | docs: refatorado ordem da navbar
+2026-05-11 | Pedrovargas10 | docs: adiconado lista de RFs e RNFs
+2026-05-11 | Pedro Vargas | Merge pull request #36 from mdsreq-fga-unb/docs
+2026-05-08 | Pedrovargas10 | docs: atualiza tabelas de Objetivos Específicos e Características de Produto Resolves #1
+2026-05-08 | Pedrovargas10 | docs: atualiza quadro comparativo para KanbanXP vs OpenUP e altera a justificativa Resolve #3
+2026-05-08 | Pedrovargas10 | docs: add custom CSS for sidebar styling and update mkdocs configuration
+2026-05-08 | Pedro Vargas | Merge pull request #35 from mdsreq-fga-unb/doc/correcao-kanbanxp
+2026-05-06 | Pedrovargas10 | docs: refatora documentação do KanbanXP e define políticas de fluxo Resolves #5
+2026-04-13 | Pedrovargas10 | feat: adicionado vídeo da entrega da Unidade 1
+2026-04-13 | Pedrovargas10 | fix: resolvido problema com nome dos membros
+2026-04-13 | Pedrovargas10 | docs: Atualização da documentação da Unidade 1
+2026-04-11 | Pedrovargas10 | docs: inicializando documentação MkDocs Material
+2026-04-10 | marsicanogeorge | Initial commit

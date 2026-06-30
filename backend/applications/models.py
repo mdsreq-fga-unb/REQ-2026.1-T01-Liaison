@@ -11,6 +11,11 @@ class Application(models.Model):
         CANCELLED = "cancelled", "Cancelada"
         COMPLETED = "completed", "Concluída"
 
+    class Attendance(models.TextChoices):
+        PRESENT = "present", "Presente"
+        PARTIAL = "partial", "Parcial"
+        ABSENT = "absent", "Ausente"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey(
         "users.StudentProfile",
@@ -25,7 +30,10 @@ class Application(models.Model):
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING
     )
-    # Frequência (preenchido na conclusão da participação — marcação vem no #27).
+    # Frequência (preenchido na conclusão da participação — RF14/#27).
+    attendance = models.CharField(
+        max_length=10, choices=Attendance.choices, null=True, blank=True
+    )
     hours_completed = models.PositiveIntegerField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

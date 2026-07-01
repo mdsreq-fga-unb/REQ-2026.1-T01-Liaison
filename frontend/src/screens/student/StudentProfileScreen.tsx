@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import GalleryPreview from '../../components/profile/GalleryPreview';
 import ImageViewer from '../../components/profile/ImageViewer';
+import OrgHeader from '../../components/ui/OrgHeader';
 import { colors } from '../../theme/colors';
 import { radius, shadows, spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
@@ -124,26 +125,20 @@ export default function StudentProfileScreen() {
 
   return (
     <View style={styles.root}>
-      {/* ═══ FIXED: Navy Header ═══ */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerBackButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-          testID="profile-back-button"
-        >
-          <Ionicons name="arrow-back" size={20} color={colors.neutral.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Meu Perfil</Text>
-        <TouchableOpacity
-          testID="profile-edit-button"
-          style={styles.editButton}
-          onPress={() => navigation.navigate('StudentProfileEdit')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.editButtonText}>Editar</Text>
-        </TouchableOpacity>
-      </View>
+      <OrgHeader
+        title="Meu"
+        accent="perfil"
+        right={
+          <TouchableOpacity
+            testID="profile-edit-button"
+            style={styles.editButton}
+            onPress={() => navigation.navigate('StudentProfileEdit')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.editButtonText}>Editar</Text>
+          </TouchableOpacity>
+        }
+      />
 
       {/* ═══ SCROLLABLE: Profile Content ═══ */}
       <ScrollView
@@ -421,28 +416,6 @@ const styles = StyleSheet.create({
   },
 
   // ── Header ──
-  header: {
-    backgroundColor: colors.brand.navy,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 14,
-  },
-  headerBackButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 18,
-    color: colors.neutral.white,
-  },
   editButton: {
     backgroundColor: colors.brand.gold,
     paddingHorizontal: 16,

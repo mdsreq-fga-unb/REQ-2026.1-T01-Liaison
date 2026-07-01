@@ -742,10 +742,22 @@ class OrganizationProfileDetailSerializer(serializers.ModelSerializer):
         ).data
 
     def get_stats(self, obj):
+        from applications.models import Application
+
+        total_events = obj.opportunities.exclude(status="draft").count()
+        total_volunteers = (
+            Application.objects.filter(
+                opportunity__organization=obj,
+                status=Application.Status.APPROVED,
+            )
+            .values("student")
+            .distinct()
+            .count()
+        )
         return {
-            "total_events": 0,
-            "total_volunteers": 0,
-            "rating": 0,
+            "total_events": total_events,
+            "total_volunteers": total_volunteers,
+            "rating": 0,  # sem sistema de avaliação ainda
         }
 
     def get_events(self, obj):

@@ -15,6 +15,7 @@ export interface DateInputProps {
   required?: boolean;
   placeholder?: string;
   mode?: 'date' | 'time';
+  containerStyle?: any;
 }
 
 const DateInput = ({
@@ -26,6 +27,7 @@ const DateInput = ({
   required = false,
   placeholder = '',
   mode = 'date',
+  containerStyle,
 }: DateInputProps) => {
   const [show, setShow] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -91,7 +93,7 @@ const DateInput = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {!hideLabel && (
         <Text style={styles.label}>
           {label}
@@ -107,7 +109,7 @@ const DateInput = ({
           ]}
         >
           <TextInput
-            style={styles.inputText}
+            style={[styles.inputText, styles.inputTextWithIcon]}
             value={value}
             onChangeText={maskInput}
             onFocus={() => setIsFocused(true)}
@@ -117,7 +119,7 @@ const DateInput = ({
             keyboardType="numeric"
             maxLength={mode === 'date' ? 10 : 5}
           />
-          <Ionicons name={mode === 'date' ? 'calendar-outline' : 'time-outline'} size={20} color={colors.text.secondary} />
+          <Ionicons name={mode === 'date' ? 'calendar-outline' : 'time-outline'} size={20} color={colors.text.secondary} style={styles.inputIcon} />
         </View>
       ) : (
         <TouchableOpacity
@@ -131,10 +133,10 @@ const DateInput = ({
             setShow(true);
           }}
         >
-          <Text style={[styles.inputText, !value && styles.placeholderText]}>
+          <Text style={[styles.inputText, !value && styles.placeholderText, styles.inputTextWithIcon]}>
             {value || placeholder}
           </Text>
-          <Ionicons name={mode === 'date' ? "calendar-outline" : "time-outline"} size={20} color={colors.text.secondary} />
+          <Ionicons name={mode === 'date' ? "calendar-outline" : "time-outline"} size={20} color={colors.text.secondary} style={styles.inputIcon} />
         </TouchableOpacity>
       )}
 
@@ -187,6 +189,15 @@ const styles = StyleSheet.create({
     ...typography.input,
     color: colors.text.primary,
     flex: 1,
+  },
+  inputTextWithIcon: {
+    paddingRight: 28,
+  },
+  inputIcon: {
+    position: 'absolute',
+    right: 14,
+    top: '50%',
+    transform: [{ translateY: -10 }],
   },
   placeholderText: {
     color: colors.text.secondary,

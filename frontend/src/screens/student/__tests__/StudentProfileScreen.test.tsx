@@ -121,16 +121,6 @@ describe('StudentProfileScreen', () => {
     });
   });
 
-  it('renders back button in header', async () => {
-    mockGetProfile.mockResolvedValueOnce(MOCK_PROFILE);
-
-    render(<StudentProfileScreen />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('profile-back-button')).toBeTruthy();
-    });
-  });
-
   it('renders student name', async () => {
     mockGetProfile.mockResolvedValueOnce(MOCK_PROFILE);
 

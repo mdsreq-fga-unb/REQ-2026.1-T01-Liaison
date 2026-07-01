@@ -8,6 +8,12 @@ urlpatterns = [
         ApplicationViewSet.as_view({"get": "list", "post": "create"}),
         name="application-list",
     ),
+    # RF12/US2.9 — cancelar candidatura pendente (estudante)
+    path(
+        "<uuid:pk>/cancel/",
+        ApplicationViewSet.as_view({"patch": "cancel"}),
+        name="application-cancel",
+    ),
     # RF11 — listar candidatos de uma vaga (organização)
     path(
         "opportunities/<uuid:opportunity_id>/",

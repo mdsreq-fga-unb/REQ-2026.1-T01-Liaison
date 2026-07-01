@@ -1,9 +1,11 @@
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from certificates.services import issue_certificate
 from opportunities.models import Opportunity
 from .models import Application
 from .serializers import ApplicationCreateSerializer, ApplicationEvaluationSerializer, ApplicationListSerializer
@@ -27,7 +29,7 @@ class ApplicationViewSet(viewsets.GenericViewSet):
     def get_queryset(self):
         qs = (
             Application.objects.filter(student__user=self.request.user)
-            .select_related("opportunity", "opportunity__organization")
+            .select_related("opportunity", "opportunity__organization", "certificate")
             .order_by("-created_at")
         )
         status_param = self.request.query_params.get("status", "").strip()
@@ -75,6 +77,33 @@ class ApplicationViewSet(viewsets.GenericViewSet):
             ApplicationCreateSerializer(application).data,
             status=status.HTTP_201_CREATED,
         )
+
+    def cancel(self, request, pk=None, *args, **kwargs):
+        """US2.9/RF12 — estudante cancela a própria candidatura ainda pendente."""
+        if request.user.role != "estudante" or not hasattr(request.user, "student_profile"):
+            return Response(
+                {"detail": "Apenas estudantes podem cancelar candidaturas."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            application = Application.objects.select_related("student").get(pk=pk)
+        except Application.DoesNotExist:
+            return Response({"detail": "Candidatura não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+        if application.student != request.user.student_profile:
+            return Response(
+                {"detail": "Você não tem permissão para cancelar esta candidatura."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        if application.status != Application.Status.PENDING:
+            return Response(
+                {"detail": "Não é possível cancelar uma candidatura que já foi avaliada pela organização."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        application.status = Application.Status.CANCELLED
+        application.save(update_fields=["status", "updated_at"])
+        return Response(ApplicationListSerializer(application, context={"request": request}).data)
 
 
 class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
@@ -157,9 +186,17 @@ class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
                 )
 
         application.status = new_status
-        application.save(update_fields=["status", "updated_at"])
+        # Justificativa opcional (RF13) — guardada para o estudante ver na decisão.
+        note = request.data.get("note")
+        update_fields = ["status", "updated_at"]
+        if note is not None:
+            application.evaluation_note = str(note).strip()
+            update_fields.append("evaluation_note")
+        application.save(update_fields=update_fields)
 
-        return Response(ApplicationEvaluationSerializer(application).data)
+        return Response(
+            ApplicationEvaluationSerializer(application, context={"request": request}).data
+        )
 
     def complete(self, request, pk=None):
         """RF14 — registrar frequência/carga horária: approved → completed."""
@@ -214,15 +251,28 @@ class OpportunityApplicationsViewSet(viewsets.GenericViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        with transaction.atomic():
-            application.status = Application.Status.COMPLETED
-            application.attendance = attendance
-            application.hours_completed = hours
-            application.completed_at = timezone.now()
-            application.save(
-                update_fields=[
-                    "status", "attendance", "hours_completed", "completed_at", "updated_at"
-                ]
+        try:
+            with transaction.atomic():
+                application.attendance = attendance
+                if attendance == Application.Attendance.ABSENT:
+                    # Ausente não cumpre carga → conclui sem emitir certificado.
+                    application.status = Application.Status.COMPLETED
+                    application.hours_completed = 0
+                    application.completed_at = timezone.now()
+                    application.save(
+                        update_fields=[
+                            "status", "attendance", "hours_completed", "completed_at", "updated_at"
+                        ]
+                    )
+                else:
+                    # Presente/Parcial → conclui e emite o certificado (RF15, PR #116).
+                    application.save(update_fields=["attendance", "updated_at"])
+                    issue_certificate(application, hours)
+        except ValidationError as exc:
+            return Response(
+                {"detail": exc.messages[0] if exc.messages else str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
+        application.refresh_from_db()
         return Response(ApplicationEvaluationSerializer(application).data)

@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -10,8 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import OrgHeader from '../components/ui/OrgHeader';
 import { useAuth } from '../context/AuthContext';
 import {
   getNotifications,
@@ -67,7 +66,6 @@ type Section = { title: string; data: NotificationData[] };
 
 export default function NotificationsScreen() {
   const navigation = useNavigation<any>();
-  const insets = useSafeAreaInsets();
   const { accessToken } = useAuth();
 
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
@@ -150,39 +148,24 @@ export default function NotificationsScreen() {
   );
 
   const renderSectionHeader = ({ section }: { section: Section }) => (
-    <Text style={styles.sectionLabel}>{section.title}</Text>
+    <View style={styles.sectionHeaderRow}>
+      <Text style={styles.sectionLabel}>{section.title}</Text>
+      {section.title === 'Novas' && (
+        <TouchableOpacity onPress={handleMarkAllAsRead}>
+          <Text style={styles.markAllText}>Marcar todas como lidas</Text>
+        </TouchableOpacity>
+      )}
+    </View>
   );
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={[colors.header.gradientFrom, colors.header.gradientTo]}
-        style={[styles.header, { paddingTop: insets.top + 12 }]}
-        start={{ x: 0.15, y: 0 }}
-        end={{ x: 0.85, y: 1 }}
-      >
-        <View style={styles.ringTopRight} />
-        <View style={styles.ringBottomLeft} />
-
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={18} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.headerCenter}>
-            {unreadCount > 0 && (
-              <Text style={styles.headerSubtitle}>{unreadLabel.toUpperCase()}</Text>
-            )}
-            <Text style={styles.headerTitle}>Notificações</Text>
-          </View>
-          <View style={styles.headerRightSpacer} />
-        </View>
-
-        {unreadCount > 0 && (
-          <TouchableOpacity onPress={handleMarkAllAsRead} style={styles.markAllWrap}>
-            <Text style={styles.markAllText}>Marcar todas como lidas</Text>
-          </TouchableOpacity>
-        )}
-      </LinearGradient>
+      <OrgHeader
+        title="Notificações"
+        eyebrow={unreadCount > 0 ? unreadLabel : undefined}
+        onBack={() => navigation.goBack()}
+        backTestID="notifications-back-button"
+      />
 
       {loading ? (
         <View style={styles.center}>
@@ -214,71 +197,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.neutral.bg,
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingBottom: 14,
-    overflow: 'hidden',
-  },
-  ringTopRight: {
-    position: 'absolute',
-    right: -10,
-    top: -34,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 1,
-    borderColor: 'rgba(212,129,58,0.14)',
-  },
-  ringBottomLeft: {
-    position: 'absolute',
-    left: -26,
-    bottom: -10,
-    width: 104,
-    height: 104,
-    borderRadius: 52,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  backButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  headerCenter: {
-    flex: 1,
-    gap: 3,
-  },
-  headerSubtitle: {
-    fontFamily: fontFamilies.dmSansMedium,
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.45)',
-    letterSpacing: 0.88,
-  },
-  headerTitle: {
-    fontFamily: fontFamilies.playfairBold,
-    fontSize: 21,
-    color: '#fff',
-    lineHeight: 26,
-  },
-  headerRightSpacer: {
-    width: 36,
-    flexShrink: 0,
-  },
-  markAllWrap: {
-    alignSelf: 'flex-end',
-    marginTop: 8,
-  },
   markAllText: {
     fontFamily: fontFamilies.dmSansSemiBold,
     fontSize: 12,
@@ -295,15 +213,20 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
   },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+    paddingTop: 4,
+    marginBottom: 10,
+  },
   sectionLabel: {
     fontFamily: fontFamilies.dmSansBold,
     fontSize: 11,
     color: colors.text.secondary,
     letterSpacing: 0.44,
     textTransform: 'uppercase',
-    paddingHorizontal: 4,
-    paddingTop: 4,
-    marginBottom: 10,
   },
   card: {
     backgroundColor: colors.neutral.white,

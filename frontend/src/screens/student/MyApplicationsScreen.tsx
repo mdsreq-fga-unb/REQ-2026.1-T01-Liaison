@@ -1,11 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Directory, File, Paths } from 'expo-file-system';
+import * as IntentLauncher from 'expo-intent-launcher';
+import * as Sharing from 'expo-sharing';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Modal,
+  Platform,
   RefreshControl,
   StyleSheet,
   Text,
@@ -14,18 +18,20 @@ import {
 } from 'react-native';
 
 import NotificationBell from '../../components/NotificationBell';
+import OrgHeader from '../../components/ui/OrgHeader';
 import { useAuth } from '../../context/AuthContext';
-import { getMyApplications } from '../../services/applications';
+import { cancelApplication, getMyApplications } from '../../services/applications';
 import { colors } from '../../theme/colors';
 import { radius } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
 
-type FilterTab = 'all' | 'pending' | 'approved' | 'rejected' | 'cancelled';
+type FilterTab = 'all' | 'pending' | 'approved' | 'completed' | 'rejected' | 'cancelled';
 
 const TABS: { key: FilterTab; label: string }[] = [
   { key: 'all', label: 'Todas' },
   { key: 'pending', label: 'Aguardando' },
   { key: 'approved', label: 'Aprovadas' },
+  { key: 'completed', label: 'Concluídas' },
   { key: 'rejected', label: 'Rejeitadas' },
   { key: 'cancelled', label: 'Canceladas' },
 ];
@@ -49,6 +55,20 @@ interface ApplicationItem {
   };
   status: string;
   created_at: string;
+  attendance?: 'present' | 'partial' | 'absent' | null;
+  hours_completed?: number | null;
+  certificate?: { id: string; download_url: string } | null;
+}
+
+// RF14 — status pós-frequência: 'completed' não distingue presença/ausência
+// no campo `status`, só em `attendance`. Resolve o badge a partir dos dois.
+function statusConfigFor(item: ApplicationItem) {
+  if (item.status === 'completed') {
+    return item.attendance === 'absent'
+      ? { label: 'Ausente', bg: '#fdecea', color: '#c0392b' }
+      : { label: 'Presença confirmada', bg: '#ebf7f1', color: '#1d7a4a' };
+  }
+  return STATUS_CONFIG[item.status] ?? STATUS_CONFIG.pending;
 }
 
 function formatDate(value?: string): string {
@@ -67,6 +87,8 @@ export default function MyApplicationsScreen() {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [cancelTarget, setCancelTarget] = useState<ApplicationItem | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!accessToken) return;
@@ -87,6 +109,75 @@ export default function MyApplicationsScreen() {
   }, [load]);
 
   useEffect(() => { load(); }, [load]);
+
+  const handleConfirmCancel = useCallback(async () => {
+    if (!accessToken || !cancelTarget) return;
+    try {
+      setCancelling(true);
+      await cancelApplication(accessToken, cancelTarget.id);
+      setItems(prev => prev.map(i => (i.id === cancelTarget.id ? { ...i, status: 'cancelled' } : i)));
+      setCancelTarget(null);
+    } catch (err: any) {
+      Alert.alert('Erro', err.message ?? 'Falha ao cancelar candidatura');
+    } finally {
+      setCancelling(false);
+    }
+  }, [accessToken, cancelTarget]);
+
+  // RF15/US3.4 — baixa o certificado e abre o PDF no visualizador do dispositivo.
+  const handleDownloadCertificate = useCallback(async (item: ApplicationItem) => {
+    if (!item.certificate || !accessToken) return;
+    try {
+      setDownloadingId(item.id);
+
+      // expo-file-system's web shim no-ops `downloadFileAsync` (ignores its args),
+      // so web needs the browser's own fetch-blob-anchor download flow instead.
+      if (Platform.OS === 'web') {
+        const resp = await fetch(item.certificate.download_url, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!resp.ok) throw new Error('Falha ao baixar certificado');
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `certificado-${item.opportunity.title}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        return;
+      }
+
+      const file = await File.downloadFileAsync(
+        item.certificate.download_url,
+        new Directory(Paths.cache),
+        { headers: { Authorization: `Bearer ${accessToken}` }, idempotent: true },
+      );
+
+      // Android abre o PDF direto no visualizador do sistema (ACTION_VIEW).
+      // iOS não expõe visualizador nativo no Expo Go → cai no share sheet
+      // (que tem "Salvar em Arquivos"/preview QuickLook).
+      if (Platform.OS === 'android') {
+        await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+          data: file.contentUri,
+          flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
+          type: 'application/pdf',
+        });
+        return;
+      }
+
+      if (!(await Sharing.isAvailableAsync())) {
+        Alert.alert('Erro', 'Visualização não disponível neste dispositivo.');
+        return;
+      }
+      await Sharing.shareAsync(file.uri, { mimeType: 'application/pdf' });
+    } catch (err: any) {
+      Alert.alert('Erro', err.message ?? 'Falha ao baixar certificado');
+    } finally {
+      setDownloadingId(null);
+    }
+  }, [accessToken]);
 
   const filteredItems = useMemo(
     () => activeTab === 'all' ? items : items.filter(i => i.status === activeTab),
@@ -111,36 +202,18 @@ export default function MyApplicationsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <LinearGradient colors={['#1a2744', '#111c38', '#0f1729']} style={styles.header}>
-        <View pointerEvents="none" style={styles.ringTopRight} />
-        <View pointerEvents="none" style={styles.ringBottomLeft} />
-        <View style={styles.headerRow}>
-          <TouchableOpacity
-            testID="back-button"
-            style={styles.glassBtn}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="arrow-back" size={18} color="#fff" />
-          </TouchableOpacity>
-
-          <View style={styles.headerText}>
-            <Text style={styles.headerSubtitle}>ACOMPANHE SEUS PROCESSOS</Text>
-            <Text style={styles.headerTitle}>
-              {'Minhas '}
-              <Text style={styles.headerTitleAccent}>candidaturas</Text>
-            </Text>
-          </View>
-
+      <OrgHeader
+        title="Minhas"
+        accent="candidaturas"
+        right={
           <NotificationBell
             iconSize={18}
             iconColor="#fff"
             containerStyle={styles.glassBtn}
             onNavigate={() => navigation.navigate('Notifications')}
           />
-        </View>
-      </LinearGradient>
+        }
+      />
 
       {/* Filter tabs */}
       <View style={styles.tabsRow}>
@@ -182,9 +255,10 @@ export default function MyApplicationsScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand.navy]} />
         }
         renderItem={({ item }) => {
-          const cfg = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.pending;
+          const cfg = statusConfigFor(item);
           const org = item.opportunity.organization;
           const isPending = item.status === 'pending';
+          const isDownloading = downloadingId === item.id;
 
           return (
             <View style={styles.card}>
@@ -224,12 +298,32 @@ export default function MyApplicationsScreen() {
 
                 {isPending && (
                   <TouchableOpacity
+                    testID={`cancel-button-${item.id}`}
                     style={[styles.footerBtn, styles.footerBtnCancel]}
                     onPress={() => setCancelTarget(item)}
                     activeOpacity={0.7}
                   >
                     <Ionicons name="close-circle-outline" size={15} color="#c0392b" />
                     <Text style={styles.footerBtnCancelText}>Cancelar</Text>
+                  </TouchableOpacity>
+                )}
+
+                {item.certificate && (
+                  <TouchableOpacity
+                    testID={`download-certificate-${item.id}`}
+                    style={[styles.footerBtn, styles.footerBtnOutline]}
+                    onPress={() => handleDownloadCertificate(item)}
+                    activeOpacity={0.7}
+                    disabled={isDownloading}
+                  >
+                    {isDownloading ? (
+                      <ActivityIndicator size="small" color={colors.brand.navy} />
+                    ) : (
+                      <>
+                        <Ionicons name="download-outline" size={15} color={colors.brand.navy} />
+                        <Text style={styles.footerBtnOutlineText}>Baixar certificado</Text>
+                      </>
+                    )}
                   </TouchableOpacity>
                 )}
               </View>
@@ -288,18 +382,22 @@ export default function MyApplicationsScreen() {
                 style={[styles.modalBtn, styles.modalBtnBack]}
                 onPress={() => setCancelTarget(null)}
                 activeOpacity={0.7}
+                disabled={cancelling}
               >
                 <Text style={styles.modalBtnBackText}>Voltar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalBtn, styles.modalBtnConfirm]}
-                onPress={() => {
-                  // ponytail: cancel API (US2.9) not implemented yet
-                  setCancelTarget(null);
-                }}
+                testID="confirm-cancel-button"
+                style={[styles.modalBtn, styles.modalBtnConfirm, cancelling && { opacity: 0.6 }]}
+                onPress={handleConfirmCancel}
                 activeOpacity={0.7}
+                disabled={cancelling}
               >
-                <Text style={styles.modalBtnConfirmText}>Sim, cancelar</Text>
+                {cancelling ? (
+                  <ActivityIndicator size="small" color={colors.neutral.white} />
+                ) : (
+                  <Text style={styles.modalBtnConfirmText}>Sim, cancelar</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -313,31 +411,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.neutral.bg },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.neutral.bg },
 
-  header: { paddingTop: 54, paddingBottom: 16, paddingHorizontal: 20, overflow: 'hidden' },
-  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   glassBtn: {
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-  },
-  headerText: { flex: 1, gap: 3 },
-  headerSubtitle: {
-    fontFamily: fontFamilies.dmSansMedium,
-    fontSize: 11, letterSpacing: 0.88, textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.45)',
-  },
-  headerTitle: { fontFamily: fontFamilies.playfairBold, fontSize: 21, color: '#fff' },
-  headerTitleAccent: { fontFamily: fontFamilies.playfairBoldItalic, fontSize: 21, color: '#f0b070' },
-  ringTopRight: {
-    position: 'absolute', top: -34, right: -30,
-    width: 140, height: 140, borderRadius: 70,
-    borderWidth: 1, borderColor: 'rgba(212,129,58,0.14)',
-  },
-  ringBottomLeft: {
-    position: 'absolute', bottom: -20, left: -26,
-    width: 104, height: 104, borderRadius: 52,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)',
   },
 
   tabsRow: {

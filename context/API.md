@@ -82,6 +82,9 @@ Reusam os Detail serializers de `/me/` (mesmos campos, incl. contato). Lookup po
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/opportunities/` | Lista (leitura aberta a autenticados) |
+| GET | `/opportunities/saved/` | Vagas salvas do estudante logado (lista pura, mais recente primeiro; `saved_at` + `is_saved=true`). 403 se não-estudante |
+| POST | `/opportunities/{uuid}/save/` | Salva vaga (só `estudante`; idempotente → 201/200) |
+| DELETE | `/opportunities/{uuid}/save/` | Remove dos salvos (204; 404 se não salvo) |
 | POST | `/opportunities/` | Cria (org dona) |
 | GET | `/opportunities/{uuid}/` | Detalhe — **`AllowAny`** (público). 404 p/ `draft`/inexistente; `active`/`paused`/`closed` retornam 200. Org expandida (`razao_social, nome_fantasia, logo, mission, areas_de_atuacao`) + `applicants_count` real + `already_applied` |
 | PUT/PATCH | `/opportunities/{uuid}/` | Atualiza (só dona) |
@@ -91,10 +94,11 @@ Reusam os Detail serializers de `/me/` (mesmos campos, incl. contato). Lookup po
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/applications/` | `{ opportunity: uuid }` → 201. Só `estudante` (403 senão); 400 duplicata/vaga fechada |
-| GET | `/applications/` | Lista candidaturas do estudante autenticado (`opportunity` resumida + `status` + `created_at`) |
+| GET | `/applications/` | Lista candidaturas do estudante autenticado. Campos: `id, opportunity, status, created_at, attendance, hours_completed, certificate{id,download_url}\|null` — `certificate` só não-nulo se presença=present/partial (RF15 auto-emite no `complete/`) |
+| PATCH | `/applications/{uuid}/cancel/` | RF12/US2.9. Cancela candidatura própria ainda `pending` → `cancelled`. Só dono (403 senão); 400 se já avaliada |
 | GET | `/applications/opportunities/{uuid}/` | Lista candidaturas da vaga (org dona; 403 senão). Filtro opcional `?status=` (ex.: `approved` → RF13 aprovados). Campos: `id, student{nome,curso,universidade}, status, created_at, attendance, hours_completed, completed_at` |
 | PATCH | `/applications/{uuid}/evaluate/` | RF11. `{ status: approved\|rejected, confirmed? }` → 200. Só org dona (403); reversão sem `confirmed` → 409 |
-| PATCH | `/applications/{uuid}/complete/` | RF14. `{ attendance: present\|partial\|absent, hours_completed: int≥0 }` → 200 `status=completed`. `absent` força `hours_completed=0`. Só org dona (403); 400 attendance/horas inválidos ou não-`approved`; 400 imutável se já `completed` (RNF08) |
+| PATCH | `/applications/{uuid}/complete/` | RF14. `{ attendance: present\|partial\|absent, hours_completed: int≥0 }` → 200 `status=completed`. `absent` força `hours_completed=0` e não emite certificado; `present`/`partial` chama `issue_certificate` (RF15). Só org dona (403); 400 attendance/horas inválidos ou não-`approved`; 400 imutável se já `completed` (RNF08) |
 
 ### Certificados (`IsAuthenticated`)
 | Method | Path | Description |

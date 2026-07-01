@@ -15,9 +15,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import GalleryPreview from '../../components/profile/GalleryPreview';
 import ImageViewer from '../../components/profile/ImageViewer';
+import OrgHeader from '../../components/ui/OrgHeader';
 import { colors } from '../../theme/colors';
-import { radius, shadows } from '../../theme/spacing';
-import { typography } from '../../theme/typography';
+import { radius, shadows, spacing } from '../../theme/spacing';
+import { typography, fontFamilies } from '../../theme/typography';
 import { getOrgProfile, OrgProfileData } from '../../services/api';
 import { INTERESSE_OPTIONS } from '../../constants/interests';
 
@@ -30,7 +31,7 @@ INTERESSE_OPTIONS.forEach((opt) => { AREA_LABELS[opt.id] = opt.label; });
 
 export default function OrgProfileScreen() {
   const navigation = useNavigation<any>();
-  const { accessToken, tryRefreshSession } = useAuth();
+  const { accessToken, tryRefreshSession, logout } = useAuth();
 
   const [profile, setProfile] = useState<OrgProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,30 +106,24 @@ export default function OrgProfileScreen() {
   if (!profile) return null;
 
   const displayName = profile.nome_fantasia || profile.razao_social;
-  const openPositionsCount = (profile.open_positions as any[])?.length ?? 0;
 
   return (
     <View style={styles.root}>
-      {/* ═══ FIXED: Navy Header ═══ */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerBackButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-          testID="org-profile-back-button"
-        >
-          <Ionicons name="arrow-back" size={20} color={colors.neutral.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Perfil da Organização</Text>
-        <TouchableOpacity
-          testID="org-profile-edit-button"
-          style={styles.editButton}
-          onPress={() => navigation.navigate('OrgProfileEdit')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.editButtonText}>Editar</Text>
-        </TouchableOpacity>
-      </View>
+      <OrgHeader
+        eyebrow="Organização"
+        title="Meu"
+        accent="perfil"
+        right={
+          <TouchableOpacity
+            testID="org-profile-edit-button"
+            style={styles.editButton}
+            onPress={() => navigation.navigate('OrgProfileEdit')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.editButtonText}>Editar</Text>
+          </TouchableOpacity>
+        }
+      />
 
       {/* ═══ SCROLLABLE: Profile Content ═══ */}
       <ScrollView
@@ -206,22 +201,6 @@ export default function OrgProfileScreen() {
                 <Text style={styles.locationText}>📍 {profile.endereco}</Text>
               </View>
             ) : null}
-          </View>
-
-          {/* CTA Row */}
-          <View style={styles.ctaRow}>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              activeOpacity={0.8}
-              testID="org-view-positions-button"
-            >
-              <Text style={styles.primaryButtonText}>
-                {'Ver Vagas Abertas' + (openPositionsCount > 0 ? ` (${openPositionsCount})` : '')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.bookmarkButton} activeOpacity={0.7}>
-              <Ionicons name="bookmark-outline" size={20} color={colors.text.primary} />
-            </TouchableOpacity>
           </View>
 
           {/* Stats */}
@@ -365,6 +344,16 @@ export default function OrgProfileScreen() {
           </View>
         ) : null}
 
+        <TouchableOpacity
+          testID="profile-logout-button"
+          style={styles.logoutButton}
+          onPress={logout}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="log-out-outline" size={20} color="#ef4444" />
+          <Text style={styles.logoutText}>Sair da conta</Text>
+        </TouchableOpacity>
+
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
@@ -417,28 +406,6 @@ const styles = StyleSheet.create({
   },
 
   // ── Header ──
-  header: {
-    backgroundColor: colors.brand.navy,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 14,
-  },
-  headerBackButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 18,
-    color: colors.neutral.white,
-  },
   editButton: {
     backgroundColor: colors.brand.gold,
     paddingHorizontal: 18,
@@ -777,6 +744,24 @@ const styles = StyleSheet.create({
   },
   contactCardLink: {
     color: colors.brand.gold,
+  },
+
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginHorizontal: spacing.horizontal.step,
+    marginTop: 24,
+    paddingVertical: 14,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: '#ef4444',
+    backgroundColor: colors.neutral.white,
+  },
+  logoutText: {
+    ...typography.button,
+    color: '#ef4444',
   },
 
   // ── Bottom Spacer ──

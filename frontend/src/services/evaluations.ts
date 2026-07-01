@@ -15,9 +15,11 @@ export interface Application {
   student: ApplicationStudent;
   status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed';
   created_at: string;
+  updated_at?: string;
   attendance?: AttendanceStatus | null;
   hours_completed?: number | null;
   completed_at?: string | null;
+  evaluation_note?: string | null;
 }
 
 export async function getOpportunityApplications(
@@ -61,8 +63,11 @@ export async function evaluateApplication(
   token: string,
   applicationId: string,
   newStatus: 'approved' | 'rejected',
-  confirmed = false
+  confirmed = false,
+  note?: string
 ): Promise<{ status: string; requires_confirmation?: boolean; detail?: string; _httpStatus?: number }> {
+  const body: Record<string, unknown> = { status: newStatus, confirmed };
+  if (note !== undefined) body.note = note;
   const resp = await fetch(
     apiUrl(`/applications/${applicationId}/evaluate/`),
     {
@@ -71,7 +76,7 @@ export async function evaluateApplication(
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ status: newStatus, confirmed }),
+      body: JSON.stringify(body),
     }
   );
   const data = await resp.json().catch(() => ({}));

@@ -92,3 +92,28 @@ class TestOpportunityViews:
         response = api_client.get('/api/v1/organizations/me/opportunities/')
         assert response.status_code == 200
         assert len(response.data) > 0 # Assuming Pagination, or len(response.data['results']) if paginated. Let's just check 200
+
+    def test_me_opportunities_per_status_counts(self, api_client, ong_user):
+        from applications.models import Application
+        api_client.force_authenticate(user=ong_user)
+        opp = Opportunity.objects.create(
+            organization=ong_user.organization_profile,
+            title="Tutoria", area="educacao", description="x",
+            workload_value=4, workload_unit="h/semana", vacancies=5,
+            modality="presencial", start_date="2026-06-15", start_time="14:00",
+            status="active",
+        )
+        # 3 estudantes distintos (unique_together student+opportunity).
+        for i, st in enumerate(["pending", "approved", "rejected"]):
+            u = User.objects.create(email=f"s{i}@t.com", role="estudante", username=f"s{i}")
+            sp = StudentProfile.objects.create(
+                user=u, universidade="UnB", curso="X", matricula=f"m{i}"
+            )
+            Application.objects.create(student=sp, opportunity=opp, status=st)
+
+        response = api_client.get('/api/v1/organizations/me/opportunities/')
+        card = next(o for o in response.data if o["id"] == str(opp.id))
+        assert card["applicants_pending"] == 1
+        assert card["applicants_approved"] == 1
+        assert card["applicants_rejected"] == 1
+        assert card["applicants_count"] == 3

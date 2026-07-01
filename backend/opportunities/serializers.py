@@ -11,7 +11,12 @@ class OpportunityPhotoSerializer(serializers.ModelSerializer):
 class OpportunitySerializer(serializers.ModelSerializer):
     photos = OpportunityPhotoSerializer(many=True, read_only=True)
     is_saved = serializers.SerializerMethodField()
+    saved_at = serializers.SerializerMethodField()
     applicants_count = serializers.SerializerMethodField()
+    # Contagens por status (só anotadas na listagem da organização; null no feed).
+    applicants_pending = serializers.SerializerMethodField()
+    applicants_approved = serializers.SerializerMethodField()
+    applicants_rejected = serializers.SerializerMethodField()
     organization = serializers.SerializerMethodField()
 
     class Meta:
@@ -23,7 +28,8 @@ class OpportunitySerializer(serializers.ModelSerializer):
             "end_date", "is_recurring", "session_duration", "schedule",
             "requirements", "accepts_any_course", "preferred_courses",
             "status", "featured", "created_at", "updated_at",
-            "photos", "is_saved", "applicants_count",
+            "photos", "is_saved", "saved_at", "applicants_count",
+            "applicants_pending", "applicants_approved", "applicants_rejected",
         ]
         read_only_fields = ["organization"]
 
@@ -43,11 +49,24 @@ class OpportunitySerializer(serializers.ModelSerializer):
             return False
         return SavedOpportunity.objects.filter(student=profile, opportunity=obj).exists()
 
+    def get_saved_at(self, obj):
+        # Anotado só na listagem de salvos; null nas demais.
+        return getattr(obj, "_saved_at", None)
+
     def get_applicants_count(self, obj):
         # Usa anotação do queryset (evita N+1); fallback p/ contagem direta.
         if hasattr(obj, "_applicants_count"):
             return obj._applicants_count
         return obj.applications.count()
+
+    def get_applicants_pending(self, obj):
+        return getattr(obj, "_applicants_pending", None)
+
+    def get_applicants_approved(self, obj):
+        return getattr(obj, "_applicants_approved", None)
+
+    def get_applicants_rejected(self, obj):
+        return getattr(obj, "_applicants_rejected", None)
 
     def get_organization(self, obj):
         org = obj.organization

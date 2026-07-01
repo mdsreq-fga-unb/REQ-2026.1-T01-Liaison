@@ -72,6 +72,19 @@ export async function getOpportunity(id: string, token?: string | null) {
   return response.json();
 }
 
+export async function getSavedOpportunities(token: string) {
+  // Lista pura (sem paginação) das vagas salvas, mais recente primeiro.
+  const response = await fetch(apiUrl('/opportunities/saved/'), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error ${response.status}`);
+  }
+  return response.json();
+}
+
 export async function getDashboard(token: string) {
   const response = await fetch(apiUrl('/students/dashboard/'), {
     headers: {

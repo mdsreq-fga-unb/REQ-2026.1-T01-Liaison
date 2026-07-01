@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from opportunities.models import Opportunity
 from .models import Application
@@ -38,10 +39,26 @@ class ApplicationOpportunitySummarySerializer(serializers.ModelSerializer):
 
 class ApplicationListSerializer(serializers.ModelSerializer):
     opportunity = ApplicationOpportunitySummarySerializer(read_only=True)
+    certificate = serializers.SerializerMethodField()
 
     class Meta:
         model = Application
-        fields = ["id", "opportunity", "status", "created_at"]
+        fields = [
+            "id", "opportunity", "status", "created_at",
+            "attendance", "hours_completed", "certificate",
+        ]
+
+    def get_certificate(self, obj):
+        # Presente/Parcial emite certificado (#issue_certificate); Ausente, não.
+        cert = getattr(obj, "certificate", None)
+        if cert is None:
+            return None
+        return {
+            "id": cert.id,
+            "download_url": reverse(
+                "certificate-download", args=[cert.id], request=self.context.get("request")
+            ),
+        }
 
 
 
@@ -69,6 +86,7 @@ class ApplicationEvaluationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         fields = [
-            "id", "student", "status", "created_at",
+            "id", "student", "status", "created_at", "updated_at",
             "attendance", "hours_completed", "completed_at",
+            "evaluation_note",
         ]

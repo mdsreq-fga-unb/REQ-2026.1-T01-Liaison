@@ -60,8 +60,6 @@ nav:
       - Backlog do Produto: projeto/backlog_produto.md
       - Regras de Negócio: projeto/regras_negocio.md
       - Histórico de Melhorias: projeto/historico_de_melhorias.md
-      - Rastreabilidade de Requisitos: projeto/rastreabilidade.md
-      - Quadro de MVP (Evidências): projeto/mvp.md
       - Referências Bibliográficas: projeto/referencias.md
   - Organização e Planejamento:
       - Planejamento: organizacao_e_planejamento/planejamento.md

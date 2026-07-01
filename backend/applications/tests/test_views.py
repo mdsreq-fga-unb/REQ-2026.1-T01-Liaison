@@ -107,6 +107,29 @@ class TestApplicationList:
         assert resp.data["results"][0]["opportunity"]["title"] == "Tutoria"
         assert resp.data["results"][0]["opportunity"]["status"] == "active"
 
+    def test_certificate_null_when_not_issued(self, api_client, org, student_user):
+        opp = _opp(org)
+        Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        api_client.force_authenticate(user=student_user)
+        resp = api_client.get("/api/v1/applications/")
+        assert resp.data["results"][0]["certificate"] is None
+        assert resp.data["results"][0]["attendance"] is None
+
+    def test_certificate_present_when_issued(self, api_client, org, student_user):
+        from certificates.services import issue_certificate
+
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        app.attendance = "present"
+        app.save(update_fields=["attendance"])
+        issue_certificate(app, 20)
+        api_client.force_authenticate(user=student_user)
+        resp = api_client.get("/api/v1/applications/")
+        cert = resp.data["results"][0]["certificate"]
+        assert cert is not None
+        assert "download_url" in cert
+        assert resp.data["results"][0]["attendance"] == "present"
+
     def test_unique_together_enforced(self, db, org, student_user):
         from django.db import IntegrityError, transaction
 
@@ -190,6 +213,20 @@ class TestApplicationEvaluate:
         resp = api_client.patch(f"/api/v1/applications/{app.id}/evaluate/", {"status": "rejected"}, format="json")
         assert resp.status_code == 200
         assert resp.data["status"] == "rejected"
+
+    def test_evaluate_persists_note(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp)
+        api_client.force_authenticate(user=org.user)
+        resp = api_client.patch(
+            f"/api/v1/applications/{app.id}/evaluate/",
+            {"status": "rejected", "note": "Perfil não compatível com os requisitos."},
+            format="json",
+        )
+        assert resp.status_code == 200
+        assert resp.data["evaluation_note"] == "Perfil não compatível com os requisitos."
+        app.refresh_from_db()
+        assert app.evaluation_note == "Perfil não compatível com os requisitos."
 
     def test_reversal_without_confirmation_returns_409(self, api_client, org, student_user):
         opp = _opp(org)
@@ -276,6 +313,10 @@ class TestApplicationComplete:
         assert app.attendance == "present"
         assert app.hours_completed == 20
         assert app.completed_at is not None
+        # PR #116 — presente emite certificado com snapshot das horas.
+        from certificates.models import Certificate
+        cert = Certificate.objects.get(application=app)
+        assert cert.hours == 20
 
     def test_complete_partial_records_hours(self, api_client, org, student_user):
         opp = _opp(org)
@@ -301,6 +342,9 @@ class TestApplicationComplete:
         assert resp.status_code == 200
         assert resp.data["attendance"] == "absent"
         assert resp.data["hours_completed"] == 0
+        # Ausente não recebe certificado.
+        from certificates.models import Certificate
+        assert not Certificate.objects.filter(application=app).exists()
 
     def test_complete_invalid_attendance_returns_400(self, api_client, org, student_user):
         opp = _opp(org)
@@ -385,3 +429,55 @@ class TestApplicationComplete:
             {"attendance": "present", "hours_completed": 10}, format="json",
         )
         assert resp.status_code == 403
+
+
+@pytest.mark.django_db
+class TestApplicationCancel:
+    """US2.9 — cancelamento de candidatura pelo estudante (RF12)."""
+
+    def test_cancel_pending_application(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp)
+        api_client.force_authenticate(user=student_user)
+        resp = api_client.patch(f"/api/v1/applications/{app.id}/cancel/")
+        assert resp.status_code == 200
+        assert resp.data["status"] == "cancelled"
+        app.refresh_from_db()
+        assert app.status == "cancelled"
+
+    def test_cancel_already_evaluated_returns_400(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp, status="approved")
+        api_client.force_authenticate(user=student_user)
+        resp = api_client.patch(f"/api/v1/applications/{app.id}/cancel/")
+        assert resp.status_code == 400
+        app.refresh_from_db()
+        assert app.status == "approved"
+
+    def test_cancel_other_students_application_returns_403(self, api_client, org, student_user):
+        opp = _opp(org)
+        other = _student(email="m@e.com", username="maria", matricula="999")
+        app = Application.objects.create(student=other.student_profile, opportunity=opp)
+        api_client.force_authenticate(user=student_user)
+        resp = api_client.patch(f"/api/v1/applications/{app.id}/cancel/")
+        assert resp.status_code == 403
+        app.refresh_from_db()
+        assert app.status == "pending"
+
+    def test_cancel_non_student_returns_403(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp)
+        api_client.force_authenticate(user=org.user)
+        resp = api_client.patch(f"/api/v1/applications/{app.id}/cancel/")
+        assert resp.status_code == 403
+
+    def test_cancel_anonymous_returns_401(self, api_client, org, student_user):
+        opp = _opp(org)
+        app = Application.objects.create(student=student_user.student_profile, opportunity=opp)
+        resp = api_client.patch(f"/api/v1/applications/{app.id}/cancel/")
+        assert resp.status_code == 401
+
+    def test_cancel_nonexistent_returns_404(self, api_client, student_user):
+        api_client.force_authenticate(user=student_user)
+        resp = api_client.patch("/api/v1/applications/00000000-0000-0000-0000-000000000000/cancel/")
+        assert resp.status_code == 404

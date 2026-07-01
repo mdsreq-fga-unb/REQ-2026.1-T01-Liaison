@@ -280,4 +280,4 @@ cd frontend && npm run type-check          # type-check TypeScript
 
 A documentação completa do projeto está disponível em: [https://mdsreq-fga-unb.github.io/REQ-2026.1-T01-Liaison](https://mdsreq-fga-unb.github.io/REQ-2026.1-T01-Liaison)
 
-Decisões de arquitetura e lições aprendidas: [`PROJECT_CONTEXT.md`](./PROJECT_CONTEXT.md)
+Contexto técnico: [`CLAUDE.md`](./CLAUDE.md) (índice). Decisões de arquitetura: [`context/DECISIONS.md`](./context/DECISIONS.md) · Gotchas: [`context/GOTCHAS.md`](./context/GOTCHAS.md)

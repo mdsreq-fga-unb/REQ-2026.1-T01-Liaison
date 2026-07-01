@@ -96,3 +96,21 @@ Esta seção descreve os requisitos necessários para o desenvolvimento do softw
 | RNF07 | Suportabilidade | Geração assíncrona de PDF em até 30s | RF15, RF16, RF17 |
 | RNF08 | Segurança | Imutabilidade de certificados e frequências no banco | RF13, RF14, RF15, RF16 |
 | RNF09 | Confiabilidade | UUID v4 (RFC 4122) para certificados | RF15, RF17 |
+
+---
+
+## 8.6 Verificação dos Requisitos Não Funcionais
+
+A matriz a seguir apresenta a verificação dos Requisitos Não Funcionais (RNF), indicando o método de verificação, o resultado e a evidência de cumprimento, ou o status atual para aqueles que não foram verificados.
+
+| RNF | Método de verificação | Resultado | Evidência |
+| :--- | :--- | :--- | :--- |
+| RNF01 | Inspeção/teste de hash bcrypt | Verificado | Código de autenticação / Testes unitários |
+| RNF02 | Medição de tempo | Verificado | Teste de carga no login (≤ 2s) |
+| RNF03 | - | Pendente | - |
+| RNF04 | Testes em iOS/Android ou emuladores | Verificado | Validação da interface responsiva |
+| RNF05 | Medição de tempo | Verificado | Teste de carga na busca (≤ 3s) |
+| RNF06 | - | Fora do MVP | - |
+| RNF07 | - | Planejado | - |
+| RNF08 | Inspeção no fluxo de certificados | Verificado | Validação de imutabilidade no banco |
+| RNF09 | Inspeção no fluxo de certificados | Verificado | Validação da geração de UUID v4 |

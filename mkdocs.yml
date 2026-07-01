@@ -27,9 +27,8 @@ theme:
         name: Mudar para modo claro
 
   features:
-    # Removemos navigation.tabs para ter uma barra lateral unificada (estilo Docusaurus/Starlight)
-    - navigation.sections
-    - navigation.expand
+    - navigation.tabs
+    - navigation.indexes
     - navigation.path
     - navigation.footer
     - navigation.top
@@ -61,6 +60,31 @@ nav:
       - Backlog do Produto: projeto/backlog_produto.md
       - Histórico de Melhorias: projeto/historico_de_melhorias.md
       - Referências Bibliográficas: projeto/referencias.md
+  - Organização e Planejamento:
+      - Planejamento: organizacao_e_planejamento/planejamento.md
+      - Rastreabilidade: organizacao_e_planejamento/rastreabilidade.md
+      - MVP:
+          - Matriz de Completude: organizacao_e_planejamento/MVP/index.md
+          - US1.1: organizacao_e_planejamento/MVP/us1_1.md
+          - US1.2: organizacao_e_planejamento/MVP/us1_2.md
+          - US1.3: organizacao_e_planejamento/MVP/us1_3.md
+          - US1.4: organizacao_e_planejamento/MVP/us1_4.md
+          - US1.5: organizacao_e_planejamento/MVP/us1_5.md
+          - US1.7: organizacao_e_planejamento/MVP/us1_7.md
+          - US2.1: organizacao_e_planejamento/MVP/us2_1.md
+          - US2.2: organizacao_e_planejamento/MVP/us2_2.md
+          - US2.3: organizacao_e_planejamento/MVP/us2_3.md
+          - US2.5: organizacao_e_planejamento/MVP/us2_5.md
+          - US2.6: organizacao_e_planejamento/MVP/us2_6.md
+          - US2.7: organizacao_e_planejamento/MVP/us2_7.md
+          - US2.8: organizacao_e_planejamento/MVP/us2_8.md
+          - US2.9: organizacao_e_planejamento/MVP/us2_9.md
+          - US2.10: organizacao_e_planejamento/MVP/us2_10.md
+          - US2.11: organizacao_e_planejamento/MVP/us2_11.md
+          - US3.1: organizacao_e_planejamento/MVP/us3_1.md
+          - US3.2: organizacao_e_planejamento/MVP/us3_2.md
+          - US3.3: organizacao_e_planejamento/MVP/us3_3.md
+          - US3.4: organizacao_e_planejamento/MVP/us3_4.md
   - Lições Aprendidas:
       - Unidade 1: projeto/licoes/unidade1.md
       - Unidade 2: projeto/licoes/unidade2.md

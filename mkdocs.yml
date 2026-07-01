@@ -60,6 +60,8 @@ nav:
       - Definição de Pronto e Aceito: projeto/DoR_DoD.md
       - Backlog do Produto: projeto/backlog_produto.md
       - Histórico de Melhorias: projeto/historico_de_melhorias.md
+      - Rastreabilidade de Requisitos: projeto/rastreabilidade.md
+      - Quadro de MVP (Evidências): projeto/mvp.md
       - Referências Bibliográficas: projeto/referencias.md
   - Lições Aprendidas:
       - Unidade 1: projeto/licoes/unidade1.md

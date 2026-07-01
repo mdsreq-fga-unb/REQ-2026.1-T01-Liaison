@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../context/AuthContext';
@@ -11,23 +10,18 @@ import { getDashboard } from '../services/opportunities';
 import { colors } from '../theme/colors';
 import { fontFamilies } from '../theme/typography';
 import MyApplicationsScreen from '../screens/student/MyApplicationsScreen';
+import SavedOpportunitiesScreen from '../screens/student/SavedOpportunitiesScreen';
 
 const Tab = createBottomTabNavigator();
-
-function PlaceholderScreen({ title }: { title: string }) {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>{title}</Text>
-    </View>
-  );
-}
 
 export default function StudentTabNavigator() {
   const { accessToken } = useAuth();
   const [savedCount, setSavedCount] = useState(0);
   const [activeCount, setActiveCount] = useState(0);
 
-  useEffect(() => {
+  // Recarrega os contadores do menu. Chamado no mount e a cada foco de aba
+  // (ex.: salvar/remover uma vaga em Explorar reflete no badge de Salvos).
+  const refreshCounts = useCallback(() => {
     if (!accessToken) return;
     getDashboard(accessToken)
       .then(d => {
@@ -37,11 +31,16 @@ export default function StudentTabNavigator() {
       .catch(() => {});
   }, [accessToken]);
 
+  useEffect(() => {
+    refreshCounts();
+  }, [refreshCounts]);
+
   const insets = useSafeAreaInsets();
   const bottomPad = Math.max(insets.bottom, 8);
 
   return (
     <Tab.Navigator
+      screenListeners={{ focus: refreshCounts }}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.brand.gold,
@@ -79,7 +78,7 @@ export default function StudentTabNavigator() {
       />
       <Tab.Screen
         name="Salvos"
-        component={() => <PlaceholderScreen title="Salvos" />}
+        component={SavedOpportunitiesScreen}
         options={{
           tabBarBadge: savedCount > 0 ? savedCount : undefined,
           tabBarIcon: ({ color }) => (

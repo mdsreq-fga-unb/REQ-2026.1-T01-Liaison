@@ -18,26 +18,30 @@ A numeração das User Stories segue o padrão `US<CP#>.<sequencial>`, vinculand
 
 | RF | User Story derivada | CP vinculada | RNFs relacionados |
 | :--- | :--- | :---: | :--- |
-| **RF01 Cadastrar estudante** | **US1.1** Como estudante universitário, desejo me cadastrar na plataforma para poder buscar e me candidatar a vagas de voluntariado. | CP01 | **US1.1:** RNF01, RNF04 |
-| **RF02 Cadastrar organização** | **US1.2** Como representante de uma organização social, desejo cadastrar minha organização na plataforma para poder publicar vagas de voluntariado. | CP01 | **US1.2:** RNF01, RNF03, RNF04 |
-| **RF03 Autenticar usuário** | **US1.3** Como usuário (estudante, organização ou administrador), desejo fazer login na plataforma de forma segura para acessar funcionalidades específicas do meu perfil. | CP01 | **US1.3:** RNF01, RNF02, RNF04 |
-| **RF04 Gerenciar perfil** | **US1.4** Como estudante, desejo gerenciar e editar meu perfil para manter minhas informações atualizadas e relevantes para oportunidades de voluntariado.<br><br>**US1.5** Como organização, desejo editar meu perfil institucional para manter as informações da organização atualizadas e atrativas para estudantes voluntários. | CP01 | **US1.4:** RNF04<br><br>**US1.5:** RNF04 |
-| **RF05 Recuperar senha** | **US1.6** Como usuário, desejo recuperar minha senha via e-mail para poder acessar minha conta caso esqueça a senha. | CP01 | **US1.6:** RNF01, RNF04 |
-| **RF06 Moderar organização** | **US1.7** Como administrador (Sysmin), desejo ter um painel para moderar cadastros de organizações sociais para garantir a legitimidade das organizações na plataforma. | CP01 | **US1.7:** RNF04 |
-| **RF18 Criar oportunidade** | **US2.1** Como organização, desejo criar novas vagas de voluntariado para atrair estudantes interessados em participar das atividades da organização. | CP02 | **US2.1:** RNF04 |
-| **RF19 Editar oportunidade** | **US2.2** Como organização, desejo editar informações de vagas de voluntariado existentes para mantê-las atualizadas. | CP02 | **US2.2:** RNF04 |
-| **RF20 Publicar oportunidade** | **US2.3** Como organização, desejo publicar vagas de voluntariado para que fiquem visíveis aos estudantes. | CP02 | **US2.3:** RNF04 |
-| **RF21 Encerrar oportunidade** | **US2.4** Como organização, desejo encerrar vagas de voluntariado quando não houver mais necessidade. | CP02 | **US2.4:** RNF04 |
-| **RF08 Buscar vaga** | **US2.5** Como estudante, desejo buscar e filtrar vagas de voluntariado para encontrar oportunidades que correspondam ao meu interesse e disponibilidade. | CP02 | **US2.5:** RNF04, RNF05, RNF06 |
-| **RF09 Consultar vaga** | **US2.6** Como estudante, desejo visualizar os detalhes completos de uma vaga de voluntariado para decidir se devo me candidatar. | CP02 | **US2.6:** RNF04, RNF06 |
-| **RF10 Realizar candidatura** | **US2.7** Como estudante, desejo me candidatar a uma vaga de voluntariado ativa para participar das atividades da organização. | CP02 | **US2.7:** RNF04 |
-| **RF11 Avaliar candidatura** | **US2.8** Como organização, desejo avaliar as candidaturas dos estudantes para aprovar ou recusar participantes nas vagas de voluntariado. | CP02 | **US2.8:** RNF04 |
-| **RF12 Acompanhar candidatura** | **US2.9** Como estudante, desejo cancelar minha candidatura a uma vaga de voluntariado caso não tenha mais interesse ou disponibilidade.<br><br>**US2.10** Como usuário, desejo receber notificações sobre mudanças de status de candidaturas para me manter informado em tempo hábil. | CP02 | **US2.9:** RNF04<br><br>**US2.10:** RNF04 |
-| **RF13 Listar aprovados** | **US3.1** Como organização, desejo visualizar a lista de estudantes aprovados para cada atividade de voluntariado para gerenciar o acompanhamento e a presença. | CP03 | **US3.1:** RNF04 |
-| **RF14 Registrar frequência** | **US3.2** Como organização, desejo registrar a presença e atestar a carga horária dos estudantes aprovados para documentar a participação nas atividades. | CP03 | **US3.2:** RNF04, RNF08 |
-| **RF15 Emitir certificado** | **US3.3** Como estudante, desejo receber automaticamente meu certificado digital em PDF ao concluir uma atividade de voluntariado.<br><br>**US3.4** Como estudante, desejo exportar meus certificados digitais em formato PDF para comprovação acadêmica. | CP03 | **US3.3:** RNF07, RNF08, RNF09<br><br>**US3.4:** RNF04, RNF07, RNF09 |
-| **RF16 Consultar histórico** | **US3.5** Como estudante, desejo visualizar meu histórico de horas de voluntariado para acompanhar minha evolução.<br><br>**US3.6** Como estudante, desejo fazer download dos meus certificados de voluntariado para comprovação acadêmica. | CP03 | **US3.5:** RNF04<br><br>**US3.6:** RNF04, RNF07 |
-| **RF17 Validar certificado** | **US3.7** Como qualquer pessoa, desejo acessar um portal público para validar a autenticidade de um certificado por meio de URL ou QR Code. | CP03 | **US3.7:** RNF04, RNF09 |
+| **RF01 Cadastrar estudante** | **US1.1** Como estudante universitário, desejo me cadastrar na plataforma para poder buscar e me candidatar a vagas de voluntariado. | CP01 | RNF01, RNF02 |
+| **RF02 Cadastrar organização** | **US1.2** Como representante de uma organização social, desejo cadastrar minha organização na plataforma para poder publicar vagas de voluntariado. | CP01 | RNF01, RNF03 |
+| **RF03 Autenticar usuário** | **US1.3** Como usuário (estudante, organização ou administrador), desejo fazer login na plataforma de forma segura para acessar funcionalidades específicas do meu perfil. | CP01 | RNF01, RNF02 |
+| **RF04 Gerenciar perfil de Estudante** | **US1.4** Como estudante, desejo gerenciar e editar meu perfil para manter minhas informações atualizadas e relevantes para oportunidades de voluntariado. | CP01 | RNF04 |
+| **RF05 Gerenciar perfil de Organização** | **US1.5** Como organização, desejo editar meu perfil institucional para manter as informações da organização atualizadas e atrativas para estudantes voluntários. | CP01 | RNF04 |
+| **RF06 Recuperar senha** | **US1.6** Como usuário, desejo recuperar minha senha via e-mail para poder acessar minha conta caso esqueça a senha. | CP01 | RNF01 |
+| **RF07 Moderar organização** | **US1.7** Como administrador (Sysmin), desejo ter um painel para moderar cadastros de organizações sociais para garantir a legitimidade das organizações na plataforma. | CP01 | RNF04 |
+| **RF21 Criar oportunidade** | **US2.1** Como organização, desejo criar novas vagas de voluntariado para atrair estudantes interessados em participar das atividades da organização. | CP02 | RNF04, RNF06 |
+| **RF22 Editar oportunidade** | **US2.2** Como organização, desejo editar informações de vagas de voluntariado existentes para mantê-las atualizadas. | CP02 | RNF04 |
+| **RF23 Publicar oportunidade** | **US2.3** Como organização, desejo publicar vagas de voluntariado para que fiquem visíveis aos estudantes. | CP02 | RNF04 |
+| **RF24 Encerrar oportunidade** | **US2.4** Como organização, desejo encerrar vagas de voluntariado quando não houver mais necessidade. | CP02 | RNF04 |
+| **RF08 Buscar vaga** | **US2.5** Como estudante, desejo buscar e filtrar vagas de voluntariado para encontrar oportunidades que correspondam ao meu interesse e disponibilidade. | CP02 | RNF04, RNF05, RNF06 |
+| **RF09 Consultar vaga** | **US2.6** Como estudante, desejo visualizar os detalhes completos de uma vaga de voluntariado para decidir se devo me candidatar. | CP02 | RNF04 |
+| **RF10 Realizar candidatura** | **US2.7** Como estudante, desejo me candidatar a uma vaga de voluntariado ativa para participar das atividades da organização. | CP02 | RNF04, RNF06 |
+| **RF11 Avaliar candidatura** | **US2.8** Como organização, desejo avaliar as candidaturas dos estudantes para aprovar ou recusar participantes nas vagas de voluntariado. | CP02 | RNF04, RNF06 |
+| **RF12 Cancelar candidatura** | **US2.9** Como estudante, desejo cancelar minha candidatura a uma vaga de voluntariado caso não tenha mais interesse ou disponibilidade. | CP02 | RNF04 |
+| **RF13 Notificar candidatura** | **US2.10** Como usuário, desejo receber notificações sobre mudanças de status de candidaturas. | CP02 | RNF04 |
+| **RF14 Listar aprovados** | **US3.1** Como organização, desejo visualizar a lista de estudantes aprovados para cada atividade de voluntariado para gerenciar o acompanhamento e a presença. | CP03 | RNF04, RNF08 |
+| **RF15 Registrar frequência** | **US3.2** Como organização, desejo registrar a presença e atestar a carga horária dos estudantes aprovados para documentar a participação nas atividades. | CP03 | RNF04, RNF08 |
+| **RF16 Emitir certificado** | **US3.3** Como estudante, desejo receber automaticamente meu certificado digital em PDF ao concluir uma atividade de voluntariado. | CP03 | RNF07, RNF08, RNF09 |
+| **RF17 Compartilhar certificado** | **US3.4** Como estudante, desejo exportar meus certificados digitais em formato PDF para comprovação acadêmica. | CP03 | RNF07, RNF08, RNF09 |
+| **RF18 Consultar histórico** | **US3.5** Como estudante, desejo visualizar meu histórico de horas de voluntariado para acompanhar minha evolução. | CP03 | RNF04, RNF07, RNF08 |
+| **RF19 Compartilhar histórico**  | **US3.6** Como estudante, desejo fazer download dos meus certificados de voluntariado para comprovação acadêmica. | CP03 | RNF04, RNF07, RNF08 |
+| **RF20 Validar certificado** | **US3.7** Como qualquer pessoa, desejo acessar um portal público para validar a autenticidade de um certificado por meio de URL ou QR Code. | CP03 | RNF07, RNF09 |
 
 ## 10.2 Priorização do Backlog
 

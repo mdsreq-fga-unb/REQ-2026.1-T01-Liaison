@@ -15,6 +15,10 @@ jest.mock('@react-navigation/native', () => ({
 
 jest.mock('expo-linear-gradient', () => ({ LinearGradient: 'LinearGradient' }), { virtual: true });
 
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 // Mutable auth state so each test can tweak role / isAuthenticated.
 const mockAuth: any = {
   user: { id: '1', email: 'a@b.com', nome: 'João', role: 'estudante' },

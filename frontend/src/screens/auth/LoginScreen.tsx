@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -91,35 +92,37 @@ export default function LoginScreen() {
         enableAutomaticScroll
         extraScrollHeight={90}
       >
-        {/* ── Hero Section (navy, h=212) ── */}
-        <View style={styles.hero}>
-          <Text style={styles.heroLabel}>Para estudantes universitários</Text>
-          <Text style={styles.heroTitle}>
-            Conecte seu{' '}
-            <Text style={styles.heroTitleAccent}>aprendizado</Text>{' '}
-            ao mundo real
-          </Text>
-          <Text style={styles.heroDesc}>
-            Descubra oportunidades de voluntariado e cumpra suas horas de extensão — tudo em um só lugar.
-          </Text>
-          <View style={styles.heroDecorCircle} />
-        </View>
+        <LinearGradient colors={[colors.header.gradientFrom, colors.header.gradientTo]}>
+          {/* ── Hero Section (navy, h=212) ── */}
+          <View style={styles.hero}>
+            <Text style={styles.heroLabel}>Para estudantes universitários</Text>
+            <Text style={styles.heroTitle}>
+              Conecte seu{' '}
+              <Text style={styles.heroTitleAccent}>aprendizado</Text>{' '}
+              ao mundo real
+            </Text>
+            <Text style={styles.heroDesc}>
+              Descubra oportunidades de voluntariado e cumpra suas horas de extensão — tudo em um só lugar.
+            </Text>
+            <View style={styles.heroDecorCircle} />
+          </View>
 
-        {/* ── Stats Bar ── */}
-        <View testID="stats-bar" style={styles.statsBar}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>340+</Text>
-            <Text style={styles.statLabel}>Oportunidades</Text>
+          {/* ── Stats Bar ── */}
+          <View testID="stats-bar" style={styles.statsBar}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>340+</Text>
+              <Text style={styles.statLabel}>Oportunidades</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>82</Text>
+              <Text style={styles.statLabel}>Organizações</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>4.8k</Text>
+              <Text style={styles.statLabel}>Estudantes</Text>
+            </View>
           </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>82</Text>
-            <Text style={styles.statLabel}>Organizações</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>4.8k</Text>
-            <Text style={styles.statLabel}>Estudantes</Text>
-          </View>
-        </View>
+        </LinearGradient>
 
         {/* ── Form Section (cream bg) ── */}
         <View style={styles.mainContent}>
@@ -255,14 +258,14 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.neutral.bg },
-  safeTop: { backgroundColor: colors.brand.navy },
+  safeTop: { backgroundColor: colors.header.gradientFrom },
   flex1: { flex: 1, backgroundColor: colors.neutral.bg },
   scrollContent: { flexGrow: 1 },
 
   /* ═══ FIXED HEADER ═══ */
 
   headerBar: {
-    backgroundColor: colors.brand.navy, height: 93.6,
+    backgroundColor: colors.header.gradientFrom, height: 93.6,
     justifyContent: 'center', overflow: 'hidden', position: 'relative', borderBottomWidth: 0.5, borderBottomColor: 'rgba(255,255,255,0.06)'
   },
   logoIconBg: {
@@ -288,7 +291,7 @@ const styles = StyleSheet.create({
   },
 
   hero: {
-    backgroundColor: colors.brand.navy, height: 212, paddingHorizontal: 24,
+    height: 212, paddingHorizontal: 24,
     justifyContent: 'center', overflow: 'hidden', position: 'relative',
   },
   heroLabel: {
@@ -310,7 +313,7 @@ const styles = StyleSheet.create({
   },
 
   statsBar: {
-    backgroundColor: colors.brand.navy, flexDirection: 'row',
+    flexDirection: 'row',
     paddingTop: 21, paddingBottom: 24, paddingHorizontal: 24,
     borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)',
   },

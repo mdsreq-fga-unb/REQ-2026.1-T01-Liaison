@@ -13,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../context/AuthContext';
 import ImageViewer from '../../components/profile/ImageViewer';
@@ -124,6 +125,7 @@ function scheduleDesc(item: ScheduleItem | string): string {
 export default function OpportunityDetailScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+  const insets = useSafeAreaInsets();
   const { id } = route.params ?? {};
   const { accessToken, user, isAuthenticated } = useAuth();
 
@@ -256,7 +258,7 @@ export default function OpportunityDetailScreen() {
   return (
     <View style={styles.container}>
       {/* Top bar */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity testID="back-button" style={styles.backRow} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={22} color={colors.brand.navy} />
           <Text style={styles.backText}>Voltar</Text>
@@ -664,7 +666,7 @@ const styles = StyleSheet.create({
 
   topBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingTop: 50, paddingBottom: 12, paddingHorizontal: 16,
+    paddingBottom: 12, paddingHorizontal: 16,
     backgroundColor: colors.neutral.bg,
   },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },

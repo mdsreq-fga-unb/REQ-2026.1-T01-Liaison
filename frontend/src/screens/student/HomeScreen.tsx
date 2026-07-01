@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AdvancedFiltersModal, { AdvancedFilters } from '../../components/ui/AdvancedFiltersModal';
 import CategoryPill from '../../components/ui/CategoryPill';
@@ -82,6 +83,7 @@ interface OpportunityData {
 export default function StudentHomeScreen() {
   const { accessToken } = useAuth();
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
 
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [categories, setCategories] = useState<CategoryData[]>([]);
@@ -218,7 +220,7 @@ export default function StudentHomeScreen() {
       {/* Navy gradient header */}
       <LinearGradient
         colors={[colors.header.gradientFrom, colors.header.gradientTo]}
-        style={styles.header}
+        style={[styles.header, { paddingTop: insets.top + 12 }]}
       >
         {/* Decorative rings */}
         <View pointerEvents="none" style={styles.ringTopRight} />
@@ -403,7 +405,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   header: {
-    paddingTop: 56,
     paddingHorizontal: 20,
     paddingBottom: 40,
     borderBottomLeftRadius: 24,

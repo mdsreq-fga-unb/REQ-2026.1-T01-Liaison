@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Directory, File, Paths } from 'expo-file-system';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as Sharing from 'expo-sharing';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -108,7 +108,8 @@ export default function MyApplicationsScreen() {
     setRefreshing(false);
   }, [load]);
 
-  useEffect(() => { load(); }, [load]);
+  // Recarrega ao focar a aba (pull-to-refresh não existe na web).
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const handleConfirmCancel = useCallback(async () => {
     if (!accessToken || !cancelTarget) return;

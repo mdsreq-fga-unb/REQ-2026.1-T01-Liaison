@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 import { useAuth } from '../../context/AuthContext';
 import GalleryPreview from '../../components/profile/GalleryPreview';
@@ -66,9 +66,12 @@ export default function StudentProfileScreen() {
     }
   }, [accessToken, tryRefreshSession]);
 
-  useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
+  // Recarrega ao focar a aba (pull-to-refresh não existe na web).
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [loadProfile])
+  );
 
   function handleRefresh() {
     setRefreshing(true);

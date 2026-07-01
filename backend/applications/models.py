@@ -36,6 +36,8 @@ class Application(models.Model):
     )
     hours_completed = models.PositiveIntegerField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+    # Justificativa opcional da avaliação (visível para o estudante na recusa/aprovação).
+    evaluation_note = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -1,0 +1,35 @@
+from django.urls import path
+
+from .views import ApplicationViewSet, OpportunityApplicationsViewSet
+
+urlpatterns = [
+    path(
+        "",
+        ApplicationViewSet.as_view({"get": "list", "post": "create"}),
+        name="application-list",
+    ),
+    # RF12/US2.9 — cancelar candidatura pendente (estudante)
+    path(
+        "<uuid:pk>/cancel/",
+        ApplicationViewSet.as_view({"patch": "cancel"}),
+        name="application-cancel",
+    ),
+    # RF11 — listar candidatos de uma vaga (organização)
+    path(
+        "opportunities/<uuid:opportunity_id>/",
+        OpportunityApplicationsViewSet.as_view({"get": "list_by_opportunity"}),
+        name="application-list-by-opportunity",
+    ),
+    # RF11 — aprovar/recusar candidatura (organização)
+    path(
+        "<uuid:pk>/evaluate/",
+        OpportunityApplicationsViewSet.as_view({"patch": "evaluate"}),
+        name="application-evaluate",
+    ),
+    # RF14 — registrar frequência/carga horária (organização)
+    path(
+        "<uuid:pk>/complete/",
+        OpportunityApplicationsViewSet.as_view({"patch": "complete"}),
+        name="application-complete",
+    ),
+]

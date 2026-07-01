@@ -56,7 +56,7 @@ Como **<persona>**, quero **<ação>** para **<benefício>**
 ---
 
 ## Requisitos Técnicos
-- <restrições arquiteturais do PROJECT_CONTEXT.md>
+- <restrições arquiteturais (ver CLAUDE.md / context/ARCH.md / context/DECISIONS.md)>
 - <stack, performance, segurança, etc.>
 - <endpoints de API esperados, se aplicável>
 

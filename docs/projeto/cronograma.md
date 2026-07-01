@@ -178,11 +178,12 @@ TOTAL (28 USs)           ████████░░  82%  (23/28)
 | :--- | :---: | :---: | :---: |
 | R1 — Fundação | 26/05/2026 | 0%** | 86% |
 | R2 — Perfis e Conexão | 16/06/2026 | 25% | 91% (núcleo) |
-| R3 — Gestão e Triagem | 30/06/2026 | 43% | — (fundida à análise de R4 abaixo) |
-| R4 — Certificação | 14/07/2026 | — (prazo não vencido) | 57% |
+| R3 — Gestão e Triagem | 30/06/2026 | 43% | 57% (combinado com R4)*** |
+| R4 — Certificação | 14/07/2026 | — (prazo não vencido) | 57% (combinado com R3)*** |
 
 \* Percentual do total de 28 USs entregues até a data planejada de cada release, não apenas as USs daquela release.
 \*\* R1 foi concluída poucos dias após sua data planejada (última entrega de R1 em 15/06); o "0%" reflete que a primeira entrega registrada (US1.1) ocorreu em 31/05, 5 dias após a data-alvo de 26/05.
+\*\*\* R3 e R4 são tratadas como um bloco único nesta análise (seção 5.2.3), pois suas USs formam uma cadeia de dependência contínua (triagem → frequência → certificação). O 57% representa 4 de 7 USs combinadas das duas releases, não um cálculo isolado por release.
 
 **Leitura do gráfico:** o ritmo de entregas foi historicamente abaixo do planejado até meados de junho (R1 atrasou ~5 dias; R2 estava em apenas 25% na sua própria data-alvo), mas houve uma concentração muito forte de entregas em 29-30/06 e 01/07 — 17 das 23 USs entregues (74% de tudo que foi entregue) saíram nos últimos 3 dias antes desta atualização. Isso confirma o desvio já registrado na seção 5.2: o cronograma documentado ficou defasado em relação ao ritmo real, que se acelerou abruptamente perto do prazo de R3/R4.
 

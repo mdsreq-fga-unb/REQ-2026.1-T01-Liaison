@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "opportunities",
     "applications",
     "certificates",
+    "notifications",
 ]
 
 MIDDLEWARE = [
@@ -138,6 +139,10 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Media files (user uploads: avatars, banners, gallery)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
@@ -192,6 +197,19 @@ CORS_ALLOWED_ORIGINS = config(
     cast=Csv(),
 )
 CORS_ALLOW_CREDENTIALS = True
+
+# ─── Certificados ─────────────────────────────────────────────
+# URL base do portal público de validação (servido pelo próprio backend em
+# /validar/). O QR Code do certificado escreve "{base}/{validation_uuid}" no
+# PDF, NA EMISSÃO (congela; mudar a env não reescreve PDFs já emitidos).
+#
+# ⚠️ OBRIGATÓRIO setar em produção com endereço alcançável pela internet
+# (domínio estável de preferência, não IP que muda). O default abaixo é só pra
+# dev: "localhost" aponta pro aparelho de quem lê o QR (loopback), não pro
+# servidor → todo QR fica quebrado se subir em prod sem trocar isto.
+CERT_VALIDATION_BASE_URL = config(
+    "CERT_VALIDATION_BASE_URL", default="http://localhost:8000/validar"
+)
 
 # ─── S3 Storage (mídia de usuários) ───────────────────────────
 # Ativado só quando USE_S3=True (servidor de produção). Em ambiente

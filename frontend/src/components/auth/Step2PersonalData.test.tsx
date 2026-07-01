@@ -111,11 +111,25 @@ describe('Step2PersonalData', () => {
     // select universidade
     fireEvent.press(screen.getByTestId('select-universidade'));
     fireEvent.press(screen.getByText('Universidade de Brasília (UnB)'));
+    // select semestre (obrigatorio)
+    fireEvent.press(screen.getByTestId('select-semestre'));
+    fireEvent.press(screen.getByText('5º Semestre'));
 
     fireEvent.press(screen.getByText('Continuar'));
     await waitFor(() => {
       expect(onContinue).toHaveBeenCalled();
     });
+  });
+
+  it('shows error when semestre is empty and Continue is pressed', () => {
+    render(<Step2PersonalData {...defaultProps} />);
+    fireEvent.press(screen.getByText('Continuar'));
+    expect(screen.getByText(/semestre.*obrigatório/i)).toBeTruthy();
+  });
+
+  it('renders required asterisk on Semestre atual label', () => {
+    render(<Step2PersonalData {...defaultProps} />);
+    expect(screen.getByText(/Semestre atual\s*\*/)).toBeTruthy();
   });
 
   it('renders progress bar with step 2 active', () => {

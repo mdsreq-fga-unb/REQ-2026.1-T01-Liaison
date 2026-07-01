@@ -6,7 +6,7 @@ from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from django.db.models import Count, Exists, OuterRef, Q
+from django.db.models import Count, Exists, OuterRef, Q, Subquery
 
 from .models import Opportunity, SavedOpportunity
 from .serializers import (
@@ -323,6 +323,30 @@ class OpportunityViewSet(viewsets.ModelViewSet):
             {"detail": "Vaga reaberta com sucesso.", "status": opportunity.status}
         )
 
+    @action(detail=False, methods=["get"], url_path="saved", pagination_class=None)
+    def saved(self, request):
+        """Lista as vagas salvas pelo estudante autenticado (mais recente primeiro)."""
+        if request.user.role != "estudante" or not hasattr(request.user, "student_profile"):
+            return Response(
+                {"detail": "Apenas estudantes podem listar vagas salvas."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        profile = request.user.student_profile
+        saved = SavedOpportunity.objects.filter(student=profile, opportunity=OuterRef("pk"))
+        qs = (
+            Opportunity.objects.filter(saved_by__student=profile)
+            .select_related("organization")
+            .prefetch_related("photos")
+            .annotate(
+                _applicants_count=Count("applications", distinct=True),
+                _is_saved=Exists(saved),
+                _saved_at=Subquery(saved.values("saved_at")[:1]),
+            )
+            .order_by("-_saved_at")
+        )
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
 
 class MyOpportunitiesList(generics.ListAPIView):
     serializer_class = OpportunitySerializer
@@ -332,7 +356,22 @@ class MyOpportunitiesList(generics.ListAPIView):
         user = self.request.user
         if user.role != "organizacao" or not hasattr(user, 'organization_profile'):
             return Opportunity.objects.none()
-        return Opportunity.objects.filter(organization__user=user)
+        # Anota contagens por status p/ a tela Candidatos (chips aguardando/aprovados/recusados).
+        return (
+            Opportunity.objects.filter(organization__user=user)
+            .annotate(
+                _applicants_count=Count("applications"),
+                _applicants_pending=Count(
+                    "applications", filter=Q(applications__status="pending")
+                ),
+                _applicants_approved=Count(
+                    "applications", filter=Q(applications__status="approved")
+                ),
+                _applicants_rejected=Count(
+                    "applications", filter=Q(applications__status="rejected")
+                ),
+            )
+        )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

@@ -15,6 +15,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import GalleryPreview from '../../components/profile/GalleryPreview';
 import ImageViewer from '../../components/profile/ImageViewer';
+import OrgHeader from '../../components/ui/OrgHeader';
 import { colors } from '../../theme/colors';
 import { radius, shadows } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
@@ -107,23 +108,15 @@ export default function PublicOrgProfileScreen() {
   if (!profile) return null;
 
   const displayName = profile.nome_fantasia || profile.razao_social;
-  const openPositionsCount = (profile.open_positions as any[])?.length ?? 0;
 
   return (
     <View style={styles.root}>
-      {/* ═══ FIXED: Navy Header ═══ */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerBackButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-          testID="public-org-profile-back-button"
-        >
-          <Ionicons name="arrow-back" size={20} color={colors.neutral.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Perfil da Organização</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <OrgHeader
+        eyebrow="Perfil da organização"
+        title="Perfil"
+        onBack={() => navigation.goBack()}
+        backTestID="public-org-profile-back-button"
+      />
 
       {/* ═══ SCROLLABLE: Profile Content ═══ */}
       <ScrollView
@@ -201,22 +194,6 @@ export default function PublicOrgProfileScreen() {
                 <Text style={styles.locationText}>📍 {profile.endereco}</Text>
               </View>
             ) : null}
-          </View>
-
-          {/* CTA Row */}
-          <View style={styles.ctaRow}>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              activeOpacity={0.8}
-              testID="org-view-positions-button"
-            >
-              <Text style={styles.primaryButtonText}>
-                {'Ver Vagas Abertas' + (openPositionsCount > 0 ? ` (${openPositionsCount})` : '')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.bookmarkButton} activeOpacity={0.7}>
-              <Ionicons name="bookmark-outline" size={20} color={colors.text.primary} />
-            </TouchableOpacity>
           </View>
 
           {/* Stats */}
@@ -409,33 +386,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.button.fontFamily,
     fontSize: 15,
     color: colors.neutral.white,
-  },
-
-  // ── Header ──
-  header: {
-    backgroundColor: colors.brand.navy,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 14,
-  },
-  headerBackButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 18,
-    color: colors.neutral.white,
-  },
-  headerSpacer: {
-    width: 40,
   },
 
   // ── Scroll ──

@@ -18,6 +18,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useAuth } from '../../context/AuthContext';
 import GalleryGrid from '../../components/profile/GalleryGrid';
 import ImageViewer from '../../components/profile/ImageViewer';
+import OrgHeader from '../../components/ui/OrgHeader';
 import { colors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
@@ -324,31 +325,29 @@ export default function OrgProfileEditScreen() {
 
   return (
     <View style={styles.root}>
-      {/* ═══ FIXED: Navy Header ═══ */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerBackButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-          testID="org-edit-back-button"
-        >
-          <Ionicons name="close" size={20} color={colors.neutral.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Editar Organização</Text>
-        <TouchableOpacity
-          testID="org-edit-save-button"
-          style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
-          onPress={handleSave}
-          disabled={isSaving}
-          activeOpacity={0.7}
-        >
-          {isSaving ? (
-            <ActivityIndicator size="small" color={colors.neutral.white} />
-          ) : (
-            <Text style={styles.saveButtonText}>Salvar</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+      <OrgHeader
+        eyebrow="Perfil da organização"
+        title="Editar"
+        accent="perfil"
+        onBack={() => navigation.goBack()}
+        backIcon="close"
+        backTestID="org-edit-back-button"
+        right={
+          <TouchableOpacity
+            testID="org-edit-save-button"
+            style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
+            onPress={handleSave}
+            disabled={isSaving}
+            activeOpacity={0.7}
+          >
+            {isSaving ? (
+              <ActivityIndicator size="small" color={colors.neutral.white} />
+            ) : (
+              <Text style={styles.saveButtonText}>Salvar</Text>
+            )}
+          </TouchableOpacity>
+        }
+      />
 
       {/* ═══ SCROLLABLE: Edit Content ═══ */}
       <KeyboardAwareScrollView
@@ -820,28 +819,6 @@ const styles = StyleSheet.create({
   },
 
   // ── Header ──
-  header: {
-    backgroundColor: colors.brand.navy,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 14,
-  },
-  headerBackButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 18,
-    color: colors.neutral.white,
-  },
   saveButton: {
     backgroundColor: colors.brand.gold,
     paddingHorizontal: 18,

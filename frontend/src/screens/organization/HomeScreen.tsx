@@ -8,17 +8,18 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  Modal,
   ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { typography, fontFamilies } from '../../theme/typography';
 import { getMyOpportunities, publishOpportunity, closeOpportunity, reopenOpportunity, deleteOpportunity } from '../../services/opportunities';
+import OrgHeader from '../../components/ui/OrgHeader';
 
 interface OpportunityData {
   id: string;
@@ -38,7 +39,6 @@ type FilterTab = 'all' | 'active' | 'draft' | 'closed';
 
 export default function OrgHomeScreen() {
   const navigation = useNavigation<any>();
-  const insets = useSafeAreaInsets();
   const { accessToken } = useAuth();
 
   const [opportunities, setOpportunities] = useState<OpportunityData[]>([]);
@@ -46,6 +46,8 @@ export default function OrgHomeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<OpportunityData | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchOpportunities = async () => {
     try {
@@ -56,7 +58,7 @@ export default function OrgHomeScreen() {
         setOpportunities(Array.isArray(data) ? data : (data?.results ?? []));
       }
     } catch (err: any) {
-      setError('Erro ao carregar vagas');
+      setError('Erro ao carregar oportunidades');
       console.warn('API Opportunities Error:', err.message);
     } finally {
       setLoading(false);
@@ -67,7 +69,7 @@ export default function OrgHomeScreen() {
     try {
       if (accessToken) {
         await publishOpportunity(accessToken, id);
-        Alert.alert('Sucesso', 'Sua vaga foi publicada com sucesso!');
+        Alert.alert('Sucesso', 'Sua oportunidade foi publicada com sucesso!');
         fetchOpportunities();
       }
     } catch (err: any) {
@@ -79,7 +81,7 @@ export default function OrgHomeScreen() {
     try {
       if (accessToken) {
         await closeOpportunity(accessToken, id);
-        Alert.alert('Sucesso', 'A vaga foi encerrada.');
+        Alert.alert('Sucesso', 'A oportunidade foi encerrada.');
         fetchOpportunities();
       }
     } catch (err: any) {
@@ -91,7 +93,7 @@ export default function OrgHomeScreen() {
     try {
       if (accessToken) {
         await reopenOpportunity(accessToken, id);
-        Alert.alert('Sucesso', 'Sua vaga foi reaberta!');
+        Alert.alert('Sucesso', 'Sua oportunidade foi reaberta!');
         fetchOpportunities();
       }
     } catch (err: any) {
@@ -99,29 +101,22 @@ export default function OrgHomeScreen() {
     }
   };
 
-  const confirmDelete = (id: string) => {
-    Alert.alert(
-      'Excluir Rascunho',
-      'Tem certeza que deseja excluir este rascunho permanentemente?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              if (accessToken) {
-                await deleteOpportunity(accessToken, id);
-                Alert.alert('Sucesso', 'Rascunho excluído.');
-                fetchOpportunities();
-              }
-            } catch (err: any) {
-              Alert.alert('Erro', err.message);
-            }
-          }
-        }
-      ]
-    );
+  const confirmDelete = (item: OpportunityData) => {
+    setDeleteTarget(item);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!accessToken || !deleteTarget) return;
+    try {
+      setDeleting(true);
+      await deleteOpportunity(accessToken, deleteTarget.id);
+      setDeleteTarget(null);
+      fetchOpportunities();
+    } catch (err: any) {
+      Alert.alert('Erro', err.message ?? 'Falha ao excluir rascunho');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   useFocusEffect(
@@ -280,22 +275,28 @@ export default function OrgHomeScreen() {
           {item.status === 'draft' && (
             <>
               <TouchableOpacity
-                style={[styles.goldOutlineButton, { flex: 1 }]}
+                style={[styles.cardActionBtn, styles.cardActionBtnFull]}
                 onPress={() => navigation.navigate('CreateOpportunity', { draft: item })}
               >
-                <Text style={styles.goldOutlineButtonText}>Continuar{'\n'}editando</Text>
+                <View style={[styles.cardActionBtnInner, styles.cardActionGoldOutline]}>
+                  <Text style={styles.cardActionGoldOutlineText}>Continuar editando</Text>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.navyButton, { flex: 1 }]}
+                style={styles.cardActionBtn}
                 onPress={() => handlePublish(item.id)}
               >
-                <Text style={styles.navyButtonText}>Publicar</Text>
+                <View style={[styles.cardActionBtnInner, styles.cardActionNavy]}>
+                  <Text style={styles.cardActionNavyText}>Publicar</Text>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.redOutlineButton, { flex: 1 }]}
-                onPress={() => confirmDelete(item.id)}
+                style={styles.cardActionBtn}
+                onPress={() => confirmDelete(item)}
               >
-                <Text style={styles.redOutlineButtonText}>Excluir</Text>
+                <View style={[styles.cardActionBtnInner, styles.cardActionRedOutline]}>
+                  <Text style={styles.cardActionRedOutlineText}>Excluir</Text>
+                </View>
               </TouchableOpacity>
             </>
           )}
@@ -303,26 +304,32 @@ export default function OrgHomeScreen() {
           {item.status === 'active' && (
             <>
               <TouchableOpacity
-                style={[styles.goldButton, { flex: 1 }]}
+                style={styles.cardActionBtn}
                 onPress={() => navigation.navigate('CreateOpportunity', { draft: item })}
               >
-                <Text style={styles.goldButtonText}>Editar</Text>
+                <View style={[styles.cardActionBtnInner, styles.cardActionGold]}>
+                  <Text style={styles.cardActionGoldText}>Editar</Text>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.redOutlineButton, { flex: 1 }]}
+                style={styles.cardActionBtn}
                 onPress={() => handleClose(item.id)}
               >
-                <Text style={styles.redOutlineButtonText}>Encerrar</Text>
+                <View style={[styles.cardActionBtnInner, styles.cardActionRedOutline]}>
+                  <Text style={styles.cardActionRedOutlineText}>Encerrar</Text>
+                </View>
               </TouchableOpacity>
             </>
           )}
 
           {item.status === 'closed' && (
             <TouchableOpacity
-              style={[styles.navyOutlineButton, { flex: 1 }]}
+              style={[styles.cardActionBtn, styles.cardActionBtnSingle]}
               onPress={() => handleReopen(item.id)}
             >
-              <Text style={styles.navyOutlineButtonText}>Reabrir</Text>
+              <View style={[styles.cardActionBtnInner, styles.cardActionNavyOutline]}>
+                <Text style={styles.cardActionNavyOutlineText}>Reabrir</Text>
+              </View>
             </TouchableOpacity>
           )}
         </View>
@@ -348,20 +355,21 @@ export default function OrgHomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Status bar area */}
-      <View style={{ height: insets.top, backgroundColor: colors.brand.navy }} />
-
-      {/* Header Banner */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Minhas Vagas</Text>
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={() => navigation.navigate('CreateOpportunity')}
-        >
-          <Ionicons name="add" size={14} color="white" />
-          <Text style={styles.createButtonText}>Criar</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Header */}
+      <OrgHeader
+        eyebrow="Painel da organização"
+        title="Minhas"
+        accent="oportunidades"
+        right={
+          <TouchableOpacity
+            style={styles.createButton}
+            onPress={() => navigation.navigate('CreateOpportunity')}
+          >
+            <Ionicons name="add" size={14} color="white" />
+            <Text style={styles.createButtonText}>Criar</Text>
+          </TouchableOpacity>
+        }
+      />
 
       {/* Tabs */}
       <View style={styles.tabsWrapper}>
@@ -392,7 +400,7 @@ export default function OrgHomeScreen() {
           <Ionicons name="search" size={18} color={colors.text.secondary} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar vagas..."
+            placeholder="Buscar oportunidades..."
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholderTextColor={colors.text.secondary}
@@ -421,41 +429,56 @@ export default function OrgHomeScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Nenhuma vaga encontrada.</Text>
+              <Text style={styles.emptyText}>Nenhuma oportunidade encontrada.</Text>
             </View>
           }
         />
       )}
 
-      {/* FAB */}
-      <TouchableOpacity
-        style={[styles.fab, { bottom: insets.bottom + 80 }]}
-        onPress={() => navigation.navigate('CreateOpportunity')}
+      {/* Delete confirmation modal */}
+      <Modal
+        visible={!!deleteTarget}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDeleteTarget(null)}
       >
-        <Ionicons name="add" size={32} color="white" />
-      </TouchableOpacity>
-
-      {/* Bottom Navigation */}
-      <View style={[styles.bottomNav, { paddingBottom: insets.bottom + 8 }]}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="briefcase" size={24} color={colors.brand.gold} />
-          <Text style={[styles.navText, { color: colors.brand.gold, fontFamily: fontFamilies.dmSansBold }]}>Vagas</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => Alert.alert('Candidatos', 'Selecione uma vaga para ver os candidatos.')}
-        >
-          <Ionicons name="people-outline" size={24} color={colors.text.secondary} />
-          <Text style={styles.navText}>Candidatos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => navigation.navigate('OrgProfile')}
-        >
-          <Ionicons name="person-outline" size={24} color={colors.text.secondary} />
-          <Text style={styles.navText}>Perfil</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconWrap}>
+              <Ionicons name="warning-outline" size={28} color="#c0392b" />
+            </View>
+            <Text style={styles.modalTitle}>Excluir rascunho?</Text>
+            <Text style={styles.modalBody}>
+              {'Tem certeza que deseja excluir o rascunho '}
+              <Text style={styles.modalBodyBold}>{deleteTarget?.title}</Text>
+              {'? Esta ação não pode ser desfeita.'}
+            </Text>
+            <View style={styles.modalBtns}>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalBtnBack]}
+                onPress={() => setDeleteTarget(null)}
+                activeOpacity={0.7}
+                disabled={deleting}
+              >
+                <Text style={styles.modalBtnBackText}>Voltar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                testID="confirm-delete-button"
+                style={[styles.modalBtn, styles.modalBtnConfirm, deleting && { opacity: 0.6 }]}
+                onPress={handleConfirmDelete}
+                activeOpacity={0.7}
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <ActivityIndicator size="small" color={colors.neutral.white} />
+                ) : (
+                  <Text style={styles.modalBtnConfirmText}>Sim, excluir</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -687,49 +710,75 @@ const styles = StyleSheet.create({
   },
   actionsRow: {
     flexDirection: 'row',
-    gap: 10,
+    flexWrap: 'wrap',
+    gap: 8,
     marginBottom: 12,
   },
-  goldButton: {
-    backgroundColor: colors.brand.gold,
+  cardActionBtn: {
+    flex: 1,
+    minWidth: 90,
+  },
+  cardActionBtnSingle: {
+    width: '100%',
+  },
+  cardActionBtnFull: {
+    flexBasis: '100%',
+  },
+  cardActionBtnInner: {
     borderRadius: 999,
-    height: 36,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
   },
-  goldButtonText: {
+  cardActionNavy: {
+    backgroundColor: colors.brand.navy,
+  },
+  cardActionNavyText: {
     fontFamily: fontFamilies.dmSansBold,
-    fontSize: 13,
+    fontSize: 12,
     color: colors.neutral.white,
+    textAlign: 'center',
   },
-  goldOutlineButton: {
+  cardActionGold: {
+    backgroundColor: colors.brand.gold,
+  },
+  cardActionGoldText: {
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 12,
+    color: colors.neutral.white,
+    textAlign: 'center',
+  },
+  cardActionGoldOutline: {
     borderWidth: 1,
     borderColor: colors.brand.gold,
-    borderRadius: 999,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 12,
   },
-  goldOutlineButtonText: {
+  cardActionGoldOutlineText: {
     fontFamily: fontFamilies.dmSansBold,
-    fontSize: 13,
+    fontSize: 12,
     color: colors.brand.gold,
     textAlign: 'center',
   },
-  navyButton: {
-    backgroundColor: colors.brand.navy,
-    borderRadius: 999,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 16,
+  cardActionRedOutline: {
+    borderWidth: 1,
+    borderColor: '#dc2626',
   },
-  navyButtonText: {
+  cardActionRedOutlineText: {
     fontFamily: fontFamilies.dmSansBold,
-    fontSize: 13,
-    color: colors.neutral.white,
+    fontSize: 12,
+    color: '#c0392b',
+    textAlign: 'center',
+  },
+  cardActionNavyOutline: {
+    borderWidth: 1,
+    borderColor: colors.brand.navy,
+  },
+  cardActionNavyOutlineText: {
+    fontFamily: fontFamilies.dmSansBold,
+    fontSize: 12,
+    color: colors.brand.navy,
+    textAlign: 'center',
   },
   navyOutlineButton: {
     borderWidth: 1,
@@ -744,20 +793,6 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.dmSansBold,
     fontSize: 13,
     color: colors.brand.navy,
-  },
-  redOutlineButton: {
-    borderWidth: 1,
-    borderColor: '#dc2626',
-    borderRadius: 999,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  redOutlineButtonText: {
-    fontFamily: fontFamilies.dmSansBold,
-    fontSize: 13,
-    color: '#c0392b',
   },
   footerInfo: {
     fontFamily: fontFamilies.dmSansMedium,
@@ -777,39 +812,50 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.text.secondary,
   },
-  fab: {
-    position: 'absolute',
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.brand.navy,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: colors.brand.navy,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-  },
   bottomNav: {
     flexDirection: 'row',
     backgroundColor: colors.neutral.white,
     borderTopWidth: 1,
     borderTopColor: colors.neutral.border,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   navItem: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 4,
+    paddingVertical: 4,
   },
   navText: {
     fontFamily: fontFamilies.dmSansMedium,
     fontSize: 11,
     color: colors.text.secondary,
-    marginTop: 4,
   },
+  navTextActive: {
+    fontFamily: fontFamilies.dmSansBold,
+    color: colors.brand.gold,
+  },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(13,20,36,0.55)', alignItems: 'center', justifyContent: 'center' },
+  modalCard: {
+    width: 322, backgroundColor: colors.neutral.white,
+    borderRadius: 22, paddingHorizontal: 22, paddingTop: 26, paddingBottom: 20,
+    alignItems: 'center', gap: 14,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.28, shadowRadius: 22, elevation: 12,
+  },
+  modalIconWrap: {
+    width: 58, height: 58, borderRadius: 29,
+    backgroundColor: '#fdecea', alignItems: 'center', justifyContent: 'center',
+  },
+  modalTitle: { fontFamily: fontFamilies.playfairBold, fontSize: 19, color: colors.text.primary, textAlign: 'center' },
+  modalBody: { fontFamily: fontFamilies.dmSansRegular, fontSize: 13, color: colors.text.secondary, textAlign: 'center', lineHeight: 19.5, width: 278 },
+  modalBodyBold: { fontFamily: fontFamilies.dmSansBold },
+  modalBtns: { flexDirection: 'row', gap: 10, paddingTop: 6, width: 278 },
+  modalBtn: { flex: 1, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  modalBtnBack: { borderWidth: 1, borderColor: colors.brand.navy, backgroundColor: colors.neutral.white },
+  modalBtnBackText: { fontFamily: fontFamilies.dmSansSemiBold, fontSize: 13, color: colors.brand.navy },
+  modalBtnConfirm: { backgroundColor: '#c0392b' },
+  modalBtnConfirmText: { fontFamily: fontFamilies.dmSansSemiBold, fontSize: 13, color: colors.neutral.white },
 });

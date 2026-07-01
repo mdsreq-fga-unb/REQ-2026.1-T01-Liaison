@@ -28,7 +28,7 @@ describe('CreateOpportunityScreen', () => {
     fireEvent.press(getByText('Próximo →'));
     
     // Check if we are on step 3
-    expect(getByText('📸 Fotos da Atividade')).toBeTruthy();
+    expect(getByText('Fotos da Atividade')).toBeTruthy();
     
     // Add requirement
     const inputs = getAllByPlaceholderText('Ex: Ter notebook próprio');

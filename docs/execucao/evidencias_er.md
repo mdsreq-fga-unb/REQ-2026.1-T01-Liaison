@@ -3,9 +3,10 @@
 ## Fase 1 - Planejamento de Requisitos
 
 ### Elicitação e Descoberta
-Foi feita descobrindo na primeira reunião com o Cliente descobrindo quais eram as dores por parte das organizações:
+Realizamos a primeira reunião com o Cliente (Pastor Valdemir) para mapear o fluxo manual atual de voluntariado e descobrir as principais dores das organizações.
 
-* [Ata de Reunião 03: Elicitação com o Cliente](atas/ata_03_elicitaçao_valdemir_12_04.md)
+* **Evidência:** [Ata de Reunião 03: Elicitação com o Cliente](atas/ata_01_elicitaçao_valdemir_12_04.md)
+  > **O que esta Ata evidencia?** A primeira **entrevista e validação inicial com o cliente**, comprovando a descoberta dos requisitos originais do projeto.
 
 ### Declaração dos Requisitos
 * [Requisitos declarados](docs/projeto/requisitos_software.md)

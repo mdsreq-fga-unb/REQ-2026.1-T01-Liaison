@@ -1,5 +1,9 @@
 # Ata de Reunião: Organização e Modelagem de Requisitos
 
+**📌 O que esta ata e o vídeo abaixo evidenciam?**
+> Esta ata e vídeo servem como evidência de **Planejamento da Sprint e Organização Interna** da equipe.
+
+
 ## 📹 Gravação do Encontro
 *(Substitua pelo link real do Drive ou YouTube)*
 <iframe width="100%" height="400" src="https://www.youtube.com/embed/SEU_LINK_AQUI" title="Gravação da Reunião" frameborder="0" allowfullscreen></iframe>

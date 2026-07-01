@@ -1,5 +1,9 @@
 # Ata de Reunião: Monitoria e Desenho de Processos
 
+**📌 O que esta ata e o vídeo abaixo evidenciam?**
+> Esta ata e vídeo servem como evidência de **Acompanhamento, Revisão de Sprints e Alinhamento Técnico** junto à monitoria.
+
+
 ## 📹 Gravação do Encontro
 <iframe width="100%" height="400" src="https://www.youtube.com/embed/SEU_LINK_AQUI" title="Gravação da Reunião" frameborder="0" allowfullscreen></iframe>
 

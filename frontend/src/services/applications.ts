@@ -44,4 +44,16 @@ export async function getMyApplications(token: string, status?: string) {
   }
   return Array.isArray(data) ? data : [];
 }
- 
+
+// US2.9/RF12 — cancela candidatura ainda aguardando avaliação.
+export async function cancelApplication(token: string, applicationId: string) {
+  const response = await fetch(apiUrl(`/applications/${applicationId}/cancel/`), {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || 'Falha ao cancelar candidatura');
+  }
+  return data;
+}

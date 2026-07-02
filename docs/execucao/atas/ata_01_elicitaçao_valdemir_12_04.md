@@ -1,5 +1,9 @@
 # Ata de Reunião: Elicitação de Requisitos com o Cliente
 
+**📌 O que esta ata e o vídeo abaixo evidenciam?**
+> Esta ata e vídeo servem como evidência de **Entrevista, Elicitação e Descoberta** junto ao cliente.
+
+
 ## 📹 Gravação do Encontro
 <iframe src="https://drive.google.com/file/d/1w9LU_YDs8-QzC4kJE_QotYstswDKfIx2/preview" width="640" height="480"></iframe>
 

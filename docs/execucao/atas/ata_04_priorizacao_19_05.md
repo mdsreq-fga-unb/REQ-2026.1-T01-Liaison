@@ -1,5 +1,9 @@
 # Ata de Reunião: Priorização de Requisitos (ICE Score) e DoD
 
+**📌 O que esta ata e o vídeo abaixo evidenciam?**
+> Esta ata e vídeo servem como evidência de **Workshop de Priorização de Requisitos (MVP)** com a equipe.
+
+
 ## 📹 Gravação do Encontro
 <iframe width="100%" height="400" src="https://www.youtube.com/embed/SEU_LINK_AQUI" title="Gravação da Reunião" frameborder="0" allowfullscreen></iframe>
 

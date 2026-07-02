@@ -42,30 +42,30 @@ Registrar evolução do trabalho ao longo das unidades.
 
 ### Unidade 1
 
-#### Solução para a Issue #1 (Objetivos Específicos do Produto x Características de Produto)
+**Solução para a Issue #1 (Objetivos Específicos do Produto x Características de Produto)**
 * Criação de duas tabelas, uma de Objetivos Específicos, outra de Caracsterísticas do produto.
 * O conjunto de Objetivos Específicos (OEs) e Características de Produto (CPs) foi revisado e consolidado, agrupando os itens que estavam em nível de abstração muito baixo.
 * Itens operacionais específicos como controle de frequência e geração de PDFs foram elevados para conceitos mais amplos dentro das características estratégicas do produto.
 * Garantiu-se o alinhamento do projeto, assegurando que cada Característica de Produto mantida no documento fosse mapeada e desdobrada em, no mínimo, dois requisitos (RFs ou RNFs) na lista de especificações.
 
-#### Solução para a Issue #3 (Estratégias de Engenharia de Software)
+**Solução para a Issue #3 (Estratégias de Engenharia de Software)**
 * O quadro comparativo entre as estratégias de processo de software foi totalmente revisado e aprofundado, eliminando redundâncias onde as práticas do Extreme Programming (XP) se sobrepunham de forma idêntica em ambos os modelos.
 * A fundamentação sobre rastreabilidade foi corrigida: removeu-se a premissa de que o quadro Kanban garante rastreabilidade por si só, documentando explicitamente que a amarração entre requisitos, histórias de usuário, decisões de arquitetura, critérios de aceitação, código e testes é realizada por meio de tags, labels, UUIDs e ferramentas integradas ao ecossistema de desenvolvimento.
 * O fluxo de colaboração e validação com o cliente foi refinado para diferenciar com precisão o modelo focado no fluxo contínuo puxado (Kanban) da dinâmica baseada em ciclos de tempo fixos com ritos de revisão ao final de iterações (Scrum).
 
 
-#### Solução para a Issue #4 (Atividades e Técnicas de ER)
+**Solução para a Issue #4 (Atividades e Técnicas de ER)**
 * O quadro de Atividades de ER foi reestruturado com a adição de novas técnicas complementares nas disciplinas críticas do projeto:
   * **Análise e Consenso:** Expansão além do MoSCoW com novas técnicas de priorização e alinhamento técnico.
   * **Declaração:** Inclusão de novas formas de especificação para dar suporte às Histórias de Usuário.
   * **Verificação & Validação:** Adição de métodos de checagem técnica e de negócio para complementar a simples demonstração de protótipos.
 * O *GitHub Projects* foi removido da listagem de técnicas e reclassificado corretamente na seção de ferramentas de apoio do projeto.
 
-#### Solução para a Issue #5 (Engenharia de Requisitos e KanbanXP)
+**Solução para a Issue #5 (Engenharia de Requisitos e KanbanXP)**
 * A estrutura baseada em fases rígidas foi completamente eliminada do documento. O processo foi remodelado em uma matriz baseada em "Momento/Prática no KanbanXP", associando o fluxo visual às disciplinas de Engenharia de Requisitos e engenharia do Extreme Programming (XP).
 * Foram detalhadas e anexadas as políticas de trabalho explícitas (gerenciamento de limites de WIP, regras de transição de colunas e sistema *pull*) e os critérios de qualidade necessários para os incrementos de software.
 
-#### Solução para a Issue #6 (Cronograma e Entregas)
+**Solução para a Issue #6 (Cronograma e Entregas)**
 * Os dois planejamentos conflitantes foram eliminados e unificados em um único plano de entregas centrado nas dinâmicas de fluxo contínuo do KanbanXP.
 * A estrutura das entregas foi totalmente remodelada: as tarefas de configuração de ambiente e infraestrutura foram diluídas ao longo do projeto, sendo executadas sob demanda à medida que cada funcionalidade necessita delas, em vez de ficarem concentradas em um bloco isolado.
 * O cronograma foi reestruturado em 4 Releases incrementais e cumulativas, onde cada marco de entrega foca estritamente em gerar valor direto para os usuários finais (Estudantes, Organizações e Administrador), distribuídas da seguinte forma:
@@ -74,13 +74,13 @@ Registrar evolução do trabalho ao longo das unidades.
   * **R3 — Gestão e Triagem:** Foco no ciclo operacional completo das vagas (CRUD), triagem pelas ONGs e suporte técnico para acessos concorrentes e responsividade mobile.
   * **R4 — Certificação:** Foco no encerramento do ciclo, englobando controle de frequência, registro de horas e emissão automatizada do PDF com código verificador de autenticidade.
 
-#### Solução para a Issue #7 (Composição da Equipe)
+**Solução para a Issue #7 (Composição da Equipe)**
 * A documentação da equipe foi reescrita para deixar explícito e mandatório que 100% dos membros do grupo acumulam e exercem a função de Analista de Requisitos durante o ciclo de vida do projeto.
 * Todas as descrições dos papéis técnicos e operacionais foram revisadas, detalhadas e expandidas para refletir com precisão as responsabilidades reais de cada integrante no ecossistema de desenvolvimento.
 
 ### Unidade 2
 
-### Solução para a Issue #67 (Documentar a execução do projeto)
+**Solução para a Issue #67 (Documentar a execução do projeto)**
 * Foram criadas atas de Reunião: Adição das atas cobrindo desde a elicitação inicial (12/04) até as reuniões de
 priorização e monitoria (até 09/06).
 * Adicionadas Evidências de Requisitos (ER): Criação do documento evidencias_er.md com os registros do processo de
@@ -88,14 +88,14 @@ Engenharia de Requisitos.
 * Adicionadas Evidências de Software (ESW): Criação do documento evidencias_esw.md para documentar práticas de desenvolvimento e arquitetura.
 -Assets e Comprovações: Inclusão de imagens e capturas de tela comprovando as atividades (Quadro Kanban, Pair Programming, Dailies Assíncronas, reuniões no Teams, Protótipos e Rastreabilidade).
 
-#### Solução para a Issue #68 (Registrar evidências da execução do processo de Engenharia de Requisitos)
+**Solução para a Issue #68 (Registrar evidências da execução do processo de Engenharia de Requisitos)**
 * Foi estruturado e publicado um ecossistema de comprovação de processo no repositório através da criação de múltiplos documentos de governança e histórico:
   * **Atas de Reunião:** Inclusão e formalização de todas as atas de alinhamento da equipe, cobrindo o histórico cronológico desde as fases de elicitação inicial com o cliente (em 12/04) até as sessões de priorização do backlog e alinhamentos em monitorias (até 09/06).
   * **Evidências de Requisitos (`evidencias_er.md`):** Criação de um artefato centralizador para registrar a execução prática das dinâmicas de Engenharia de Requisitos, correlacionando as técnicas homologadas com os seus respectivos resultados gerados.
   * **Evidências de Software (`evidencias_esw.md`):** Elaboração de um documento focado em provar a aplicação das práticas técnicas acordadas, detalhando a evolução da arquitetura e o cumprimento dos ritos de engenharia.
 * Adicionou-se uma pasta de ativos visuais contendo capturas de tela e registros gráficos que servem de testemunho para a execução das atividades, englobando imagens das reuniões no Microsoft Teams, registros de sessões de *Pair Programming*, histórico de *Dailies* assíncronas, evolução dos quadros Kanban, construção de protótipos de interface e telas das ferramentas de rastreabilidade.
 
-#### Solução para a Issue #69 (Registrar evidências da execução do processo de Engenharia de Software)
+**Solução para a Issue #69 (Registrar evidências da execução do processo de Engenharia de Software)**
 * Foi desenvolvido e integrado ao repositório o documento de governança `docs/projeto/evidencias_esw.md`, focado exclusivamente em mapear e comprovar a aplicação real das práticas ágeis e de engenharia do framework KanbanXP.
 * O artefato estabeleceu a rastreabilidade direta entre o processo planejado e o executado, documentando as seguintes frentes de engenharia de software:
   * **Práticas de Fluxo (Kanban):** Evidências visuais de gerenciamento do fluxo de trabalho através de capturas periódicas do quadro e relatórios de acompanhamento de Sprints.
@@ -103,7 +103,7 @@ Engenharia de Requisitos.
   * **Arquitetura e Infraestrutura:** Detalhamento e links de comprovação do pipeline de Integração Contínua (CI) e do provisionamento de ambiente em nuvem executado pela equipe.
 * Todo o documento de engenharia de software foi ancorado em uma pasta de ativos digitais (`assets`), contendo capturas de tela das ferramentas organizacionais e dos terminais de desenvolvimento que atestam a veracidade do histórico operacional de desenvolvimento do projeto.
 
-#### Solução para a Issue #71 (Consolidar a rastreabilidade em uma visão integrada)
+**Solução para a Issue #71 (Consolidar a rastreabilidade em uma visão integrada)**
 * Foi criado um artefato centralizador e exclusivo em `docs/projeto/rastreabilidade.md` para consolidar toda a árvore de engenharia de requisitos do projeto em uma única visão integrada.
 * A estrutura foi montada seguindo uma abordagem *top-down* canônica, permitindo o rastreamento em cascata de ponta a ponta: *Problema → Objetivos Específicos (OE) → Características de Produto (CP) → Requisitos Funcionais (RF) → Histórias de Usuário (US) → Requisitos Não Funcionais (RNF)*.
 * O novo documento foi estruturado em cinco seções analíticas:
@@ -114,7 +114,7 @@ Engenharia de Requisitos.
   * Tabela de correlação de Requisitos Não Funcionais explicitando quais Requisitos Funcionais são impactados por cada restrição técnica ou de qualidade.
 * A página foi devidamente indexada no arquivo de sumário do `mkdocs.yml` para publicação oficial no GitHub Pages do projeto.
 
-#### Solução para a Issue #72 (Refinar os Requisitos Não Funcionais)
+**Solução para a Issue #72 (Refinar os Requisitos Não Funcionais)**
 * Todos os 9 Requisitos Não Funcionais do projeto foram reescritos na documentação, recebendo critérios objetivos, matemáticos e técnicos para garantir sua total testabilidade através de métricas claras:
   * **RNF01 (Segurança de Criptografia):** Definição do uso do algoritmo *bcrypt* com *work factor* mínimo de 12 (alinhado às diretrizes do OWASP), garantindo um tempo médio de ~250ms por hash para proteção contra ataques de força bruta sem degradar a experiência de uso.
   * **RNF02 (Performance de Login):** Fixação do limite de tempo de resposta em até 2 segundos, medido sob uma carga simulada de 100 requisições simultâneas.
@@ -126,53 +126,53 @@ Engenharia de Requisitos.
   * **RNF08 (Imutabilidade de Dados):** Detalhamento dos mecanismos de segurança física e lógica, aplicando travas de banco de dados (`RESTRICT/NO UPDATE/DELETE`) combinadas a validações rígidas na camada de aplicação para impedir a alteração de certificados gerados.
   * **RNF09 (Identificadores Únicos):** Adoção de chaves primárias baseadas em UUID v4 conforme a RFC 4122 para blindagem de URLs e prevenção de colisões de ID no banco de dados.
 
-#### Solução para a Issue #73 (Documentar o padrão de identificação das histórias de usuário)
+**Solução para a Issue #73 (Documentar o padrão de identificação das histórias de usuário)**
 * Foi adicionada uma subseção de governança no início do Backlog do Produto detalhando a convenção de nomenclatura e a estrutura lógica por trás de cada identificador.
 * O padrão visual foi reestruturado de forma semântica, associando cada História de Usuário (US) diretamente à sua Feature (FT) e Épico (EP) de origem (ex: EP01-FT01-US01).
 
-#### Solução para a Issue #75 (Corrigir inconsistências na identificação dos requisitos)
+**Solução para a Issue #75 (Corrigir inconsistências na identificação dos requisitos)**
 * Foi realizada uma auditoria de rastreabilidade em todo o Backlog do Produto para eliminar a colisão de identificadores que gerava duplicidade oculta de tarefas no fluxo.
 * Corrigiu-se o erro de versões anteriores em que códigos alfanuméricos provisórios (como `US002.1b` a `US002.1d`) haviam sido mapeados por cima de numerações já existentes (de `RF08` a `RF10`), mascarando requisitos distintos sob a mesma ID.
 * Toda a sequência lógica do bloco de Ciclo de Vagas (CP02) foi renumerada e estabilizada de forma linear, realocando os Requisitos Funcionais originais para IDs únicas e exclusivas no banco de dados do projeto.
 * Padronizou-se em definitivo a nomenclatura limpa no formato `US2.x` em todas as referências cruzadas e matrizes de rastreabilidade do documento, garantindo consistência integral e eliminando qualquer código legado ou desatualizado.
 
-#### Solução para a Issue #76 (Priorização do Backlog e MVP)
+**Solução para a Issue #76 (Priorização do Backlog e MVP)**
 * A seção de Priorização do Backlog foi completamente revisada para detalhar o fluxo operacional de ordenação e a governança das técnicas.
 * Foi criada uma subseção chamada "Método Principal: Decisão do Time", estabelecendo formalmente que o comitê humano da equipe detém a palavra final, utilizando as ferramentas matemáticas como suporte analítico e não como regras automáticas de descarte.
 * Adicionou-se uma tabela explicativa definindo o papel exato e o escopo de decisão de cada técnica: o MoSCoW definindo o enquadramento no MVP, o ICE Score ranqueando os itens e a Matriz Esforço × Valor tratando a viabilidade técnica e o retorno de negócio.
 * Foi introduzida uma seção específica de "Regras de Conflito" mapeando 4 cenários clássicos de divergência de classificação entre as ferramentas (anomalias), documentando como o grupo resolve esses impasses.
 * Os critérios subjetivos de impacto foram substituídos por métricas objetivas de negócio, e a ordenação do backlog passou a ser tratada como referência dinâmica, ao invés de uma fila rígida e imutável de implementação.
 
-#### Solução para a Issue #77 (Justificar a exclusão de RF17 do MVP)
+**Solução para a Issue #77 (Justificar a exclusão de RF17 do MVP)**
 * Foi adicionada uma nota técnica e formal de justificativa na seção de priorização do Backlog do Produto (Seção 10.3) detalhando a estratégia de engenharia adotada pelo grupo através de dois argumentos principais:
   1. **Dependência técnica sequencial:** A validação pública exige, obrigatoriamente, a existência prévia de certificados emitidos no banco de dados. Portanto, o *RF17* só gera valor real após o *RF15* estar consolidado em ambiente de produção, tornando inviável antecipar o esforço de codificação no MVP sem massa de dados para sustentá-lo.
   2. **Análise quantitativa pelo ICE Score:** O *RF17* obteve a menor pontuação do bloco de certificação (CP03), com score de 0,75. Isso ocorreu devido ao alto esforço de desenvolvimento estimado (nota 8) combinado à baixa confiança inicial (nota 0,6) sobre o volume de acessos externos de validação no primeiro momento do sistema.
 * O *RF17* foi formalmente reclassificado como *Should Have* (Desejável) e alocado estrategicamente para a **Release R4** do cronograma.
 * Para mitigar os riscos e garantir a extensão futura, o **RNF09 (Uso de UUID v4)** foi mantido ativo já no MVP, garantindo que todos os certificados emitidos na primeira fase nascerão com os códigos necessários salvos no banco para a validação pública posterior.
 
-#### Solução para a Issue #78 (Apresentar o cronograma atualizado do projeto)
+**Solução para a Issue #78 (Apresentar o cronograma atualizado do projeto)**
 * O documento de cronograma (`docs/projeto/cronograma.md`) foi expandido e atualizado com dados reais de progresso por meio de duas novas seções:
   * **Seção 5.2 (Status de Execução):** Introdução de uma legenda formal de acompanhamento (*Em produção*, *Implementado no repositório*, *Em andamento* e *Planejado*) acompanhada do percentual exato de conclusão de cada marco, apontando **R1: 100%**, **R2: 55%**, **R3: 5%** e **R4: 0%** (totalizando cerca de 52% do MVP executado).
   * **Seção 5.3 (Spike de Infraestrutura):** Documentação técnica de um *Spike* de pesquisa focado no provisionamento da infraestrutura na AWS. Foram descritas 13 atividades com evidências de entrega (envolvendo EC2, RDS, Nginx, Gunicorn, S3, Docker, chaves SSH e Deploy automatizado) para justificar o desvio de prazo e o esforço de aprendizado da equipe em nuvem durante a primeira release.
 
 ### Unidade 3
 
-#### Solução para a Issue #102 e #103 (Evidenciar DoR e DoD)
+**Solução para a Issue #102 e #103 (Evidenciar DoR e DoD)**
 * As User Stories documentadas foram atualizadas com seções explícitas de "Definição de Pronto (DoD)", atestando os critérios técnicos cumpridos.
 * Adicionou-se o checklist de DoR (Definition of Ready) no template oficial de Issues do repositório, garantindo que as tarefas só entrem na Sprint quando estiverem refinadas.
 
-#### Solução para a Issue #104 (Apresentar MVP implementado e evidenciado)
+**Solução para a Issue #104 (Apresentar MVP implementado e evidenciado)**
 * Foi criada a seção de "Organização e Planejamento", centralizando o quadro do MVP validado e a matriz de rastreabilidade ponta-a-ponta (Problema > US).
 * Em todas as Atas de Reunião e na página de Evidências, foram inseridos resumos contextuais para deixar explícito qual evento ágil cada gravação comprova (ex: Entrevistas, Priorização).
 
-#### Solução para a Issue #106 (Critérios de aceitação)
+**Solução para a Issue #106 (Critérios de aceitação)**
 * Todas as User Stories receberam atualizações para incluir as seções de "Critérios de Aceite" devidamente listados.
 
-#### Solução para a Issue #108 (Regras de negócio do MVP)
+**Solução para a Issue #108 (Regras de negócio do MVP)**
 * A equipe documentou as Regras de Negócio (RN01 a RN42) do MVP, detalhando os fluxos e restrições exigidos pela aplicação para apoiar o desenvolvimento.
 
-#### Solução para a Issue #109 (Verificar RNFs)
+**Solução para a Issue #109 (Verificar RNFs)**
 * Elaborou-se uma tabela específica de verificação para todos os Requisitos Não Funcionais (RNFs) definidos, apresentando o método de teste, resultado alcançado e as evidências técnicas de sua validação.
 
-#### Solução para a Issue #110 (Atualizar cronograma com execução real)
+**Solução para a Issue #110 (Atualizar cronograma com execução real)**
 * O documento de cronograma foi atualizado para exibir o *Status de Execução* de cada release. Os dados comprovam a conclusão final e aprovação, apontando R1: 100% e R2: 100%, totalizando 89% do MVP entregue.

@@ -115,10 +115,4 @@ O RF17 (Validar certificado) foi intencionalmente excluído do MVP por duas raz�
 
 ## 10.4 Anexos de Priorização
 
-Abaixo estão os documentos de apoio utilizados pela equipe durante as sessões de priorização:
-
-### Matriz de Priorização
-![Matriz de Priorização](assets/Matriz.pdf){ type="application/pdf" width="100%" height="800" }
-
-### Priorização MoSCoW
-![Priorização MoSCoW](assets/MoSCoW.pdf){ type="application/pdf" width="100%" height="800" }
+As matrizes de apoio são interativas e vivem na página **[Backlog Priorizado](backlog_priorizado.md)** — a **Matriz Facilidade × Valor** e o **Quadro de Priorização MoSCoW**, ambos gerados a partir dos dados atuais do [GitHub Project #100](https://github.com/orgs/mdsreq-fga-unb/projects/100).

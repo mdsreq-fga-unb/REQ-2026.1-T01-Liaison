@@ -185,7 +185,9 @@ TOTAL (27 USs em escopo ativo)  ██████████  96%  (26/27)
 | R4 — Certificação | 14/07/2026 | — (prazo não vencido) | 86% (combinado com R3)*** |
 
 \* Percentual do total de 27 USs em escopo ativo entregues até a data planejada de cada release, não apenas as USs daquela release.
+
 \*\* R1 foi concluída poucos dias após sua data planejada (última entrega de R1 em 15/06); o "0%" reflete que a primeira entrega registrada (US1.1) ocorreu em 31/05, 5 dias após a data-alvo de 26/05.
+
 \*\*\* R3 e R4 são tratadas como um bloco único nesta análise (seção 5.2.3), pois suas USs formam uma cadeia de dependência contínua (triagem → frequência → certificação). O 86% representa 6 de 7 USs combinadas das duas releases (1 descartada), não um cálculo isolado por release.
 
 **Leitura do gráfico:** o ritmo de entregas foi historicamente abaixo do planejado até meados de junho (R1 atrasou ~5 dias; R2 estava em apenas 26% na sua própria data-alvo), mas houve uma concentração muito forte de entregas em 29/06–01/07 — 19 das 26 entregas do escopo ativo (73%) saíram nesses últimos 3 dias antes da conclusão. Isso confirma o desvio já registrado na seção 5.2: o cronograma documentado ficou defasado em relação ao ritmo real, que se acelerou abruptamente perto do prazo de R3/R4 e seguiu se acelerando até a aprovação final deste documento.

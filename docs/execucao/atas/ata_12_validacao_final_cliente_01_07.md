@@ -5,6 +5,14 @@
 
 ---
 
+## 🎥 Gravação da Reunião
+
+<div align="center">
+    <iframe src="https://drive.google.com/file/d/1ETCNgv2wGGIOIfN_1AtpQkluigjLk4as/preview" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+</div>
+
+---
+
 ## 📝 Resumo Executivo
 
 **Data:** 01/07/2026  

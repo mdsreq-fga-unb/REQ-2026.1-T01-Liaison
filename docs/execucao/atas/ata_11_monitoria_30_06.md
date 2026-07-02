@@ -5,6 +5,14 @@
 
 ---
 
+## 🎥 Gravação da Reunião
+
+<div align="center">
+    <iframe src="https://unbbr-my.sharepoint.com/personal/211041221_aluno_unb_br/_layouts/15/embed.aspx?UniqueId=95b79c98-40fa-4d44-a356-55a3625d2b46&embed=%7B%22ust%22%3Atrue%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen title="Monitoria - REQ - Equipe Dona Izete-20260630_203325-Gravação de Reunião.mp4"></iframe>
+</div>
+
+---
+
 ## 📝 Resumo Executivo
 
 **Data:** 30/06/2026  

@@ -33,9 +33,9 @@ O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são
 | **US1.2** | Cadastro de Organizações (RF02) | ✅ | [PR #60](../../../pull/60), [PR #63](../../../pull/63) | — |
 | **US1.3** | Autenticação de Usuários (RF03) | ✅ | [PR #58](../../../pull/58) | — |
 | **US1.4** | Gestão de Perfil do Estudante (RF04) | ✅ | [PR #64](../../../pull/64), [PR #65](../../../pull/65) | — |
-| **US1.5** | Edição de Perfil da Organização (RF04) | ✅ | [PR #66](../../../pull/66) | — |
-| **US1.6** | Recuperação de Senha via E-mail (RF05) | 🔵 | [PR #93](../../../pull/93) (aberto) | **Desvio de escopo:** classificada como *Won't Have* na priorização do MVP (10.2.2 do backlog), com decisão registrada na issue de que a recuperação seria manual no lançamento inicial. A própria issue previa a possibilidade de antecipação futura, o que ocorreu — o time iniciou o desenvolvimento (PR #93), ainda sem merge. Está fora do escopo formal do MVP, mas em andamento por decisão do time. |
-| **US1.7** | Moderação de Organizações — Sysmin (RF06) | ✅ | [PR #101](../../../pull/101) (fix de rotas/paginação) | Bug #100 relacionado (10 testes falhando) corrigido no mesmo PR. |
+| **US1.5** | Edição de Perfil da Organização (RF05) | ✅ | [PR #66](../../../pull/66) | — |
+| **US1.6** | Recuperação de Senha via E-mail (RF06) | 🔵 | [PR #93](../../../pull/93) (aberto) | **Desvio de escopo:** classificada como *Won't Have* na priorização do MVP (10.2.2 do backlog), com decisão registrada na issue de que a recuperação seria manual no lançamento inicial. A própria issue previa a possibilidade de antecipação futura, o que ocorreu — o time iniciou o desenvolvimento (PR #93), ainda sem merge. Está fora do escopo formal do MVP, mas em andamento por decisão do time. |
+| **US1.7** | Moderação de Organizações — Sysmin (RF07) | ✅ | [PR #101](../../../pull/101) (fix de rotas/paginação) | Bug #100 relacionado (10 testes falhando) corrigido no mesmo PR. |
 
 **R1: 6 de 7 USs entregues (86%). 1 em andamento fora do MVP formal.**
 
@@ -43,17 +43,17 @@ O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são
 
 | US | Descrição | Status | Evidência | Observações |
 | :--- | :--- | :---: | :--- | :--- |
-| **US2.1** | Criação de Vagas (RF18) | ✅ | [PR #83](../../../pull/83), [PR #99](../../../pull/99), [PR #123](../../../pull/123) | — |
-| **US2.2** | Edição de Vagas (RF19) | ✅ | [PR #99](../../../pull/99) | — |
-| **US2.3** | Publicação de Vagas (RF20) | ✅ | [PR #99](../../../pull/99) | — |
-| **US2.4** | Encerramento de Vagas (RF21) | ✅ | [PR #99](../../../pull/99) | — |
+| **US2.1** | Criação de Vagas (RF21) | ✅ | [PR #83](../../../pull/83), [PR #99](../../../pull/99), [PR #123](../../../pull/123) | — |
+| **US2.2** | Edição de Vagas (RF22) | ✅ | [PR #99](../../../pull/99) | — |
+| **US2.3** | Publicação de Vagas (RF23) | ✅ | [PR #99](../../../pull/99) | — |
+| **US2.4** | Encerramento de Vagas (RF24) | ✅ | [PR #99](../../../pull/99) | — |
 | **US2.5** | Busca e Filtro de Vagas (RF08) | ✅ | [PR #87](../../../pull/87) | — |
 | **US2.6** | Visualização de Detalhes da Vaga (RF09) | ✅ | [PR #113](../../../pull/113) | — |
 | **US2.7** | Candidatura em Vaga (RF10) | ✅ | [PR #113](../../../pull/113) | — |
 | **US2.8** | Avaliação de Candidaturas pela Organização (RF11) | ✅ | [PR #118](../../../pull/118), [PR #125](../../../pull/125) | Issue fechada. |
 | **US2.9** | Cancelamento de Candidatura (RF12) | ✅ | [PR #130](../../../pull/130) | Entregue no PR de release consolidado. O PR #114 (rascunho inicial só com frontend/mock, de Henrique Fontenelle) foi fechado sem merge por ter sido superado por esta entrega integrada. |
-| **US2.10** | Notificações de Status de Candidatura (RF12) | ✅ | [PR #120](../../../pull/120), [PR #122](../../../pull/122) | Issue fechada. |
-| **US2.11** | Acompanhamento de Minhas Candidaturas (RF12) | ✅ | [PR #117](../../../pull/117), [PR #124](../../../pull/124) | Issue fechada. |
+| **US2.10** | Notificações de Status de Candidatura (RF13) | ✅ | [PR #120](../../../pull/120), [PR #122](../../../pull/122) | Issue fechada. |
+| **US2.11** | Acompanhamento de Minhas Candidaturas (RF25) | ✅ | [PR #117](../../../pull/117), [PR #124](../../../pull/124) | Issue fechada. |
 
 **R2: 11 de 11 USs do escopo original entregues (100%).**
 
@@ -69,13 +69,13 @@ O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são
 
 | US | Descrição | Status | Evidência | Observações |
 | :--- | :--- | :---: | :--- | :--- |
-| **US3.1** | Listagem de Estudantes Aprovados (RF13) | ✅ | [PR #126](../../../pull/126) | Issue fechada. |
-| **US3.2** | Registro de Frequência e Carga Horária (RF14) | ✅ | [PR #126](../../../pull/126) | Issue fechada. |
-| **US3.3** | Geração Automática de Certificado Digital (RF15) | ✅ | [PR #116](../../../pull/116) | Issue fechada. Issues #28/#29 (antigas, duplicadas) já estavam fechadas com label `duplicate`. |
-| **US3.4** | Exportação de Certificado em PDF (RF15) | ✅ | [PR #116](../../../pull/116) | Issue fechada. **Atualização de status (decisão de equipe, reunião de 01/07/2026):** os cenários 2 (exportação em lote) e 3 (visualizador integrado) estavam originalmente marcados como planejados/parciais na descrição da issue; o time avaliou em reunião que a entrega atende ao critério de pronto e reclassificou a US como completa. |
-| **US3.5** | Visualização de Histórico de Horas (RF16) | ⚪ | — | **Bloqueada por dependência declarada:** issue #33 lista como pré-requisitos a US3.2 (#27) e a US3.3 (#31). Ambas já entregues, mas o desenvolvimento específico da tela de histórico ainda não foi iniciado. |
-| **US3.6** | Download de Certificados (RF16) | ⚪ | — | **Bloqueada por dependência declarada:** issue #34 lista como pré-requisito a US3.5 (#33), que ainda não foi iniciada. Único item da cadeia com bloqueio real, não apenas formal. |
-| **US3.7** | Portal Público de Validação de Certificados (RF17) | ✅ | [PR #116](../../../pull/116) | Issue fechada. **Nota de rastreabilidade:** há inconsistência no backlog — o RF17 aparece como *Could Have* na tabela de priorização (10.2.2) mas como *Should Have* no texto da seção 10.5; recomenda-se alinhar. |
+| **US3.1** | Listagem de Estudantes Aprovados (RF14) | ✅ | [PR #126](../../../pull/126) | Issue fechada. |
+| **US3.2** | Registro de Frequência e Carga Horária (RF15) | ✅ | [PR #126](../../../pull/126) | Issue fechada. |
+| **US3.3** | Geração Automática de Certificado Digital (RF16) | ✅ | [PR #116](../../../pull/116) | Issue fechada. Issues #28/#29 (antigas, duplicadas) já estavam fechadas com label `duplicate`. |
+| **US3.4** | Exportação de Certificado em PDF (RF17) | ✅ | [PR #116](../../../pull/116) | Issue fechada. **Atualização de status (decisão de equipe, reunião de 01/07/2026):** os cenários 2 (exportação em lote) e 3 (visualizador integrado) estavam originalmente marcados como planejados/parciais na descrição da issue; o time avaliou em reunião que a entrega atende ao critério de pronto e reclassificou a US como completa. |
+| **US3.5** | Visualização de Histórico de Horas (RF18) | ⚪ | — | **Bloqueada por dependência declarada:** issue #33 lista como pré-requisitos a US3.2 (#27) e a US3.3 (#31). Ambas já entregues, mas o desenvolvimento específico da tela de histórico ainda não foi iniciado. |
+| **US3.6** | Download de Certificados (RF19) | ⚪ | — | **Bloqueada por dependência declarada:** issue #34 lista como pré-requisito a US3.5 (#33), que ainda não foi iniciada. Único item da cadeia com bloqueio real, não apenas formal. |
+| **US3.7** | Portal Público de Validação de Certificados (RF20) | ✅ | [PR #116](../../../pull/116) | Issue fechada. **Nota de rastreabilidade:** o RF20 é classificado como *Could Have* — tabela de priorização (§10.2) e nota do §10.3 do backlog já alinhadas. |
 
 **R3/R4: 5 de 7 USs entregues (71%). 2 pendentes, ambas por dependência real (US3.5 bloqueia US3.6).**
 
@@ -95,8 +95,8 @@ O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são
 
 1. ~~**Defasagem entre issue tracking e código real:** 10 USs tinham PR mergeado com a issue correspondente ainda aberta.~~ **Resolvido em 01/07/2026** — todas as issues foram fechadas manualmente (#24, #25, #26, #27, #30, #31, #86, #111, #112, #119), alinhando o rastreamento à entrega real.
 2. **Escopo adicional não formalizado no backlog:** US2.12, US2.13 e US2.14 (perfis públicos e vagas salvas) foram desenvolvidas e entregues (issues fechadas), mas seguem **sem entrada correspondente** em `backlog_produto.md`. **Ação pendente:** formalizar no backlog ou justificar formalmente sua origem — este item continua em aberto.
-3. **Item fora do MVP formal, em andamento:** US1.6 (Recuperação de Senha, RF05) foi classificada como *Won't Have* na priorização inicial do MVP, mas está sendo desenvolvida (PR #93, ainda aberto). A decisão de antecipar está documentada na própria issue #17, que previa essa possibilidade. **Ação:** nenhuma correção necessária — manter o registro para rastreabilidade até o PR ser mergeado.
-4. **Inconsistência de classificação do RF17:** aparece como *Could Have* na tabela de priorização e *Should Have* no texto da seção 10.5 do backlog. A US derivada (US3.7) já foi entregue independente dessa classificação. **Ação pendente:** alinhar a classificação em revisão do documento.
+3. **Item fora do MVP formal, em andamento:** US1.6 (Recuperação de Senha, RF06) foi classificada como *Won't Have* na priorização inicial do MVP, mas está sendo desenvolvida (PR #93, ainda aberto). A decisão de antecipar está documentada na própria issue #17, que previa essa possibilidade. **Ação:** nenhuma correção necessária — manter o registro para rastreabilidade até o PR ser mergeado.
+4. **Classificação do RF20 (US3.7):** classificado como *Could Have* na priorização; a nota do §10.3 do backlog foi alinhada a essa classificação (antes divergia como *Should Have*). A US derivada (US3.7) já foi entregue independente dessa classificação. **Ação:** resolvida.
 5. **US2.9 entregue por caminho diferente do planejado:** o PR #114 (Henrique Fontenelle) implementava apenas o frontend com dados mockados e foi fechado sem merge — a entrega real da US2.9 veio do PR #130, de forma integrada com outras USs. Não é uma falha, mas vale registrar que o plano inicial de divisão de trabalho (frontend/backend em PRs separados) não foi o que efetivamente gerou a entrega.
 6. **Reclassificação de status por decisão de equipe:** US3.4 (Exportação de Certificado em PDF) estava marcada como entrega parcial, já que a issue #32 registrava dois cenários (exportação em lote, visualizador integrado) como planejados/não entregues. Em reunião de equipe (01/07/2026), o time avaliou que a entrega atende ao critério de pronto e reclassificou a US como completa. **Ação recomendada:** atualizar também a descrição da issue #32 no GitHub para refletir essa decisão, evitando divergência entre o cronograma e a issue original.
 7. **Dependência real ainda bloqueando entrega:** US3.5 e US3.6 seguem pendentes, com US3.6 formalmente bloqueada por depender de US3.5, que ainda não foi iniciada. É o único bloqueio de dependência real (não apenas formal) que resta no projeto.

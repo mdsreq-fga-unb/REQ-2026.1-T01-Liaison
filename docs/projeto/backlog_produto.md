@@ -35,6 +35,10 @@ A numeração das User Stories segue o padrão `US<CP#>.<sequencial>`, vinculand
 | **RF11 Avaliar candidatura** | **US2.8** Como organização, desejo avaliar as candidaturas dos estudantes para aprovar ou recusar participantes nas vagas de voluntariado. | CP02 | RNF04, RNF06 |
 | **RF12 Cancelar candidatura** | **US2.9** Como estudante, desejo cancelar minha candidatura a uma vaga de voluntariado caso não tenha mais interesse ou disponibilidade. | CP02 | RNF04 |
 | **RF13 Notificar candidatura** | **US2.10** Como usuário, desejo receber notificações sobre mudanças de status de candidaturas. | CP02 | RNF04 |
+| **RF25 Acompanhar candidaturas** | **US2.11** Como estudante, desejo visualizar e acompanhar o status de todas as minhas candidaturas para saber em que etapa cada processo se encontra. | CP02 | RNF04 |
+| **RF26 Visualizar perfil de organização** | **US2.12** Como estudante, desejo visualizar o perfil institucional de uma organização para conhecer melhor quem está por trás de uma vaga de voluntariado. | CP02 | RNF04 |
+| **RF27 Visualizar perfil de estudante** | **US2.13** Como organização, desejo visualizar o perfil de um estudante candidato para avaliar seu histórico e pertinência à vaga. | CP02 | RNF04 |
+| **RF28 Salvar e listar oportunidades** | **US2.14** Como estudante, desejo salvar vagas de voluntariado de meu interesse e listá-las posteriormente para me candidatar quando for conveniente. | CP02 | RNF04 |
 | **RF14 Listar aprovados** | **US3.1** Como organização, desejo visualizar a lista de estudantes aprovados para cada atividade de voluntariado para gerenciar o acompanhamento e a presença. | CP03 | RNF04, RNF08 |
 | **RF15 Registrar frequência** | **US3.2** Como organização, desejo registrar a presença e atestar a carga horária dos estudantes aprovados para documentar a participação nas atividades. | CP03 | RNF04, RNF08 |
 | **RF16 Emitir certificado** | **US3.3** Como estudante, desejo receber automaticamente meu certificado digital em PDF ao concluir uma atividade de voluntariado. | CP03 | RNF07, RNF08, RNF09 |
@@ -103,15 +107,15 @@ O MVP é composto pelas 21 histórias classificadas como **Must Have** (ordens 1
 
 Total de itens no MVP: **21** histórias de usuário Must Have.
 
-### Nota sobre o RF17 — Validar certificado
+### Nota sobre o RF20 — Validar certificado
 
-O RF17 (Validar certificado) foi intencionalmente excluído do MVP por duas razões complementares:
+O RF20 (Validar certificado, US3.7) foi intencionalmente excluído do MVP por duas razões complementares:
 
-**1. Dependência técnica sequencial:** A validação pública de certificados pressupõe que certificados já existam na base de dados. O RF17 só agrega valor real após o RF15 (Emitir certificado) estar consolidado em produção e com volume suficiente de certificados emitidos. Incluí-lo no MVP seria antecipar uma funcionalidade sem base de dados para sustentá-la.
+**1. Dependência técnica sequencial:** A validação pública de certificados pressupõe que certificados já existam na base de dados. O RF20 só agrega valor real após o RF16 (Emitir certificado) estar consolidado em produção e com volume suficiente de certificados emitidos. Incluí-lo no MVP seria antecipar uma funcionalidade sem base de dados para sustentá-la.
 
-**2. Priorização pelo ICE Score:** O RF17 obteve ICE Score de 120 — o menor entre os requisitos do CP03 — reflexo da Confiança baixa (C=5) atribuída pela equipe diante da incerteza sobre o volume de uso da validação pública na fase inicial. A Facilidade estimada (E=4) é baixa para um primeiro ciclo.
+**2. Priorização pelo ICE Score:** O RF20 obteve ICE Score de 120 — o menor entre os requisitos do CP03 — reflexo da Confiança baixa (C=5) atribuída pela equipe diante da incerteza sobre o volume de uso da validação pública na fase inicial. A Facilidade estimada (E=4) é baixa para um primeiro ciclo.
 
-**Reclassificação proposta:** O RF17 permanece como **Should Have** e será incorporado na **Release R4** (14/07/2026), imediatamente após a estabilização do RF15. A presença do RNF09 (UUIDs para certificados) já no MVP garante que a infraestrutura de validação estará pronta quando o RF17 for implementado — os certificados emitidos no MVP já conterão os códigos únicos necessários para a validação futura.
+**Classificação:** O RF20 é **Could Have** (ordem 27 do [Backlog Priorizado](backlog_priorizado.md)) e fica fora do ciclo do MVP; sua incorporação depende da estabilização do RF16 (Emitir certificado) e de volume suficiente de certificados emitidos em produção. A presença do RNF09 (UUIDs para certificados) já no MVP garante que a infraestrutura de validação estará pronta quando o RF20 for implementado — os certificados emitidos no MVP já conterão os códigos únicos necessários para a validação futura.
 
 ## 10.4 Anexos de Priorização
 

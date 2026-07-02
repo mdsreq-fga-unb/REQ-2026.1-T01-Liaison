@@ -11,7 +11,7 @@ Este documento formaliza as **regras de negócio** que governam o comportamento 
 
 Regras que controlam o ciclo de vida do cadastro de organizações sociais na plataforma, desde o registro inicial até a aprovação ou rejeição pelo administrador.
 
-**Rastreabilidade:** RF02 (Cadastrar organização), RF06 (Moderar organização), US1.2, US1.7, RNF03.
+**Rastreabilidade:** RF02 (Cadastrar organização), RF07 (Moderar organização), US1.2, US1.7, RNF03.
 
 | ID | Regra de Negócio | Justificativa |
 | :--- | :--- | :--- |
@@ -31,7 +31,7 @@ Regras que controlam o ciclo de vida do cadastro de organizações sociais na pl
 
 Regras que controlam o ciclo de vida das vagas de voluntariado, desde a criação em rascunho até o encerramento.
 
-**Rastreabilidade:** RF18 (Criar oportunidade), RF19 (Editar oportunidade), RF20 (Publicar oportunidade), RF21 (Encerrar oportunidade), US2.1, US2.2, US2.3, US2.4.
+**Rastreabilidade:** RF21 (Criar oportunidade), RF22 (Editar oportunidade), RF23 (Publicar oportunidade), RF24 (Encerrar oportunidade), US2.1, US2.2, US2.3, US2.4.
 
 | ID | Regra de Negócio | Justificativa |
 | :--- | :--- | :--- |
@@ -50,7 +50,7 @@ Regras que controlam o ciclo de vida das vagas de voluntariado, desde a criaçã
 
 Regras que governam o fluxo de candidatura dos estudantes às vagas de voluntariado, incluindo restrições de duplicidade, possibilidades de cancelamento e critérios de avaliação pela organização.
 
-**Rastreabilidade:** RF10 (Realizar candidatura), RF11 (Avaliar candidatura), RF12 (Acompanhar candidatura), US2.7, US2.8, US2.9, US2.10.
+**Rastreabilidade:** RF10 (Realizar candidatura), RF11 (Avaliar candidatura), RF12 (Cancelar candidatura), RF13 (Notificar candidatura), US2.7, US2.8, US2.9, US2.10.
 
 | ID | Regra de Negócio | Justificativa |
 | :--- | :--- | :--- |
@@ -69,7 +69,7 @@ Regras que governam o fluxo de candidatura dos estudantes às vagas de voluntari
 
 Regras que controlam o registro de presença e a contabilização de horas de voluntariado dos estudantes aprovados em atividades.
 
-**Rastreabilidade:** RF13 (Listar aprovados), RF14 (Registrar frequência), US3.1, US3.2, RNF08.
+**Rastreabilidade:** RF14 (Listar aprovados), RF15 (Registrar frequência), US3.1, US3.2, RNF08.
 
 | ID | Regra de Negócio | Justificativa |
 | :--- | :--- | :--- |
@@ -86,7 +86,7 @@ Regras que controlam o registro de presença e a contabilização de horas de vo
 
 Regras que controlam a geração, integridade e validação dos certificados digitais de voluntariado emitidos pela plataforma.
 
-**Rastreabilidade:** RF15 (Emitir certificado), RF16 (Consultar histórico), RF17 (Validar certificado), US3.3, US3.4, US3.5, US3.6, US3.7, RNF07, RNF08, RNF09.
+**Rastreabilidade:** RF16 (Emitir certificado), RF17 (Compartilhar certificado), RF18 (Consultar histórico), RF19 (Compartilhar histórico), RF20 (Validar certificado), US3.3, US3.4, US3.5, US3.6, US3.7, RNF07, RNF08, RNF09.
 
 | ID | Regra de Negócio | Justificativa |
 | :--- | :--- | :--- |

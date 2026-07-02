@@ -87,15 +87,15 @@ Esta seção descreve os requisitos necessários para o desenvolvimento do softw
 
 | ID | Classificação URPS+ | Descrição resumida | RFs impactados |
 | :--- | :--- | :--- | :--- |
-| RNF01 | Segurança | bcrypt com work factor ≥ 12 | RF01, RF02, RF03, RF05 |
+| RNF01 | Segurança | bcrypt com work factor ≥ 12 | RF01, RF02, RF03, RF06 |
 | RNF02 | Desempenho | Login ≤ 2s sob 100 req. simultâneas | RF01, RF03 |
 | RNF03 | Confiabilidade | Validação de CNPJ com dígitos verificadores | RF02 |
-| RNF04 | Usabilidade | Responsivo em iOS 16+ e Android 10+, tela ≥ 360px | RF04, RF06, RF08, RF09, RF10, RF11, RF12, RF13, RF14, RF16 |
+| RNF04 | Usabilidade | Responsivo em iOS 16+ e Android 10+, tela ≥ 360px | RF04, RF05, RF07, RF08, RF09, RF10, RF11, RF14, RF15, RF18, RF25 |
 | RNF05 | Desempenho | Busca ≤ 3s com até 5 filtros, 200 req. simultâneas | RF08 |
 | RNF06 | Desempenho | Suporte a 1.000 usuários simultâneos, resp. ≤ 5s | RF08, RF10, RF11 |
-| RNF07 | Suportabilidade | Geração assíncrona de PDF em até 30s | RF15, RF16, RF17 |
-| RNF08 | Segurança | Imutabilidade de certificados e frequências no banco | RF13, RF14, RF15, RF16 |
-| RNF09 | Confiabilidade | UUID v4 (RFC 4122) para certificados | RF15, RF17 |
+| RNF07 | Suportabilidade | Geração assíncrona de PDF em até 30s | RF16, RF17, RF20 |
+| RNF08 | Segurança | Imutabilidade de certificados e frequências no banco | RF14, RF15, RF16, RF18 |
+| RNF09 | Confiabilidade | UUID v4 (RFC 4122) para certificados | RF16, RF20 |
 
 ---
 

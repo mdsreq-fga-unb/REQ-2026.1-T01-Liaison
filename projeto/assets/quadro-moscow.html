@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadro de Priorização MoSCoW — Liaison</title>
+<style>
+  :root {
+    --must: #5e35b1;
+    --should: #ef6c00;
+    --could: #2e7d32;
+    --wont: #616161;
+    --ink: #1c1330;
+    --muted: #6b6580;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: #faf9fc;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+  .board {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .col {
+    flex: 1 1 230px;
+    min-width: 220px;
+    background: #fff;
+    border: 1px solid #e7e3f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(30,20,60,.06);
+  }
+  .stack {
+    flex: 1 1 230px;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .stack .col { flex: 0 0 auto; width: 100%; }
+  .col-head {
+    padding: 12px 14px;
+    color: #fff;
+  }
+  .col-head .name { font-size: 15px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+  .col-head .count {
+    font-size: 12px; font-weight: 700;
+    background: rgba(255,255,255,.25);
+    border-radius: 20px; padding: 1px 9px;
+  }
+  .col-head .def { font-size: 11.5px; opacity: .92; margin-top: 3px; line-height: 1.35; }
+  .col-body { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .card {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 9px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-left-width: 3px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    cursor: default;
+  }
+  .card:hover { background: #f6f3fb; }
+  .card .us { font-weight: 800; white-space: nowrap; }
+  .card .ttl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #3a3352; }
+  .card .ice { font-weight: 800; font-size: 11.5px; color: #fff; border-radius: 20px; padding: 1px 8px; white-space: nowrap; }
+  .tooltip {
+    position: fixed; pointer-events: none; z-index: 10;
+    background: #241a3a; color: #fff;
+    padding: 9px 11px; border-radius: 8px;
+    font-size: 12.5px; line-height: 1.45; max-width: 260px;
+    box-shadow: 0 6px 20px rgba(20,10,40,.28);
+    opacity: 0; transition: opacity .1s;
+  }
+  .tooltip b { font-size: 13px; }
+  .tooltip .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 20px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Quadro de Priorização MoSCoW — Liaison</h1>
+  <p class="sub">Bandas de negócio do backlog. Dentro de cada banda, as histórias estão ordenadas por ICE Score decrescente. A trava do MoSCoW é absoluta: nenhuma banda inferior entra no fluxo antes de esgotar a superior.</p>
+  <div class="board" id="board"></div>
+</div>
+<div class="tooltip" id="tip"></div>
+
+<script>
+const DATA = [
+  { us:"US1.1",  issue:12,  title:"Cadastro de Estudantes Universitários",              I:10, C:8, E:7, ICE:560, m:"Must" },
+  { us:"US1.2",  issue:13,  title:"Cadastro de Organizações Sociais",                   I:10, C:7, E:6, ICE:420, m:"Must" },
+  { us:"US1.3",  issue:14,  title:"Autenticação de Usuários",                           I:9,  C:8, E:7, ICE:504, m:"Must" },
+  { us:"US1.4",  issue:15,  title:"Gestão de Perfil do Estudante",                      I:7,  C:8, E:6, ICE:336, m:"Must" },
+  { us:"US1.5",  issue:16,  title:"Edição de Perfil Institucional da Organização",      I:7,  C:8, E:6, ICE:336, m:"Must" },
+  { us:"US1.6",  issue:17,  title:"Recuperação de Senha via E-mail",                    I:6,  C:6, E:7, ICE:252, m:"Won't" },
+  { us:"US1.7",  issue:18,  title:"Painel Administrativo de Moderação (Sysmin)",        I:7,  C:7, E:6, ICE:294, m:"Must" },
+  { us:"US2.1",  issue:19,  title:"Criação de Vagas de Voluntariado",                   I:10, C:7, E:5, ICE:350, m:"Must" },
+  { us:"US2.2",  issue:50,  title:"Edição de Vagas de Voluntariado",                    I:7,  C:8, E:6, ICE:336, m:"Must" },
+  { us:"US2.3",  issue:51,  title:"Publicação de Vagas de Voluntariado",                I:8,  C:9, E:7, ICE:504, m:"Must" },
+  { us:"US2.4",  issue:52,  title:"Encerramento de Vagas de Voluntariado",              I:6,  C:8, E:8, ICE:384, m:"Should" },
+  { us:"US2.5",  issue:20,  title:"Busca e Filtro de Vagas para Estudantes",            I:9,  C:6, E:3, ICE:162, m:"Must" },
+  { us:"US2.6",  issue:21,  title:"Visualização de Detalhes da Vaga",                   I:8,  C:9, E:7, ICE:504, m:"Must" },
+  { us:"US2.7",  issue:22,  title:"Candidatura em Vaga de Voluntariado",                I:10, C:7, E:5, ICE:350, m:"Must" },
+  { us:"US2.8",  issue:24,  title:"Avaliação de Candidaturas pela Organização",         I:9,  C:7, E:5, ICE:315, m:"Must" },
+  { us:"US2.9",  issue:23,  title:"Cancelamento de Candidatura",                        I:6,  C:7, E:6, ICE:252, m:"Must" },
+  { us:"US2.10", issue:25,  title:"Notificações de Status de Candidatura",              I:7,  C:5, E:5, ICE:175, m:"Must" },
+  { us:"US2.11", issue:86,  title:"Acompanhamento de Minhas Candidaturas",              I:8,  C:8, E:7, ICE:448, m:"Must" },
+  { us:"US2.12", issue:111, title:"Ver Perfil da Organização",                          I:5,  C:9, E:9, ICE:567, m:"Should" },
+  { us:"US2.13", issue:119, title:"Ver Perfil do Estudante",                            I:6,  C:9, E:9, ICE:486, m:"Must" },
+  { us:"US2.14", issue:112, title:"Listar Oportunidades Salvas",                        I:4,  C:9, E:9, ICE:324, m:"Should" },
+  { us:"US3.1",  issue:26,  title:"Listagem de Estudantes Aprovados",                   I:7,  C:8, E:6, ICE:336, m:"Must" },
+  { us:"US3.2",  issue:27,  title:"Registro de Frequência e Carga Horária",             I:9,  C:7, E:4, ICE:252, m:"Must" },
+  { us:"US3.3",  issue:31,  title:"Geração Automática de Certificado Digital",          I:10, C:5, E:3, ICE:150, m:"Must" },
+  { us:"US3.4",  issue:32,  title:"Exportação de Certificado Digital em PDF",           I:7,  C:7, E:6, ICE:294, m:"Must" },
+  { us:"US3.5",  issue:33,  title:"Visualização de Histórico de Horas",                 I:7,  C:7, E:5, ICE:245, m:"Should" },
+  { us:"US3.6",  issue:34,  title:"Download de Certificados",                           I:6,  C:7, E:6, ICE:252, m:"Should" },
+  { us:"US3.7",  issue:30,  title:"Portal Público de Validação de Certificados",        I:6,  C:5, E:4, ICE:120, m:"Could" },
+];
+
+const BANDS = [
+  { key:"Must",   name:"Must Have",   color:"var(--must)",   def:"Inegociável — sem isso não há lançamento." },
+  { key:"Should", name:"Should Have", color:"var(--should)", def:"Importante — o produto sobrevive sem por um tempo." },
+  { key:"Could",  name:"Could Have",  color:"var(--could)",  def:"Nice to have — pode ser postergado." },
+  { key:"Won't",  name:"Won't Have",  color:"var(--wont)",   def:"Descartado conscientemente para este ciclo." },
+];
+
+const board = document.getElementById("board");
+const tip = document.getElementById("tip");
+
+function makeCol(b) {
+  const items = DATA.filter(d => d.m === b.key).sort((a, z) => z.ICE - a.ICE);
+  const col = document.createElement("div");
+  col.className = "col";
+  col.innerHTML = `
+    <div class="col-head" style="background:${b.color}">
+      <div class="name"><span>${b.name}</span><span class="count">${items.length}</span></div>
+      <div class="def">${b.def}</div>
+    </div>
+    <div class="col-body"></div>`;
+  const body = col.querySelector(".col-body");
+  items.forEach(d => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.borderLeftColor = b.color;
+    card.innerHTML = `<span class="us">${d.us}</span>`
+      + `<span class="ttl">${d.title}</span>`
+      + `<span class="ice" style="background:${b.color}">${d.ICE}</span>`;
+    card.addEventListener("mousemove", ev => {
+      tip.style.opacity = 1;
+      tip.style.left = Math.min(ev.clientX + 14, window.innerWidth - 270) + "px";
+      tip.style.top = (ev.clientY + 14) + "px";
+      tip.innerHTML = `<b>${d.us} · #${d.issue}</b><br>${d.title}<br>`
+        + `<span class="tag" style="background:${b.color}22;color:${b.color}">${b.name}</span><br>`
+        + `Impacto ${d.I} · Confiança ${d.C} · Facilidade ${d.E}<br><b>ICE ${d.ICE}</b>`;
+    });
+    card.addEventListener("mouseleave", () => { tip.style.opacity = 0; });
+    body.appendChild(card);
+  });
+  return col;
+}
+
+const byKey = k => BANDS.find(b => b.key === k);
+board.appendChild(makeCol(byKey("Must")));
+board.appendChild(makeCol(byKey("Should")));
+// Could e Won't empilhados na mesma coluna para caber tudo em uma linha
+const stack = document.createElement("div");
+stack.className = "stack";
+stack.appendChild(makeCol(byKey("Could")));
+stack.appendChild(makeCol(byKey("Won't")));
+board.appendChild(stack);
+</script>
+</body>
+</html>

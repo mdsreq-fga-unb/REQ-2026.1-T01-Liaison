@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matriz Facilidade × Valor — Liaison</title>
+<style>
+  :root {
+    --must: #5e35b1;
+    --should: #ef6c00;
+    --could: #2e7d32;
+    --wont: #616161;
+    --ink: #1c1330;
+    --muted: #6b6580;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: #faf9fc;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+  .card {
+    background: #fff;
+    border: 1px solid #e7e3f0;
+    border-radius: 12px;
+    padding: 16px 16px 8px;
+    box-shadow: 0 1px 3px rgba(30,20,60,.06);
+  }
+  .chart-wrap { position: relative; width: 100%; }
+  svg { width: 100%; height: auto; display: block; }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+    margin: 14px 4px 6px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .legend .grp { display: flex; align-items: center; gap: 7px; }
+  .legend .dot { width: 14px; height: 14px; border-radius: 4px; }
+  .note { font-size: 12.5px; color: var(--muted); margin: 10px 4px 2px; line-height: 1.5; }
+  .chip { cursor: default; }
+  .chip rect { transition: filter .12s; }
+  .chip:hover rect { filter: brightness(1.12); }
+  .tooltip {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10;
+    background: #241a3a;
+    color: #fff;
+    padding: 9px 11px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    max-width: 260px;
+    box-shadow: 0 6px 20px rgba(20,10,40,.28);
+    opacity: 0;
+    transition: opacity .1s;
+  }
+  .tooltip b { font-size: 13px; }
+  .tooltip .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 20px;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Matriz Facilidade × Valor — Liaison</h1>
+  <p class="sub">Priorização das histórias de usuário. Eixo horizontal = <b>Facilidade (E)</b> — maior valor significa mais fácil de implementar. Eixo vertical = <b>Valor / Impacto (I)</b>. Tamanho fixo; a cor indica a banda MoSCoW.</p>
+
+  <div class="card">
+    <div class="chart-wrap">
+      <svg id="matrix" viewBox="0 0 940 680" role="img" aria-label="Matriz Facilidade por Valor"></svg>
+    </div>
+    <div class="legend">
+      <div class="grp"><span class="dot" style="background:var(--must)"></span> Must Have</div>
+      <div class="grp"><span class="dot" style="background:var(--should)"></span> Should Have</div>
+      <div class="grp"><span class="dot" style="background:var(--could)"></span> Could Have</div>
+      <div class="grp"><span class="dot" style="background:var(--wont)"></span> Won't Have</div>
+    </div>
+    <p class="note">Histórias com a mesma coordenada (mesmo Valor e Facilidade) são distribuídas em torno do ponto real, ligadas a ele por uma linha, para não se sobreporem. Passe o mouse sobre um card para ver o título completo e o ICE Score.</p>
+  </div>
+</div>
+
+<div class="tooltip" id="tip"></div>
+
+<script>
+const DATA = [
+  { us:"US1.1",  issue:12,  title:"Cadastro de Estudantes Universitários",              I:10, C:8, E:7, ICE:560, m:"Must" },
+  { us:"US1.2",  issue:13,  title:"Cadastro de Organizações Sociais",                   I:10, C:7, E:6, ICE:420, m:"Must" },
+  { us:"US1.3",  issue:14,  title:"Autenticação de Usuários",                           I:9,  C:8, E:7, ICE:504, m:"Must" },
+  { us:"US1.4",  issue:15,  title:"Gestão de Perfil do Estudante",                      I:7,  C:8, E:6, ICE:336, m:"Must" },
+  { us:"US1.5",  issue:16,  title:"Edição de Perfil Institucional da Organização",      I:7,  C:8, E:6, ICE:336, m:"Must" },
+  { us:"US1.6",  issue:17,  title:"Recuperação de Senha via E-mail",                    I:6,  C:6, E:7, ICE:252, m:"Won't" },
+  { us:"US1.7",  issue:18,  title:"Painel Administrativo de Moderação (Sysmin)",        I:7,  C:7, E:6, ICE:294, m:"Must" },
+  { us:"US2.1",  issue:19,  title:"Criação de Vagas de Voluntariado",                   I:10, C:7, E:5, ICE:350, m:"Must" },
+  { us:"US2.2",  issue:50,  title:"Edição de Vagas de Voluntariado",                    I:7,  C:8, E:6, ICE:336, m:"Must" },
+  { us:"US2.3",  issue:51,  title:"Publicação de Vagas de Voluntariado",                I:8,  C:9, E:7, ICE:504, m:"Must" },
+  { us:"US2.4",  issue:52,  title:"Encerramento de Vagas de Voluntariado",              I:6,  C:8, E:8, ICE:384, m:"Should" },
+  { us:"US2.5",  issue:20,  title:"Busca e Filtro de Vagas para Estudantes",            I:9,  C:6, E:3, ICE:162, m:"Must" },
+  { us:"US2.6",  issue:21,  title:"Visualização de Detalhes da Vaga",                   I:8,  C:9, E:7, ICE:504, m:"Must" },
+  { us:"US2.7",  issue:22,  title:"Candidatura em Vaga de Voluntariado",                I:10, C:7, E:5, ICE:350, m:"Must" },
+  { us:"US2.8",  issue:24,  title:"Avaliação de Candidaturas pela Organização",         I:9,  C:7, E:5, ICE:315, m:"Must" },
+  { us:"US2.9",  issue:23,  title:"Cancelamento de Candidatura",                        I:6,  C:7, E:6, ICE:252, m:"Must" },
+  { us:"US2.10", issue:25,  title:"Notificações de Status de Candidatura",              I:7,  C:5, E:5, ICE:175, m:"Must" },
+  { us:"US2.11", issue:86,  title:"Acompanhamento de Minhas Candidaturas",              I:8,  C:8, E:7, ICE:448, m:"Must" },
+  { us:"US2.12", issue:111, title:"Ver Perfil da Organização",                          I:5,  C:9, E:9, ICE:567, m:"Should" },
+  { us:"US2.13", issue:119, title:"Ver Perfil do Estudante",                            I:6,  C:9, E:9, ICE:486, m:"Must" },
+  { us:"US2.14", issue:112, title:"Listar Oportunidades Salvas",                        I:4,  C:9, E:9, ICE:324, m:"Should" },
+  { us:"US3.1",  issue:26,  title:"Listagem de Estudantes Aprovados",                   I:7,  C:8, E:6, ICE:336, m:"Must" },
+  { us:"US3.2",  issue:27,  title:"Registro de Frequência e Carga Horária",             I:9,  C:7, E:4, ICE:252, m:"Must" },
+  { us:"US3.3",  issue:31,  title:"Geração Automática de Certificado Digital",          I:10, C:5, E:3, ICE:150, m:"Must" },
+  { us:"US3.4",  issue:32,  title:"Exportação de Certificado Digital em PDF",           I:7,  C:7, E:6, ICE:294, m:"Must" },
+  { us:"US3.5",  issue:33,  title:"Visualização de Histórico de Horas",                 I:7,  C:7, E:5, ICE:245, m:"Should" },
+  { us:"US3.6",  issue:34,  title:"Download de Certificados",                           I:6,  C:7, E:6, ICE:252, m:"Should" },
+  { us:"US3.7",  issue:30,  title:"Portal Público de Validação de Certificados",        I:6,  C:5, E:4, ICE:120, m:"Could" },
+];
+
+const COLORS = { Must:"#5e35b1", Should:"#ef6c00", Could:"#2e7d32", "Won't":"#616161" };
+
+// Layout constants
+const W = 940, H = 680;
+const mL = 78, mR = 34, mT = 40, mB = 62;
+const pW = W - mL - mR, pH = H - mT - mB;
+const DMIN = 0.5, DMAX = 10.5;               // domain padding so 1..10 sit inside
+const EASE_SPLIT = 4.5, VALUE_SPLIT = 6.5;   // quadrant boundaries
+
+const sx = e => mL + (e - DMIN) / (DMAX - DMIN) * pW;
+const sy = i => mT + (1 - (i - DMIN) / (DMAX - DMIN)) * pH;
+
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("matrix");
+const el = (tag, attrs) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+};
+
+// ---- Quadrant background tints ----
+const quads = [
+  { x0:EASE_SPLIT, x1:DMAX, y0:VALUE_SPLIT, y1:DMAX, fill:"#e8f5e9", label:"QUICK WIN",  lc:"#2e7d32", ax:"end",   ay:"top" },
+  { x0:DMIN, x1:EASE_SPLIT, y0:VALUE_SPLIT, y1:DMAX, fill:"#fff4e2", label:"PLAN",       lc:"#ef6c00", ax:"start", ay:"top" },
+  { x0:EASE_SPLIT, x1:DMAX, y0:DMIN, y1:VALUE_SPLIT, fill:"#eaf2fc", label:"LATER",      lc:"#1565c0", ax:"end",   ay:"bottom" },
+  { x0:DMIN, x1:EASE_SPLIT, y0:DMIN, y1:VALUE_SPLIT, fill:"#fdeaea", label:"DROP",       lc:"#c62828", ax:"start", ay:"bottom" },
+];
+quads.forEach(q => {
+  svg.appendChild(el("rect", { x:sx(q.x0), y:sy(q.y1), width:sx(q.x1)-sx(q.x0), height:sy(q.y0)-sy(q.y1), fill:q.fill }));
+});
+// Quadrant labels (faint, in corners)
+quads.forEach(q => {
+  const pad = 12;
+  const x = q.ax === "end" ? sx(q.x1) - pad : sx(q.x0) + pad;
+  const y = q.ay === "top" ? sy(q.y1) + 26 : sy(q.y0) - 14;
+  const t = el("text", { x, y, "text-anchor": q.ax, "font-size":22, "font-weight":800, fill:q.lc, "fill-opacity":.22, "letter-spacing":1 });
+  t.textContent = q.label;
+  svg.appendChild(t);
+});
+
+// ---- Gridlines + ticks ----
+for (let v = 1; v <= 10; v++) {
+  // vertical (Facilidade)
+  svg.appendChild(el("line", { x1:sx(v), y1:mT, x2:sx(v), y2:mT+pH, stroke:"#00000010", "stroke-width":1 }));
+  const tx = el("text", { x:sx(v), y:mT+pH+20, "text-anchor":"middle", "font-size":12, fill:"#8a839c" });
+  tx.textContent = v; svg.appendChild(tx);
+  // horizontal (Valor)
+  svg.appendChild(el("line", { x1:mL, y1:sy(v), x2:mL+pW, y2:sy(v), stroke:"#00000010", "stroke-width":1 }));
+  const ty = el("text", { x:mL-14, y:sy(v)+4, "text-anchor":"end", "font-size":12, fill:"#8a839c" });
+  ty.textContent = v; svg.appendChild(ty);
+}
+
+// ---- Bold divider lines at quadrant splits ----
+svg.appendChild(el("line", { x1:sx(EASE_SPLIT), y1:mT, x2:sx(EASE_SPLIT), y2:mT+pH, stroke:"#9a8fc0", "stroke-width":1.6, "stroke-dasharray":"6 5" }));
+svg.appendChild(el("line", { x1:mL, y1:sy(VALUE_SPLIT), x2:mL+pW, y2:sy(VALUE_SPLIT), stroke:"#9a8fc0", "stroke-width":1.6, "stroke-dasharray":"6 5" }));
+
+// ---- Plot border ----
+svg.appendChild(el("rect", { x:mL, y:mT, width:pW, height:pH, fill:"none", stroke:"#d7d0e6", "stroke-width":1.4 }));
+
+// ---- Axis titles ----
+const xt = el("text", { x:mL+pW/2, y:H-16, "text-anchor":"middle", "font-size":14, "font-weight":700, fill:"#4a4360" });
+xt.textContent = "Facilidade (E)  →  maior = mais fácil de implementar";
+svg.appendChild(xt);
+const yt = el("text", { x:20, y:mT+pH/2, "text-anchor":"middle", "font-size":14, "font-weight":700, fill:"#4a4360", transform:`rotate(-90 20 ${mT+pH/2})` });
+yt.textContent = "Valor / Impacto (I)  →";
+svg.appendChild(yt);
+
+// ---- Collision spreading: group by (E,I) ----
+const groups = {};
+DATA.forEach(d => { const k = d.E + "_" + d.I; (groups[k] = groups[k] || []).push(d); });
+Object.values(groups).forEach(g => {
+  const n = g.length;
+  if (n === 1) { g[0].ox = 0; g[0].oy = 0; return; }
+  if (n <= 4) {
+    // small cluster: ring around the true point
+    const r = n === 2 ? 24 : 34;
+    g.forEach((d, i) => {
+      const ang = (Math.PI * 2 * i / n) - Math.PI / 2;   // start at top
+      d.ox = Math.cos(ang) * r;
+      d.oy = Math.sin(ang) * r;
+    });
+  } else {
+    // large cluster: grid packing so chips never overlap
+    const cols = Math.ceil(Math.sqrt(n));
+    const rows = Math.ceil(n / cols);
+    const cw = 50, ch = 26;
+    g.forEach((d, i) => {
+      const col = i % cols, row = Math.floor(i / cols);
+      d.ox = (col - (cols - 1) / 2) * cw;
+      d.oy = (row - (rows - 1) / 2) * ch;
+    });
+  }
+});
+
+// ---- Draw connectors + center dots for clustered points ----
+DATA.forEach(d => {
+  if (d.ox || d.oy) {
+    const cx = sx(d.E), cy = sy(d.I);
+    svg.appendChild(el("line", { x1:cx, y1:cy, x2:cx+d.ox, y2:cy+d.oy, stroke:"#b8b0cc", "stroke-width":1.2 }));
+  }
+});
+Object.values(groups).forEach(g => {
+  if (g.length > 1) {
+    const d = g[0];
+    svg.appendChild(el("circle", { cx:sx(d.E), cy:sy(d.I), r:3, fill:"#7a72a0" }));
+  }
+});
+
+// ---- Draw chips ----
+const CW = 46, CH = 22;
+const tip = document.getElementById("tip");
+DATA.forEach(d => {
+  const cx = sx(d.E) + (d.ox || 0);
+  const cy = sy(d.I) + (d.oy || 0);
+  const g = el("g", { class:"chip" });
+  const color = COLORS[d.m];
+  g.appendChild(el("rect", { x:cx-CW/2, y:cy-CH/2, width:CW, height:CH, rx:6, fill:color }));
+  const t = el("text", { x:cx, y:cy+4, "text-anchor":"middle", "font-size":12, "font-weight":700, fill:"#fff" });
+  t.textContent = d.us.replace("US", "");
+  g.appendChild(t);
+
+  g.addEventListener("mousemove", ev => {
+    tip.style.opacity = 1;
+    tip.style.left = Math.min(ev.clientX + 14, window.innerWidth - 270) + "px";
+    tip.style.top = (ev.clientY + 14) + "px";
+    tip.innerHTML = `<b>${d.us} · #${d.issue}</b><br>${d.title}<br>`
+      + `<span class="tag" style="background:${color}22;color:${color}">${d.m} Have</span><br>`
+      + `Impacto ${d.I} · Confiança ${d.C} · Facilidade ${d.E}<br><b>ICE ${d.ICE}</b>`;
+  });
+  g.addEventListener("mouseleave", () => { tip.style.opacity = 0; });
+  svg.appendChild(g);
+});
+</script>
+</body>
+</html>

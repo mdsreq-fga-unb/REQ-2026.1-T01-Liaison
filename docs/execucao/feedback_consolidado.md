@@ -1,33 +1,33 @@
 # Consolidação de Requisitos, Feedbacks e Estratégia de Validação
 
-## 1. Estratégia de Validação
+## 1. Estratégia de Validação e Feedback Contínuo
 Adotamos uma estratégia baseada em **Pontos de Inflexão Estratégica**. A validação concentrou-se na concepção, prototipagem de fluxos críticos de negócio e na entrega consolidada, garantindo que o tempo do cliente fosse utilizado para decisões estratégicas, enquanto a equipe mantinha autonomia técnica para o desenvolvimento operacional.
 
-## 2. Registro de Validação por Incidente e Requisito
-
-### Legenda de Classificação
-* **VP:** Validação de Problema (Elicitação)
-* **PR:** Protótipo
-* **RQ:** Requisito (Alinhamento de Regra de Negócio)
-* **SF:** Software Funcional / Processo de Desenvolvimento
-
-| Data | US/RF | Tipo | Artefato | Feedback / Decisão | Status | Link |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 12/04 | N/A | VP | Reunião | Elicitação inicial e validação da proposta de valor | ✅ Aprovado | [Ata 01](/docs/execucao/atas/ata_01_elicitaçao_valdemir_12_04.md) |
-| 02/05 | RF03 | RQ | Arquitetura | Cadastro de Org: via Painel Admin (segurança) | ✅ Aprovado | [Ata 02](/docs/execucao/atas/ata_02_organizacao_reqs_02_05.md) |
-| 02/05 | RF03 | PR | Protótipo | Gestão de fotos/galeria mantida para humanização | ✅ Aprovado | [Ata 02](/docs/execucao/atas/ata_02_organizacao_reqs_02_05.md) |
-| 02/05 | RF01 | RQ | Autenticação | Fluxo de Login via tokens (JWT) estabelecido | ✅ Aprovado | [Ata 02](/docs/execucao/atas/ata_02_organizacao_reqs_02_05.md) |
-| 19/05 | RF01 | RQ | Performance | Métrica: 1000 usuários simultâneos e busca < 3s | ✅ Aprovado | [Ata 04](/docs/execucao/atas/ata_04_priorizacao_19_05.md) |
-| 19/05 | RF03 | RQ | Cadastro Org | Fluxo de cadastro simplificado para reduzir esforço | ✅ Aprovado | [Ata 04](/docs/execucao/atas/ata_04_priorizacao_19_05.md) |
-| 19/05 | N/A | RQ | DoR/DoD | Ajuste de critérios de aceite atrelados à US | ✅ Aprovado | [Ata 04](/docs/execucao/atas/ata_04_priorizacao_19_05.md) |
-| 19/05 | RF | RQ | Rastreabilidade | Criação de vínculo: Definition of Done (DoD) vs. RF | ✅ Aprovado | [Ata 05](/docs/execucao/atas/ata_05_monitoria_19_05.md) |
-| 02/06 | SF | SF | Papéis | Realocação ágil: criação de papel de Infraestrutura | ✅ Aprovado | [Ata 07](/docs/execucao/atas/ata_07_monitoria_02_06.md) |
-| 09/06 | SF | SF | Painel Admin | Retrabalho de código devido falha de hardware (Luis) | ⚠️ Aprovado c/ ressalvas | [Ata 08](/docs/execucao/atas/ata_08_monitoria_09_06.md) |
+Os feedbacks recebidos durante as reuniões com stakeholders (clientes, professores e monitores) foram diretamente incorporados ao [Backlog do Produto](../projeto/backlog_produto.md) e à arquitetura do software, resultando em ajustes precisos no direcionamento da solução.
 
 ---
 
-## Notas sobre o Backlog e Qualidade
-O backlog do projeto Liaison passou por um refinamento contínuo ao longo do desenvolvimento do projeto. 
-* **Inexistência de Rollback:** Não houve feedbacks negativos que exigissem *rollback*.
-* **Ajustes de Processo:** Alterações de priorização (ICE Score) e readequação de papéis para garantir estabilidade.
-* **Rastreabilidade:** Documento oficial de rastreio de decisões entre requisitos e entregas.
+## 2. Tabela Consolidada de Feedbacks e Validações
+
+A tabela abaixo registra todo o ciclo de vida da validação, diferenciando se a etapa avaliou o **Problema**, o **Protótipo**, um **Requisito (Regra de Negócio)** ou o **Software Funcional**.
+
+| Data | US/RF Apresentado | Artefato Apresentado | Feedback do Stakeholder | Decisão | Ajuste Realizado | Status | Evidência (O que o registro comprova) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 12/04 | Visão Geral do Produto | **Validação de Problema**<br>Proposta de Valor e Entendimento do Domínio | O controle de horas voluntárias hoje é ineficiente e propenso a fraudes na ONG; um aplicativo centralizado será essencial. | O projeto tem forte aderência ao problema real e o escopo deve focar estritamente na gestão de presenças e vagas. | Escopo inicial delineado nos Épicos CP01, CP02 e CP03 no backlog. | ✅ Aprovado | [Ata 01 e Vídeo - Entrevista, Elicitação e Descoberta junto ao cliente](/docs/execucao/atas/ata_01_elicitaçao_valdemir_12_04.md) |
+| 02/05 | RF02 (Cadastrar org) / US1.2 | **Validação de Requisito**<br>Diagrama e Arquitetura de Acesso | O cadastro aberto para organizações pode gerar riscos críticos de segurança e perfis falsos. | Restringir o cadastro direto; a aprovação definitiva da ONG será feita via painel de administração interno. | Inclusão do RF06 (Aprovar organização) no Backlog do Produto. | ✅ Aprovado | [Ata 02 e Vídeo - Planejamento da Sprint e Alinhamento Técnico de Arquitetura](/docs/execucao/atas/ata_02_organizacao_reqs_02_05.md) |
+| 02/05 | RF21 (Criar Vaga) / US2.1 | **Validação de Protótipo**<br>Wireframes e Telas do Figma | A humanização das vagas é importante; galerias de fotos nas oportunidades são vitais para engajar os estudantes. | Manter a funcionalidade de upload e exibição de imagens para as vagas, assumindo o custo de infraestrutura (S3). | Inclusão de suporte a Storage AWS S3 na pipeline de desenvolvimento. | ✅ Aprovado | [Ata 02 e Vídeo - Planejamento da Sprint e Discussão de Protótipo](/docs/execucao/atas/ata_02_organizacao_reqs_02_05.md) |
+| 02/05 | RF03 (Autenticar) / US1.3 | **Validação de Requisito**<br>Fluxo e Protocolo de Segurança | O modelo JWT é prático e simplifica a implementação mobile e backend, além de prover segurança suficiente. | Seguir com a implementação base de JWT para a autenticação de estudantes e organizações. | Adição do simplejwt nas bibliotecas backend. | ✅ Aprovado | [Ata 02 e Vídeo - Planejamento da Sprint e Organização Interna](/docs/execucao/atas/ata_02_organizacao_reqs_02_05.md) |
+| 19/05 | Todo o Backlog e MVP | **Validação de Requisito**<br>Matriz ICE e MoSCoW | O RF20 (Validar certificado) tem baixa urgência técnica para o MVP, enquanto o cadastro e login são prioridade crítica. | O RF20 foi rebaixado (ICE 120) para Sprints finais; os fluxos de CP01 foram puxados para o topo. | Atualização oficial do Backlog Priorizado e da Matriz Facilidade × Valor. | ✅ Aprovado | [Ata 04 e Vídeo - Workshop de Priorização de Requisitos (MVP)](/docs/execucao/atas/ata_04_priorizacao_19_05.md) |
+| 19/05 | US1.1 a US1.7 | **Validação de Requisito**<br>Métricas de Aceite e Qualidade | A métrica de Definition of Done (DoD) precisa estar estritamente vinculada às RFs para rastrear entregas reais. | Adotar rastreabilidade exata de 1:1 entre RF e US no repositório e no Design do Figma. | Refatoração das issues no GitHub e atualização da Matriz de Rastreabilidade. | ✅ Aprovado | [Ata 05 e Vídeo - Acompanhamento, Revisão de Sprints e Alinhamento Técnico](/docs/execucao/atas/ata_05_monitoria_19_05.md) |
+| 02/06 | RF03 e Pipeline (DevOps) | **Software Funcional**<br>Processo de Integração Contínua | A ausência de um papel específico focado em estabilidade de servidor estava atrasando a homologação. | Criação formal do papel de "Infraestrutura/DevOps" dentro da equipe para desafogar os desenvolvedores backend. | Realocação ágil da equipe e documentação dos novos papéis. | ✅ Aprovado | [Ata 07 e Vídeo - Acompanhamento, Revisão de Sprints e Alinhamento Técnico](/docs/execucao/atas/ata_07_monitoria_02_06.md) |
+| 09/06 | RF04, RF05 (Painel Admin) | **Software Funcional**<br>Código Frontend e Backend | Problemas de hardware com um membro da equipe impactaram a integração do painel administrativo. | Aceitar o atraso parcial no painel web, remanejando tarefas para a próxima Sprint e fazendo pair programming. | Reorganização das issues no Kanban e estabelecimento de pareamento. | ⚠️ Aprovado c/ ressalvas | [Ata 08 e Vídeo - Acompanhamento, Revisão de Sprints e Alinhamento Técnico](/docs/execucao/atas/ata_08_monitoria_09_06.md) |
+
+---
+
+## 3. Impacto no Backlog e Qualidade
+
+O processo de feedback gerou mutações constantes e saudáveis no artefato principal de requisitos (o **Backlog do Produto**):
+
+* **Priorização Atualizada (Ajuste Realizado):** Requisitos como o *RF20 (Validação via QRCode)* tiveram suas notas reduzidas (ICE = 120) após feedbacks e discussões de priorização (MoSCoW), liberando esforço para os RFs mais críticos do MVP.
+* **Mapeamento 1:1 (Decisão de Processo):** Comentários sobre a complexidade de validação geraram uma grande refatoração na forma de escrever requisitos: hoje, cada `RF` mapeia diretamente para uma única `US`, facilitando o rastreio na **Matriz de Rastreabilidade**.
+* **Gestão de Risco:** Não houve incidências severas que exigissem *rollback* do código-fonte; os feedbacks incidiram majoritariamente sobre priorização no Kanban e regras de negócio.

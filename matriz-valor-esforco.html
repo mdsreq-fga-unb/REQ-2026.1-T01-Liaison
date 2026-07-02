@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matriz de Valor × Facilidade — Liaison</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --quick-win: #86efac;
+      --plan: #93c5fd;
+      --later: #fde047;
+      --drop: #fca5a5;
+      --accent: #2563eb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+
+    h1 { margin: 0; font-size: 1.6rem; }
+    p.subtitle { margin: 6px 0 0; color: var(--text-muted); }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform .1s, box-shadow .1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .matrix-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 720px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .matrix-label {
+      position: absolute;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .label-x {
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .label-y {
+      left: 10px;
+      top: 50%;
+      transform: rotate(-90deg) translateX(-50%);
+      transform-origin: left center;
+    }
+
+    svg.matrix {
+      width: 100%;
+      height: 100%;
+    }
+
+    .quadrant-label {
+      font-size: 1.05rem;
+      font-weight: 800;
+      fill: rgba(31, 41, 55, 0.35);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }
+
+    .axis-line { stroke: #9ca3af; stroke-width: 1.5; }
+    .tick { stroke: #d1d5db; stroke-width: 1; }
+    .tick-text {
+      font-size: 0.72rem;
+      fill: var(--text-muted);
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .story-dot {
+      cursor: pointer;
+      transition: r .2s, stroke-width .2s;
+    }
+
+    .story-dot:hover { r: 9; stroke-width: 3; }
+
+    .story-label {
+      font-size: 0.65rem;
+      fill: var(--text);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+      font-weight: 600;
+    }
+
+    .tooltip {
+      position: fixed;
+      background: rgba(17, 24, 39, 0.95);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      max-width: 280px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .15s;
+      z-index: 1000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      line-height: 1.45;
+    }
+
+    .tooltip strong { color: #bfdbfe; }
+
+    .table-wrapper {
+      margin-top: 32px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f9fafb;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+    }
+
+    tr:nth-child(even) { background: #fafafa; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .bg-quick { background: var(--quick-win); }
+    .bg-plan { background: var(--plan); }
+    .bg-later { background: var(--later); }
+    .bg-drop { background: var(--drop); }
+    .bg-na { background: #e5e7eb; }
+
+    .status-done { color: #15803d; font-weight: 700; }
+    .status-to-prod { color: #1d4ed8; font-weight: 700; }
+    .status-qa { color: #b45309; font-weight: 700; }
+    .status-backlog { color: var(--text-muted); font-weight: 700; }
+
+    @media print {
+      body { padding: 0; background: #fff; }
+      .page { box-shadow: none; max-width: 100%; }
+      .actions { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" id="matrix-page">
+    <header>
+      <div>
+        <h1>Matriz de Valor × Facilidade</h1>
+        <p class="subtitle">Liaison — REQ-2026.1-T01 | User Stories</p>
+      </div>
+      <div class="actions">
+        <button class="btn-secondary" onclick="window.print()">Imprimir</button>
+        <button class="btn-primary" onclick="exportPDF()">Exportar PDF</button>
+      </div>
+    </header>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-color bg-quick"></div> Quick Win</div>
+      <div class="legend-item"><div class="legend-color bg-plan"></div> Plan</div>
+      <div class="legend-item"><div class="legend-color bg-later"></div> Later</div>
+      <div class="legend-item"><div class="legend-color bg-drop"></div> Drop</div>
+      <div class="legend-item"><div class="legend-color bg-na"></div> Sem dados</div>
+    </div>
+
+    <div class="matrix-wrapper" id="matrix-wrapper">
+      <span class="matrix-label label-x">Facilidade (Ease) →</span>
+      <span class="matrix-label label-y">← Valor (Impacto)</span>
+      <svg class="matrix" id="matrix" viewBox="0 0 700 700" preserveAspectRatio="xMidYMid meet">
+        <!-- Grid lines aligned with integer values -->
+        <g id="grid-lines"></g>
+
+        <!-- Quadrants -->
+        <rect x="60" y="60" width="290" height="290" fill="var(--plan)" opacity="0.35" />
+        <rect x="350" y="60" width="290" height="290" fill="var(--quick-win)" opacity="0.35" />
+        <rect x="60" y="350" width="290" height="290" fill="var(--drop)" opacity="0.35" />
+        <rect x="350" y="350" width="290" height="290" fill="var(--later)" opacity="0.35" />
+
+        <text x="205" y="205" class="quadrant-label">Plan</text>
+        <text x="495" y="205" class="quadrant-label">Quick Win</text>
+        <text x="205" y="495" class="quadrant-label">Drop</text>
+        <text x="495" y="495" class="quadrant-label">Later</text>
+
+        <!-- Axes -->
+        <line x1="60" y1="640" x2="640" y2="640" class="axis-line" />
+        <line x1="60" y1="640" x2="60" y2="60" class="axis-line" />
+
+        <!-- Ticks X -->
+        <g id="ticks-x"></g>
+        <!-- Ticks Y -->
+        <g id="ticks-y"></g>
+
+        <!-- Dots -->
+        <g id="dots"></g>
+      </svg>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>User Story</th>
+            <th>Status</th>
+            <th>Valor (I)</th>
+            <th>Facilidade (E)</th>
+            <th>Facilidade</th>
+            <th>ICE</th>
+            <th>MoSCoW</th>
+            <th>Quadrante</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <footer style="margin-top:24px; font-size:0.8rem; color:var(--text-muted); text-align:center;">
+      Fonte: matriz-user-stories.md · Eixo X = Facilidade (ease) · Eixo Y = Valor (impact)
+    </footer>
+  </div>
+
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+    /*
+     * ============================================================
+     * EDITE APENAS A LISTA ABAIXO PARA ATUALIZAR A MATRIZ
+     * ============================================================
+     *
+     * Para cada user story, crie um objeto com os campos:
+     *
+     *   id        : número da issue/user story
+     *   name      : título da user story
+     *   status    : Done | To Prod | Q/A | Backlog (ou qualquer outro)
+     *   impact    : Valor/Impacto de 0 a 10
+     *   ease      : Facilidade de 1 a 10 (quanto maior, mais fácil)
+     *   ice       : ICE Score (pode ser número ou null)
+     *   moscow    : Must | Should | Could | Won't | "—"
+     *   quadrant  : Quick Win | Plan | Later | Drop | "—"
+     *
+     * Regras:
+     * - Eixo X = Facilidade (ease); Eixo Y = Valor/Impacto (impact).
+     * - Se impact ou ease forem null, a story não aparece no gráfico,
+     *   mas aparece na tabela como "Sem dados".
+     * - Para remover uma story, apague a linha inteira do objeto.
+     * - Para adicionar, copie uma linha e altere os valores.
+     * ============================================================
+     */
+    const USER_STORIES = [
+      { id: 12,  name: "US1.1 - Cadastro de Estudantes Universitários (RF01)",                  status: "Done",    impact: 10, ease: 7, ice: 560, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 13,  name: "US1.2 - Cadastro de Organizações Sociais (RF02)",                       status: "Done",    impact: 10, ease: 6, ice: 420, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 14,  name: "US1.3 - Autenticação de Usuários (RF03)",                              status: "Done",    impact: 8,  ease: 7, ice: 448, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 15,  name: "US1.4 - Gestão de Perfil do Estudante (RF04)",                          status: "Done",    impact: 7,  ease: 6, ice: 336, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 16,  name: "US1.5 - Edição de Perfil Institucional da Organização (RF04)",          status: "Done",    impact: 7,  ease: 6, ice: 336, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 17,  name: "US1.6 - Recuperação de Senha via E-mail (RF05)",                        status: "Q/A",     impact: 5,  ease: 7, ice: 210, moscow: "Won't",  quadrant: "Quick Win" },
+      { id: 18,  name: "US1.7 - Painel Administrativo para Moderação de Organizações (RF06)",   status: "Done",    impact: 7,  ease: 5, ice: 210, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 19,  name: "US2.1 - Criação de Vagas de Voluntariado (RF18)",                       status: "Done",    impact: 10, ease: 5, ice: 350, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 20,  name: "US2.5 - Busca e Filtro de Vagas para Estudantes (RF08)",                status: "Done",    impact: 9,  ease: 3, ice: 162, moscow: "Must",   quadrant: "Plan" },
+      { id: 21,  name: "US2.6 - Visualização de Detalhes da Vaga (RF09)",                       status: "Done",    impact: 8,  ease: 7, ice: 504, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 22,  name: "US2.7 - Candidatura em Vaga de Voluntariado (RF10)",                    status: "Done",    impact: 10, ease: 5, ice: 350, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 23,  name: "US2.9 - Cancelamento de Candidatura (RF12)",                            status: "To Prod", impact: 8,  ease: 6, ice: 336, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 24,  name: "US2.8 - Avaliação de Candidaturas pela Organização (RF11)",             status: "To Prod", impact: 9,  ease: 5, ice: 315, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 25,  name: "US2.10 - Notificações de Status de Candidatura (RF12)",                 status: "To Prod", impact: 8,  ease: 6, ice: 336, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 26,  name: "US3.1 - Listagem de Estudantes Aprovados (RF13)",                       status: "To Prod", impact: 7,  ease: 6, ice: 336, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 27,  name: "US3.2 - Registro de Frequência e Carga Horária (RF14)",                 status: "To Prod", impact: 9,  ease: 4, ice: 252, moscow: "Must",   quadrant: "Plan" },
+      { id: 30,  name: "US3.7 - Portal Público de Validação de Certificados (RF17)",            status: "To Prod", impact: 6,  ease: 4, ice: 120, moscow: "Could",  quadrant: "Plan" },
+      { id: 31,  name: "US3.3 - Geração Automática de Certificado Digital (RF15)",              status: "To Prod", impact: 10, ease: 3, ice: 150, moscow: "Must",   quadrant: "Plan" },
+      { id: 32,  name: "US3.4 - Exportação de Certificado Digital em PDF (RF15)",               status: "To Prod", impact: 10, ease: 3, ice: 150, moscow: "Must",   quadrant: "Plan" },
+      { id: 33,  name: "US3.5 - Visualização de Histórico de Horas (RF16)",                     status: "Backlog", impact: 7,  ease: 4, ice: 196, moscow: "Should", quadrant: "Plan" },
+      { id: 34,  name: "US3.6 - Download de Certificados (RF16)",                               status: "Backlog", impact: 7,  ease: 4, ice: 196, moscow: "Should", quadrant: "Plan" },
+      { id: 50,  name: "US2.2 - Edição de Vagas de Voluntariado (RF19)",                        status: "Done",    impact: 7,  ease: 6, ice: 336, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 51,  name: "US2.3 - Publicação de Vagas de Voluntariado (RF20)",                    status: "Done",    impact: 8,  ease: 7, ice: 504, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 52,  name: "US2.4 - Encerramento de Vagas de Voluntariado (RF21)",                  status: "Done",    impact: 6,  ease: 7, ice: 336, moscow: "Should", quadrant: "Quick Win" },
+      { id: 86,  name: "US2.11 - Acompanhamento de Minhas Candidaturas (RF12)",                 status: "To Prod", impact: 8,  ease: 7, ice: 448, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 111, name: "US2.12 - Ver Perfil da Organização (RF22)",                             status: "To Prod", impact: 5,  ease: 9, ice: 567, moscow: "Should", quadrant: "Later" },
+      { id: 112, name: "US2.14 - Listar Oportunidades Salvas (RF08)",                           status: "To Prod", impact: 4,  ease: 9, ice: 324, moscow: "Should", quadrant: "—" },
+      { id: 119, name: "US2.13 - Ver Perfil do Estudante (RF23)",                               status: "To Prod", impact: 8,  ease: 9, ice: 648, moscow: "Must",   quadrant: "Quick Win" },
+      { id: 28,  name: "US003.3 - Geração Automática de Certificado Digital em PDF (RF17, RF18)", status: "Done",    impact: null, ease: null, ice: null, moscow: "—", quadrant: "—" },
+      { id: 29,  name: "US003.4 - Visualização de Histórico de Horas e Download de Certificados (RF19, RF21)", status: "Done", impact: null, ease: null, ice: null, moscow: "—", quadrant: "—" }
+    ];
+
+    /* ===== NÃO PRECISA ALTERAR NADA A PARTIR DAQUI ===== */
+
+    const stories = USER_STORIES.map(s => ({
+      ...s,
+      value: s.impact,
+      shortName: (s.name.match(/^US\d+(\.\d+)?/) || [`US${s.id}`])[0],
+      color: s.quadrant === "Quick Win" ? "#16a34a"
+           : s.quadrant === "Plan" ? "#2563eb"
+           : s.quadrant === "Later" ? "#ca8a04"
+           : s.quadrant === "Drop" ? "#dc2626"
+           : "#9ca3af"
+    }));
+
+    const svg = document.getElementById('matrix');
+    const ticksX = document.getElementById('ticks-x');
+    const ticksY = document.getElementById('ticks-y');
+    const dotsGroup = document.getElementById('dots');
+    const tooltip = document.getElementById('tooltip');
+    const tableBody = document.getElementById('table-body');
+
+    const minX = 60, maxX = 640, minY = 60, maxY = 640;
+    const scale = (maxX - minX) / 10;
+
+    function coordX(ease) {
+      // Integer value N is placed in the centre of the [N-1, N] interval
+      return minX + (ease - 0.5) * scale;
+    }
+
+    function coordY(value) {
+      return maxY - (value - 0.5) * scale;
+    }
+
+    function axisPos(n) {
+      // Raw position for grid lines and tick marks at integer boundaries
+      return minX + n * scale;
+    }
+
+    const gridLines = document.getElementById('grid-lines');
+
+    // Grid lines at integer boundaries + ticks + labels
+    for (let i = 0; i <= 10; i++) {
+      const x = axisPos(i);
+      const y = axisPos(i);
+      // Y-axis grows upward: value i is mapped to the bottom of its cell
+      const yInv = maxY - (i * scale);
+
+      // Light grid line across the plot area
+      if (i > 0 && i < 10) {
+        gridLines.insertAdjacentHTML('beforeend', `
+          <line x1="${x}" y1="60" x2="${x}" y2="640" stroke="#e5e7eb" stroke-width="1" />
+          <line x1="60" y1="${yInv}" x2="640" y2="${yInv}" stroke="#e5e7eb" stroke-width="1" />
+        `);
+      }
+
+      // Axis ticks and labels
+      ticksX.insertAdjacentHTML('beforeend', `
+        <line x1="${x}" y1="640" x2="${x}" y2="645" class="axis-line" />
+        <text x="${x}" y="660" class="tick-text">${i}</text>
+      `);
+      ticksY.insertAdjacentHTML('beforeend', `
+        <line x1="55" y1="${yInv}" x2="60" y2="${yInv}" class="axis-line" />
+        <text x="45" y="${yInv}" class="tick-text">${i}</text>
+      `);
+    }
+
+    // Compute initial plot coordinates and spread overlapping dots
+    const plotted = stories.filter(s => s.value !== null && s.ease !== null);
+    layoutDotsInCells(plotted);
+    relaxOverlappingDots(plotted);
+
+    // Dots
+    plotted.forEach((s, idx) => {
+      const x = s.plotX;
+      const y = s.plotY;
+      const showLabel = !s.hideLabel;
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.setAttribute("class", "story-dot");
+      g.setAttribute("data-idx", idx);
+      g.innerHTML = `
+        <circle cx="${x}" cy="${y}" r="5" fill="${s.color}" stroke="#fff" stroke-width="2" />
+        ${showLabel ? `<text x="${x}" y="${y - 11}" class="story-label">${s.shortName}</text>` : ''}
+      `;
+      g.addEventListener('mouseenter', (e) => showTooltip(e, s));
+      g.addEventListener('mousemove', (e) => moveTooltip(e));
+      g.addEventListener('mouseleave', hideTooltip);
+      dotsGroup.appendChild(g);
+    });
+
+
+
+    function layoutDotsInCells(items) {
+      // Values are integers 1-10, so every story has its own grid cell.
+      // Stories sharing the same (ease, value) are laid out inside that cell.
+      const groups = {};
+      items.forEach(s => {
+        const key = `${s.ease},${s.value}`;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(s);
+      });
+
+      Object.values(groups).forEach(group => {
+        const cx = coordX(group[0].ease);
+        const cy = coordY(group[0].value);
+
+        if (group.length === 1) {
+          group[0].plotX = cx;
+          group[0].plotY = cy;
+          return;
+        }
+
+        const n = group.length;
+
+        if (n <= 4) {
+          // Small groups: spread in a wide circle/ellipse inside the cell
+          const radius = Math.min(scale * 0.42, 22 + n * 3);
+          group.forEach((s, i) => {
+            const angle = (2 * Math.PI * i) / n - Math.PI / 2;
+            s.plotX = cx + Math.cos(angle) * radius;
+            s.plotY = cy + Math.sin(angle) * radius;
+          });
+        } else {
+          // Larger groups: compact grid filling most of the cell
+          const cols = Math.ceil(Math.sqrt(n));
+          const rows = Math.ceil(n / cols);
+          const usable = scale * 0.9;
+          const stepX = usable / (cols + 1);
+          const stepY = usable / (rows + 1);
+          const startX = cx - usable / 2 + stepX;
+          const startY = cy - usable / 2 + stepY;
+
+          group.forEach((s, i) => {
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            s.plotX = startX + col * stepX;
+            s.plotY = startY + row * stepY;
+          });
+
+          group.forEach(s => s.hideLabel = true);
+        }
+      });
+    }
+
+    function relaxOverlappingDots(items) {
+      // Push apart dots from adjacent cells that may still overlap
+      const minDist = 28;
+      const strength = 0.25;
+      const iterations = 60;
+
+      for (let iter = 0; iter < iterations; iter++) {
+        for (let i = 0; i < items.length; i++) {
+          for (let j = i + 1; j < items.length; j++) {
+            const a = items[i], b = items[j];
+            const dx = b.plotX - a.plotX;
+            const dy = b.plotY - a.plotY;
+            const distSq = dx * dx + dy * dy;
+
+            if (distSq < minDist * minDist && distSq > 0.001) {
+              const dist = Math.sqrt(distSq);
+              const overlap = (minDist - dist) / 2;
+              const nx = dx / dist;
+              const ny = dy / dist;
+              a.plotX -= nx * overlap * strength;
+              a.plotY -= ny * overlap * strength;
+              b.plotX += nx * overlap * strength;
+              b.plotY += ny * overlap * strength;
+            }
+          }
+        }
+      }
+
+      // Keep dots inside the matrix area with a small padding
+      const pad = 10;
+      items.forEach(s => {
+        s.plotX = Math.max(minX + pad, Math.min(maxX - pad, s.plotX));
+        s.plotY = Math.max(minY + pad, Math.min(maxY - pad, s.plotY));
+      });
+    }
+
+    function showTooltip(e, s) {
+      tooltip.innerHTML = `
+        <strong>${s.name}</strong><br>
+        <span>Status:</span> ${s.status} · <span>MoSCoW:</span> ${s.moscow}<br>
+        <span>Valor:</span> ${s.value} · <span>Facilidade:</span> ${s.ease}<br>
+        <span>ICE:</span> ${s.ice} · <span>Quadrante:</span> ${s.quadrant}
+      `;
+      tooltip.style.opacity = '1';
+      moveTooltip(e);
+    }
+
+    function moveTooltip(e) {
+      const pad = 14;
+      let left = e.clientX + pad;
+      let top = e.clientY + pad;
+      if (left + tooltip.offsetWidth > window.innerWidth) left = e.clientX - tooltip.offsetWidth - pad;
+      if (top + tooltip.offsetHeight > window.innerHeight) top = e.clientY - tooltip.offsetHeight - pad;
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    }
+
+    function hideTooltip() {
+      tooltip.style.opacity = '0';
+    }
+
+    // Table
+    stories.forEach(s => {
+      const statusClass = s.status === "Done" ? "status-done"
+                        : s.status === "To Prod" ? "status-to-prod"
+                        : s.status === "Q/A" ? "status-qa"
+                        : "status-backlog";
+      const badgeClass = s.quadrant === "Quick Win" ? "bg-quick"
+                       : s.quadrant === "Plan" ? "bg-plan"
+                       : s.quadrant === "Later" ? "bg-later"
+                       : s.quadrant === "Drop" ? "bg-drop"
+                       : "bg-na";
+      tableBody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td>#${s.id}</td>
+          <td>${s.name}</td>
+          <td class="${statusClass}">${s.status}</td>
+          <td>${s.value ?? '—'}</td>
+          <td>${s.ease ?? '—'}</td>
+          <td>${s.ease ?? '—'}</td>
+          <td>${s.ice ?? '—'}</td>
+          <td>${s.moscow}</td>
+          <td><span class="badge ${badgeClass}">${s.quadrant}</span></td>
+        </tr>
+      `);
+    });
+
+    async function exportPDF() {
+      const element = document.getElementById('matrix-page');
+      const btn = event.target;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'Gerando...';
+      btn.disabled = true;
+
+      try {
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          windowWidth: element.scrollWidth,
+          windowHeight: element.scrollHeight
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 10;
+        const imgWidth = pageWidth - margin * 2;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        let position = 0;
+        let heightLeft = imgHeight;
+
+        pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - margin * 2);
+
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight + margin;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+          heightLeft -= (pageHeight - margin * 2);
+        }
+
+        pdf.save('matriz-valor-facilidade-liaison.pdf');
+      } catch (err) {
+        alert('Erro ao gerar PDF: ' + err.message);
+        console.error(err);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

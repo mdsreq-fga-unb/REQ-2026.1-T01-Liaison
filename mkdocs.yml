@@ -58,6 +58,7 @@ nav:
       - Requisitos de Software: projeto/requisitos_software.md
       - Definição de Pronto e Aceito: projeto/DoR_DoD.md
       - Backlog do Produto: projeto/backlog_produto.md
+      - Backlog Priorizado: projeto/backlog_priorizado.md
       - Regras de Negócio: projeto/regras_negocio.md
       - Histórico de Melhorias: projeto/historico_de_melhorias.md
       - Referências Bibliográficas: projeto/referencias.md
@@ -71,6 +72,7 @@ nav:
           - US1.3: organizacao_e_planejamento/MVP/us1_3.md
           - US1.4: organizacao_e_planejamento/MVP/us1_4.md
           - US1.5: organizacao_e_planejamento/MVP/us1_5.md
+          - US1.6: organizacao_e_planejamento/MVP/us1_6.md
           - US1.7: organizacao_e_planejamento/MVP/us1_7.md
           - US2.1: organizacao_e_planejamento/MVP/us2_1.md
           - US2.2: organizacao_e_planejamento/MVP/us2_2.md

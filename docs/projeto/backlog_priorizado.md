@@ -22,36 +22,36 @@ As histórias de usuário organizadas nas quatro bandas de negócio (Must → Sh
 
 ## 11.3 Sequência priorizada
 
-| Ordem | US | Issue | Descrição | MoSCoW | Quadrante | I | C | E | ICE |
-|:---:|:---|:---:|:---|:---|:---|:---:|:---:|:---:|:---:|
-| 1 | US1.1 | [#12](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/12) | Cadastro de Estudantes Universitários | Must | Quick Win | 10 | 8 | 7 | **560** |
-| 2 | US1.3 | [#14](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/14) | Autenticação de Usuários | Must | Quick Win | 9 | 8 | 7 | **504** |
-| 3 | US2.3 | [#51](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/51) | Publicação de Vagas de Voluntariado | Must | Quick Win | 8 | 9 | 7 | **504** |
-| 4 | US2.6 | [#21](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/21) | Visualização de Detalhes da Vaga | Must | Quick Win | 8 | 9 | 7 | **504** |
-| 5 | US2.13 | [#119](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/119) | Ver Perfil do Estudante | Must | Later | 6 | 9 | 9 | **486** |
-| 6 | US2.11 | [#86](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/86) | Acompanhamento de Minhas Candidaturas | Must | Quick Win | 8 | 8 | 7 | **448** |
-| 7 | US1.2 | [#13](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/13) | Cadastro de Organizações Sociais | Must | Quick Win | 10 | 7 | 6 | **420** |
-| 8 | US2.1 | [#19](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/19) | Criação de Vagas de Voluntariado | Must | Quick Win | 10 | 7 | 5 | **350** |
-| 9 | US2.7 | [#22](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/22) | Candidatura em Vaga de Voluntariado | Must | Quick Win | 10 | 7 | 5 | **350** |
-| 10 | US1.4 | [#15](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/15) | Gestão de Perfil do Estudante | Must | Quick Win | 7 | 8 | 6 | **336** |
-| 11 | US1.5 | [#16](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/16) | Edição de Perfil Institucional da Organização | Must | Quick Win | 7 | 8 | 6 | **336** |
-| 12 | US2.2 | [#50](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/50) | Edição de Vagas de Voluntariado | Must | Quick Win | 7 | 8 | 6 | **336** |
-| 13 | US3.1 | [#26](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/26) | Listagem de Estudantes Aprovados | Must | Quick Win | 7 | 8 | 6 | **336** |
-| 14 | US2.8 | [#24](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/24) | Avaliação de Candidaturas pela Organização | Must | Quick Win | 9 | 7 | 5 | **315** |
-| 15 | US1.7 | [#18](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/18) | Painel Administrativo para Moderação de Organizações (Sysmin) | Must | Quick Win | 7 | 7 | 6 | **294** |
-| 16 | US3.4 | [#32](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/32) | Exportação de Certificado Digital em PDF | Must | Quick Win | 7 | 7 | 6 | **294** |
-| 17 | US3.2 | [#27](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/27) | Registro de Frequência e Carga Horária | Must | Plan | 9 | 7 | 4 | **252** |
-| 18 | US2.9 | [#23](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/23) | Cancelamento de Candidatura | Must | Later | 6 | 7 | 6 | **252** |
-| 19 | US2.10 | [#25](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/25) | Notificações de Status de Candidatura | Must | Quick Win | 7 | 5 | 5 | **175** |
-| 20 | US2.5 | [#20](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/20) | Busca e Filtro de Vagas para Estudantes | Must | Plan | 9 | 6 | 3 | **162** |
-| 21 | US3.3 | [#31](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/31) | Geração Automática de Certificado Digital | Must | Plan | 10 | 5 | 3 | **150** |
-| 22 | US2.12 | [#111](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/111) | Ver Perfil da Organização | Should | Later | 5 | 9 | 9 | **567** |
-| 23 | US2.4 | [#52](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/52) | Encerramento de Vagas de Voluntariado | Should | Later | 6 | 8 | 8 | **384** |
-| 24 | US2.14 | [#112](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/112) | Listar Oportunidades Salvas | Should | Later | 4 | 9 | 9 | **324** |
-| 25 | US3.6 | [#34](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/34) | Download de Certificados | Should | Later | 6 | 7 | 6 | **252** |
-| 26 | US3.5 | [#33](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/33) | Visualização de Histórico de Horas | Should | Quick Win | 7 | 7 | 5 | **245** |
-| 27 | US3.7 | [#30](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/30) | Portal Público de Validação de Certificados | Could | Drop | 6 | 5 | 4 | **120** |
-| 28 | US1.6 | [#17](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/17) | Recuperação de Senha via E-mail | Won't | Later | 6 | 6 | 7 | **252** |
+| Ordem | US | Issue | Descrição | MoSCoW | Quadrante | ICE (I × C × E) |
+|:---:|:---|:---:|:---|:---|:---|:---:|
+| 1 | US1.1 | [#12](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/12) | Cadastro de Estudantes Universitários | Must | Quick Win | 10 × 8 × 7 = **560** |
+| 2 | US1.3 | [#14](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/14) | Autenticação de Usuários | Must | Quick Win | 9 × 8 × 7 = **504** |
+| 3 | US2.3 | [#51](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/51) | Publicação de Vagas de Voluntariado | Must | Quick Win | 8 × 9 × 7 = **504** |
+| 4 | US2.6 | [#21](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/21) | Visualização de Detalhes da Vaga | Must | Quick Win | 8 × 9 × 7 = **504** |
+| 5 | US2.13 | [#119](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/119) | Ver Perfil do Estudante | Must | Later | 6 × 9 × 9 = **486** |
+| 6 | US2.11 | [#86](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/86) | Acompanhamento de Minhas Candidaturas | Must | Quick Win | 8 × 8 × 7 = **448** |
+| 7 | US1.2 | [#13](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/13) | Cadastro de Organizações Sociais | Must | Quick Win | 10 × 7 × 6 = **420** |
+| 8 | US2.1 | [#19](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/19) | Criação de Vagas de Voluntariado | Must | Quick Win | 10 × 7 × 5 = **350** |
+| 9 | US2.7 | [#22](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/22) | Candidatura em Vaga de Voluntariado | Must | Quick Win | 10 × 7 × 5 = **350** |
+| 10 | US1.4 | [#15](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/15) | Gestão de Perfil do Estudante | Must | Quick Win | 7 × 8 × 6 = **336** |
+| 11 | US1.5 | [#16](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/16) | Edição de Perfil Institucional da Organização | Must | Quick Win | 7 × 8 × 6 = **336** |
+| 12 | US2.2 | [#50](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/50) | Edição de Vagas de Voluntariado | Must | Quick Win | 7 × 8 × 6 = **336** |
+| 13 | US3.1 | [#26](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/26) | Listagem de Estudantes Aprovados | Must | Quick Win | 7 × 8 × 6 = **336** |
+| 14 | US2.8 | [#24](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/24) | Avaliação de Candidaturas pela Organização | Must | Quick Win | 9 × 7 × 5 = **315** |
+| 15 | US1.7 | [#18](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/18) | Painel Administrativo para Moderação de Organizações (Sysmin) | Must | Quick Win | 7 × 7 × 6 = **294** |
+| 16 | US3.4 | [#32](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/32) | Exportação de Certificado Digital em PDF | Must | Quick Win | 7 × 7 × 6 = **294** |
+| 17 | US3.2 | [#27](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/27) | Registro de Frequência e Carga Horária | Must | Plan | 9 × 7 × 4 = **252** |
+| 18 | US2.9 | [#23](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/23) | Cancelamento de Candidatura | Must | Later | 6 × 7 × 6 = **252** |
+| 19 | US2.10 | [#25](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/25) | Notificações de Status de Candidatura | Must | Quick Win | 7 × 5 × 5 = **175** |
+| 20 | US2.5 | [#20](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/20) | Busca e Filtro de Vagas para Estudantes | Must | Plan | 9 × 6 × 3 = **162** |
+| 21 | US3.3 | [#31](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/31) | Geração Automática de Certificado Digital | Must | Plan | 10 × 5 × 3 = **150** |
+| 22 | US2.12 | [#111](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/111) | Ver Perfil da Organização | Should | Later | 5 × 9 × 9 = **567** |
+| 23 | US2.4 | [#52](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/52) | Encerramento de Vagas de Voluntariado | Should | Later | 6 × 8 × 8 = **384** |
+| 24 | US2.14 | [#112](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/112) | Listar Oportunidades Salvas | Should | Later | 4 × 9 × 9 = **324** |
+| 25 | US3.6 | [#34](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/34) | Download de Certificados | Should | Later | 6 × 7 × 6 = **252** |
+| 26 | US3.5 | [#33](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/33) | Visualização de Histórico de Horas | Should | Quick Win | 7 × 7 × 5 = **245** |
+| 27 | US3.7 | [#30](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/30) | Portal Público de Validação de Certificados | Could | Drop | 6 × 5 × 4 = **120** |
+| 28 | US1.6 | [#17](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/issues/17) | Recuperação de Senha via E-mail | Won't | Later | 6 × 6 × 7 = **252** |
 
 > **Resumo por banda:** Must Have — 21 itens (ordens 1–21, o MVP). Should Have — 5 itens (22–26). Could Have — 1 item (27). Won't Have — 1 item (28).
 >

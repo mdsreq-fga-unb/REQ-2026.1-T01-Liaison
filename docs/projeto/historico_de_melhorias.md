@@ -29,6 +29,14 @@ Registrar evolução do trabalho ao longo das unidades.
 * **Issue #78: Apresentar o cronograma atualizado do projeto:** Cobrança do professor pela ausência de um cronograma atualizado e pela falta de informações claras sobre o progresso real das atividades planejadas até o momento. A equipe precisava publicar a nova versão do planejamento e deixar visível o percentual de execução de cada entrega.
 
 ---
+### Unidade 3
+* **Issue #102: Evidenciar DoR por User Story antes da entrada em desenvolvimento:** Cobrança sobre a aplicação prática da Definition of Ready (DoR) nas histórias de usuário que entraram para a Sprint.
+* **Issue #103: Evidenciar DoD por User Story entregue:** Apontamento sobre a necessidade de demonstrar a Definition of Done (DoD) sendo cumprida para as histórias implementadas.
+* **Issue #104: Apresentar MVP implementado e evidenciado:** Cobrança por um local centralizado mostrando o status do MVP e evidenciando a rastreabilidade (planejamento, matrizes, atas com resumos explicativos).
+* **Issue #106: Completar critérios de aceitação por User Story:** Ausência dos critérios de aceite formalizados nas especificações das USs.
+* **Issue #108: Regras de negócio do MVP:** Necessidade de mapear e documentar as restrições e regras de negócio atreladas aos requisitos.
+* **Issue #109: Verificar RNFs com método, resultado e evidência:** Exigência de comprovação de que os RNFs definidos foram efetivamente validados tecnicamente.
+* **Issue #110: Atualizar cronograma com execução real por US:** Necessidade de exibir o progresso real de entrega do MVP (status de execução) em relação ao que foi planejado.
 
 ## 12.2 Solução Implementada a Cada Issue 
 
@@ -146,3 +154,25 @@ Engenharia de Requisitos.
 * O documento de cronograma (`docs/projeto/cronograma.md`) foi expandido e atualizado com dados reais de progresso por meio de duas novas seções:
   * **Seção 5.2 (Status de Execução):** Introdução de uma legenda formal de acompanhamento (*Em produção*, *Implementado no repositório*, *Em andamento* e *Planejado*) acompanhada do percentual exato de conclusão de cada marco, apontando **R1: 100%**, **R2: 55%**, **R3: 5%** e **R4: 0%** (totalizando cerca de 52% do MVP executado).
   * **Seção 5.3 (Spike de Infraestrutura):** Documentação técnica de um *Spike* de pesquisa focado no provisionamento da infraestrutura na AWS. Foram descritas 13 atividades com evidências de entrega (envolvendo EC2, RDS, Nginx, Gunicorn, S3, Docker, chaves SSH e Deploy automatizado) para justificar o desvio de prazo e o esforço de aprendizado da equipe em nuvem durante a primeira release.
+
+### Unidade 3
+
+#### Solução para a Issue #102 e #103 (Evidenciar DoR e DoD)
+* As User Stories documentadas foram atualizadas com seções explícitas de "Definição de Pronto (DoD)", atestando os critérios técnicos cumpridos.
+* Adicionou-se o checklist de DoR (Definition of Ready) no template oficial de Issues do repositório, garantindo que as tarefas só entrem na Sprint quando estiverem refinadas.
+
+#### Solução para a Issue #104 (Apresentar MVP implementado e evidenciado)
+* Foi criada a seção de "Organização e Planejamento", centralizando o quadro do MVP validado e a matriz de rastreabilidade ponta-a-ponta (Problema > US).
+* Em todas as Atas de Reunião e na página de Evidências, foram inseridos resumos contextuais para deixar explícito qual evento ágil cada gravação comprova (ex: Entrevistas, Priorização).
+
+#### Solução para a Issue #106 (Critérios de aceitação)
+* Todas as User Stories receberam atualizações para incluir as seções de "Critérios de Aceite" devidamente listados.
+
+#### Solução para a Issue #108 (Regras de negócio do MVP)
+* A equipe documentou as Regras de Negócio (RN01 a RN42) do MVP, detalhando os fluxos e restrições exigidos pela aplicação para apoiar o desenvolvimento.
+
+#### Solução para a Issue #109 (Verificar RNFs)
+* Elaborou-se uma tabela específica de verificação para todos os Requisitos Não Funcionais (RNFs) definidos, apresentando o método de teste, resultado alcançado e as evidências técnicas de sua validação.
+
+#### Solução para a Issue #110 (Atualizar cronograma com execução real)
+* O documento de cronograma foi atualizado para exibir o *Status de Execução* de cada release. Os dados comprovam a conclusão final e aprovação, apontando R1: 100% e R2: 100%, totalizando 89% do MVP entregue.

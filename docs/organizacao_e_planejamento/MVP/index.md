@@ -9,15 +9,13 @@
 
 ## Introdução
 
-Este documento apresenta a Matriz de Completude do Mínimo Produto Viável (MVP) da plataforma Liaison. A tabela mapeia o estado atual de implementação de todos os 19 itens classificados como *Must Have* no Backlog do Produto, juntamente com o rastreio individual de cada Issue (User Story) no GitHub, servindo como a principal evidência da entrega funcional e do acompanhamento por unidade.
-
-
+Este documento apresenta a Matriz de Completude do Mínimo Produto Viável (MVP) da plataforma Liaison. A tabela mapeia o estado atual de implementação de todos os 23 itens classificados como *Must Have* no Backlog do Produto (20 Histórias de Usuário e 3 Requisitos Não Funcionais). O mapeamento respeita a relação de **1:1 entre RF e US**, servindo como a principal evidência da entrega funcional e do acompanhamento por unidade.
 
 ## 1. Status Geral e Separação de Itens (Percentual Baseado em Evidências)
 
 Diferente de estimativas passadas, o status atual é aferido com base em PRs (*Pull Requests*) mergeados, testes de integração passando e features acessíveis na interface:
 
-- **Entregues:** 19 itens (100%)
+- **Entregues:** 23 itens (100%)
 - **Em Andamento:** 0 itens (0%)
 - **Planejados:** 0 itens (0%)
 - **Bloqueados:** 0 itens (0%)
@@ -36,16 +34,20 @@ Diferente de estimativas passadas, o status atual é aferido com base em PRs (*P
 | 4 | **RF01** Cadastrar estudante | #12 (US1.1) | R1 / Unidade 1 | <span class="badge-done">Entregue</span> | Payload validado, persistência confirmada | PR #55 |
 | 5 | **RF02** Cadastrar org. | #13 (US1.2) | R1 / Unidade 1 | <span class="badge-done">Entregue</span> | Moderação e autenticação via CNPJ atestada | PR #60, #66 |
 | 6 | **RF03** Autenticar usuário | #14 (US1.3) | R1 / Unidade 1 | <span class="badge-done">Entregue</span> | Persistência de token JWT funcional (Feedback OK) | PR #57, #64 |
-| 7 | **RF04** Gerenciar perfil | #15 (US1.4), #16 (US1.5) | R1 / Unidade 1 | <span class="badge-done">Entregue</span> | Redesign revisado, forms salvando dados | PR #65, #97, #121 |
-| 8 | **RF06** Moderar org. | #18 (US1.7) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Bugfixes recentes homologaram aprovação segura | PR #101 |
-| 9 | **RF08** Buscar vaga | #20 (US2.5) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Filtros e Dashboard integrados | PR #87 |
-| 10 | **RF09** Consultar vaga | #21 (US2.6) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Detalhes exibidos corretamente na navegação | PR #113 |
-| 11 | **RF10** Fazer candidatura | #22 (US2.7) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Action validada via backend e conectada à UI | PR #113 |
-| 12 | **RF11** Avaliar candidatura | #24 (US2.8) | R3 / Unidade 3 | <span class="badge-done">Entregue</span> | Auditoria da avaliação e mudança de status OK | PR #118 |
-| 13 | **RF12** Acompanhar status | #23 (US2.9), #25 (US2.10), #86 (US2.11) | R3 / Unidade 3 | <span class="badge-done">Entregue</span> | Redesign do tracking e notificações in-app OK | PR #117, #120, #124 |
-| 14 | **RF13** Listar aprovados | #26 (US3.1) | R4 / Unidade 3 | <span class="badge-done">Entregue</span> | Abas, Avatares, fallback e filtros homologados | PR #125, #126 |
-| 15 | **RF14** Registrar frequência | #27 (US3.2) | R4 / Unidade 3 | <span class="badge-done">Entregue</span> | Migração DB 0003, regras tri-state validadas | PR #126 |
-| 16 | **RF15** Emitir certificado | #31 (US3.3), #32 (US3.4) | R4 / Unidade 3 | <span class="badge-done">Entregue</span> | Geração final de layout PDF concluída | PR #116 |
-| 17 | **RF18** Criar oportunidade | #19 (US2.1) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Criação e campos submetidos com sucesso | PR #83, #99 |
-| 18 | **RF19** Editar oportunidade | #50 (US2.2) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Alterações confirmadas, refletidas na busca | PR #84, #99 |
-| 19 | **RF20** Publicar oport. | #51 (US2.3) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Alternância de status Visível/Oculta testada | PR #84, #99 |
+| 7 | **RF04** Gerenciar perfil Estudante | #15 (US1.4) | R1 / Unidade 1 | <span class="badge-done">Entregue</span> | Redesign revisado, forms salvando dados | PR #65, #97, #121 |
+| 8 | **RF05** Gerenciar perfil Org. | #16 (US1.5) | R1 / Unidade 1 | <span class="badge-done">Entregue</span> | Redesign revisado, forms salvando dados | PR #65, #97, #121 |
+| 9 | **RF07** Moderar organização | #18 (US1.7) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Bugfixes recentes homologaram aprovação segura | PR #101 |
+| 10 | **RF21** Criar oportunidade | #19 (US2.1) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Criação e campos submetidos com sucesso | PR #83, #99 |
+| 11 | **RF22** Editar oportunidade | #50 (US2.2) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Alterações confirmadas, refletidas na busca | PR #84, #99 |
+| 12 | **RF23** Publicar oportunidade | #51 (US2.3) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Alternância de status Visível/Oculta testada | PR #84, #99 |
+| 13 | **RF08** Buscar vaga | #20 (US2.5) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Filtros e Dashboard integrados | PR #87 |
+| 14 | **RF09** Consultar vaga | #21 (US2.6) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Detalhes exibidos corretamente na navegação | PR #113 |
+| 15 | **RF10** Realizar candidatura | #22 (US2.7) | R2 / Unidade 2 | <span class="badge-done">Entregue</span> | Action validada via backend e conectada à UI | PR #113 |
+| 16 | **RF11** Avaliar candidatura | #24 (US2.8) | R3 / Unidade 3 | <span class="badge-done">Entregue</span> | Auditoria da avaliação e mudança de status OK | PR #118 |
+| 17 | **RF12** Cancelar candidatura | #23 (US2.9) | R3 / Unidade 3 | <span class="badge-done">Entregue</span> | Cancelamento funcional pelo usuário | PR #114 |
+| 18 | **RF13** Notificar candidatura | #25 (US2.10) | R3 / Unidade 3 | <span class="badge-done">Entregue</span> | Notificações in-app disparadas corretamente | PR #120 |
+| 19 | **RF25** Acompanhar candidaturas | #86 (US2.11) | R3 / Unidade 3 | <span class="badge-done">Entregue</span> | Tracking de status com redesign aplicado | PR #117, #124 |
+| 20 | **RF14** Listar aprovados | #26 (US3.1) | R4 / Unidade 3 | <span class="badge-done">Entregue</span> | Abas, Avatares, fallback e filtros homologados | PR #125, #126 |
+| 21 | **RF15** Registrar frequência | #27 (US3.2) | R4 / Unidade 3 | <span class="badge-done">Entregue</span> | Migração DB 0003, regras tri-state validadas | PR #126 |
+| 22 | **RF16** Emitir certificado | #31 (US3.3) | R4 / Unidade 3 | <span class="badge-done">Entregue</span> | Geração final de layout PDF concluída | PR #116 |
+| 23 | **RF17** Compartilhar certificado | #32 (US3.4) | R4 / Unidade 3 | <span class="badge-done">Entregue</span> | Compartilhamento e exportação de PDF validados | PR #116 |

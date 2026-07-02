@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,16 +12,57 @@ import OrgTabIcon from '../../../assets/login_org_tab_icon.svg';
 
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import { useAuth } from '../../context/AuthContext';
+import { ApiError } from '../../services/api';
+import { formatCNPJ } from '../../utils/formatters';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
 export default function LoginScreen() {
   const navigation = useNavigation<any>();
+  const { handleLogin } = useAuth();
   const [email, setEmail] = useState('');
+  const [cnpj, setCnpj] = useState('');
   const [senha, setSenha] = useState('');
   const [lembrar, setLembrar] = useState(false);
   const [activeTab, setActiveTab] = useState<'estudante' | 'organizacao'>('estudante');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function handleEntrar() {
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    try {
+      if (activeTab === 'organizacao') {
+        await handleLogin(cnpj, senha, 'cnpj');
+      } else {
+        await handleLogin(email, senha, 'email');
+      }
+      // On success, navigation happens automatically via RootNavigator
+      // (isAuthenticated becomes true → role-based stack renders)
+    } catch (e) {
+      if (e instanceof ApiError) {
+        if (e.status === 403) {
+          setErrorMessage('Organização pendente de aprovação. Aguarde a análise do administrador.');
+        } else if (e.status === 401) {
+          setErrorMessage(activeTab === 'organizacao' ? 'CNPJ ou senha inválidos' : 'E-mail ou senha inválidos');
+        } else {
+          setErrorMessage('Erro de conexão');
+        }
+      } else if (e instanceof TypeError || (e as Error).message?.includes('Network')) {
+        setErrorMessage('Erro de conexão');
+      } else {
+        setErrorMessage('Erro ao realizar login. Tente novamente.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function handleCnpjChange(value: string) {
+    setCnpj(formatCNPJ(value));
+  }
 
   return (
     <View style={styles.root}>
@@ -50,35 +92,37 @@ export default function LoginScreen() {
         enableAutomaticScroll
         extraScrollHeight={90}
       >
-        {/* ── Hero Section (navy, h=212) ── */}
-        <View style={styles.hero}>
-          <Text style={styles.heroLabel}>Para estudantes universitários</Text>
-          <Text style={styles.heroTitle}>
-            Conecte seu{' '}
-            <Text style={styles.heroTitleAccent}>aprendizado</Text>{' '}
-            ao mundo real
-          </Text>
-          <Text style={styles.heroDesc}>
-            Descubra oportunidades de voluntariado e cumpra suas horas de extensão — tudo em um só lugar.
-          </Text>
-          <View style={styles.heroDecorCircle} />
-        </View>
+        <LinearGradient colors={[colors.header.gradientFrom, colors.header.gradientTo]}>
+          {/* ── Hero Section (navy, h=212) ── */}
+          <View style={styles.hero}>
+            <Text style={styles.heroLabel}>Para estudantes universitários</Text>
+            <Text style={styles.heroTitle}>
+              Conecte seu{' '}
+              <Text style={styles.heroTitleAccent}>aprendizado</Text>{' '}
+              ao mundo real
+            </Text>
+            <Text style={styles.heroDesc}>
+              Descubra oportunidades de voluntariado e cumpra suas horas de extensão — tudo em um só lugar.
+            </Text>
+            <View style={styles.heroDecorCircle} />
+          </View>
 
-        {/* ── Stats Bar ── */}
-        <View testID="stats-bar" style={styles.statsBar}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>340+</Text>
-            <Text style={styles.statLabel}>Oportunidades</Text>
+          {/* ── Stats Bar ── */}
+          <View testID="stats-bar" style={styles.statsBar}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>340+</Text>
+              <Text style={styles.statLabel}>Oportunidades</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>82</Text>
+              <Text style={styles.statLabel}>Organizações</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>4.8k</Text>
+              <Text style={styles.statLabel}>Estudantes</Text>
+            </View>
           </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>82</Text>
-            <Text style={styles.statLabel}>Organizações</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>4.8k</Text>
-            <Text style={styles.statLabel}>Estudantes</Text>
-          </View>
-        </View>
+        </LinearGradient>
 
         {/* ── Form Section (cream bg) ── */}
         <View style={styles.mainContent}>
@@ -90,7 +134,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             testID="tab-estudante"
             style={[styles.tab, activeTab === 'estudante' && styles.tabActive]}
-            onPress={() => setActiveTab('estudante')}
+            onPress={() => { setActiveTab('estudante'); setErrorMessage(null); }}
             activeOpacity={0.7}
           >
             <View style={styles.tabInner}>
@@ -101,7 +145,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             testID="tab-organizacao"
             style={[styles.tab, activeTab === 'organizacao' && styles.tabActive]}
-            onPress={() => setActiveTab('organizacao')}
+            onPress={() => { setActiveTab('organizacao'); setErrorMessage(null); }}
             activeOpacity={0.7}
           >
             <View style={styles.tabInner}>
@@ -111,16 +155,26 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Email */}
+        {/* Email or CNPJ */}
         <Text style={styles.fieldLabel}>
-          E-mail institucional <Text style={styles.fieldLabelAsterisk}>*</Text>
+          {activeTab === 'organizacao' ? 'CNPJ' : 'E-mail institucional'} <Text style={styles.fieldLabelAsterisk}>*</Text>
         </Text>
-        <Input
-          label="" value={email} onChangeText={setEmail}
-          keyboardType="email-address" autoCapitalize="none"
-          placeholder="seu@email.edu.br" placeholderTextColor={colors.text.secondary}
-          testID="input-email" hideLabel style={styles.inputNoMargin}
-        />
+        {activeTab === 'organizacao' ? (
+          <Input
+            label="" value={cnpj} onChangeText={handleCnpjChange}
+            keyboardType="numeric" autoCapitalize="none"
+            placeholder="00.000.000/0000-00" placeholderTextColor={colors.text.secondary}
+            testID="input-cnpj" hideLabel style={styles.inputNoMargin}
+            maxLength={18}
+          />
+        ) : (
+          <Input
+            label="" value={email} onChangeText={setEmail}
+            keyboardType="email-address" autoCapitalize="none"
+            placeholder="seu@email.edu.br" placeholderTextColor={colors.text.secondary}
+            testID="input-email" hideLabel style={styles.inputNoMargin}
+          />
+        )}
 
         {/* Password */}
         <Text style={styles.fieldLabel}>
@@ -165,7 +219,19 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <Button title="Entrar" onPress={() => {}} testID="button-entrar" />
+        {errorMessage && (
+          <View testID="login-error" style={styles.errorBanner}>
+            <Ionicons name="information-circle" size={16} color={colors.neutral.white} />
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        )}
+
+        <Button
+          title="Entrar"
+          onPress={handleEntrar}
+          loading={isSubmitting}
+          testID="button-entrar"
+        />
 
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
@@ -192,14 +258,14 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.neutral.bg },
-  safeTop: { backgroundColor: colors.brand.navy },
+  safeTop: { backgroundColor: colors.header.gradientFrom },
   flex1: { flex: 1, backgroundColor: colors.neutral.bg },
   scrollContent: { flexGrow: 1 },
 
   /* ═══ FIXED HEADER ═══ */
 
   headerBar: {
-    backgroundColor: colors.brand.navy, height: 93.6,
+    backgroundColor: colors.header.gradientFrom, height: 93.6,
     justifyContent: 'center', overflow: 'hidden', position: 'relative', borderBottomWidth: 0.5, borderBottomColor: 'rgba(255,255,255,0.06)'
   },
   logoIconBg: {
@@ -225,7 +291,7 @@ const styles = StyleSheet.create({
   },
 
   hero: {
-    backgroundColor: colors.brand.navy, height: 212, paddingHorizontal: 24,
+    height: 212, paddingHorizontal: 24,
     justifyContent: 'center', overflow: 'hidden', position: 'relative',
   },
   heroLabel: {
@@ -247,7 +313,7 @@ const styles = StyleSheet.create({
   },
 
   statsBar: {
-    backgroundColor: colors.brand.navy, flexDirection: 'row',
+    flexDirection: 'row',
     paddingTop: 21, paddingBottom: 24, paddingHorizontal: 24,
     borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)',
   },
@@ -326,4 +392,22 @@ const styles = StyleSheet.create({
 
   securityNotice: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   securityText: { fontFamily: 'DMSans_400Regular', fontSize: 11, lineHeight: 17.6, color: colors.text.secondary },
+
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#d32f2f',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
+  errorText: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 13,
+    lineHeight: 20.8,
+    color: colors.neutral.white,
+  },
 });

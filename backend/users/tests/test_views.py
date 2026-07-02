@@ -345,6 +345,112 @@ class TestStudentRegisterEndpoint:
         assert response.status_code == 400
         assert "universidade" in response.json()
 
+    def test_missing_semestre_atual_returns_400(self, api_client):
+        """Cadastro sem semestre_atual retorna 400 com erro no campo."""
+        payload = _student_payload()
+        del payload["semestre_atual"]
+        response = api_client.post(self.ENDPOINT, payload, format="json")
+        assert response.status_code == 400
+        assert "semestre_atual" in response.json()
+
+    def test_null_semestre_atual_returns_400(self, api_client):
+        """Cadastro com semestre_atual=null retorna 400."""
+        payload = _student_payload(semestre_atual=None)
+        response = api_client.post(self.ENDPOINT, payload, format="json")
+        assert response.status_code == 400
+        assert "semestre_atual" in response.json()
+
+    def test_missing_ano_conclusao_returns_400(self, api_client):
+        """Cadastro sem ano_conclusao retorna 400."""
+        payload = _student_payload()
+        del payload["ano_conclusao"]
+        response = api_client.post(self.ENDPOINT, payload, format="json")
+        assert response.status_code == 400
+        assert "ano_conclusao" in response.json()
+
+    def test_null_ano_conclusao_returns_400(self, api_client):
+        """Cadastro com ano_conclusao=null retorna 400."""
+        payload = _student_payload(ano_conclusao=None)
+        response = api_client.post(self.ENDPOINT, payload, format="json")
+        assert response.status_code == 400
+        assert "ano_conclusao" in response.json()
+
+    def test_semestre_atual_below_range_returns_400(self, api_client):
+        """semestre_atual abaixo de 1 retorna 400."""
+        response = api_client.post(
+            self.ENDPOINT, _student_payload(semestre_atual=0), format="json"
+        )
+        assert response.status_code == 400
+        assert "semestre_atual" in response.json()
+
+    def test_ano_conclusao_below_range_returns_400(self, api_client):
+        """ano_conclusao abaixo de 2020 retorna 400."""
+        response = api_client.post(
+            self.ENDPOINT, _student_payload(ano_conclusao=2010), format="json"
+        )
+        assert response.status_code == 400
+        assert "ano_conclusao" in response.json()
+
+
+@pytest.fixture
+def student_user(db):
+    """Cria um User estudante + StudentProfile para testes PATCH."""
+    from users.serializers import StudentRegistrationSerializer
+
+    payload = _student_payload(email="patch-user@unb.br", matricula="PATCH00001")
+    serializer = StudentRegistrationSerializer(data=payload)
+    assert serializer.is_valid(), serializer.errors
+    return serializer.save()
+
+
+@pytest.fixture
+def auth_client(api_client, student_user):
+    """APIClient autenticado como estudante (via JWT)."""
+    from rest_framework_simplejwt.tokens import RefreshToken
+
+    refresh = RefreshToken.for_user(student_user)
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
+    return api_client
+
+
+@pytest.mark.django_db
+class TestStudentProfileUpdateEndpoint:
+    """Testes do PATCH /api/v1/students/me/update/"""
+
+    ENDPOINT = "/api/v1/students/me/update/"
+
+    def test_patch_with_null_semestre_atual_returns_400(self, auth_client):
+        """PATCH com semestre_atual=null retorna 400."""
+        response = auth_client.patch(
+            self.ENDPOINT, {"semestre_atual": None}, format="json"
+        )
+        assert response.status_code == 400
+        assert "semestre_atual" in response.json()
+
+    def test_patch_with_null_ano_conclusao_returns_400(self, auth_client):
+        """PATCH com ano_conclusao=null retorna 400."""
+        response = auth_client.patch(
+            self.ENDPOINT, {"ano_conclusao": None}, format="json"
+        )
+        assert response.status_code == 400
+        assert "ano_conclusao" in response.json()
+
+    def test_patch_without_semestre_atual_is_allowed_partial(self, auth_client):
+        """PATCH parcial sem semestre_atual e aceito."""
+        response = auth_client.patch(
+            self.ENDPOINT, {"bio": "Bio atualizada"}, format="json"
+        )
+        assert response.status_code == 200
+
+    def test_patch_with_valid_semestre_and_ano_succeeds(self, auth_client):
+        """PATCH com semestre_atual e ano_conclusao validos retorna 200."""
+        response = auth_client.patch(
+            self.ENDPOINT,
+            {"semestre_atual": 8, "ano_conclusao": 2028},
+            format="json",
+        )
+        assert response.status_code == 200
+
 def _organization_payload(**overrides):
     """Retorna payload valido para registro de organizacao."""
     data = {

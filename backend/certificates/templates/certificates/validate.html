@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Validação de Certificado · Liaison</title>
+  <style>
+    :root {
+      --navy: #1a2744; --gold: #d4813a; --gold-frame: #c9a04a;
+      --cream: #fbf9f4; --border: #ddd8ce; --gray: #7a8299;
+      --green: #2e7d52; --red: #c0392b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--cream); color: var(--navy);
+      font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5; padding: 24px 16px;
+    }
+    .card {
+      max-width: 520px; margin: 0 auto; background: #fff;
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 28px 24px;
+    }
+    .brand { text-align: center; margin-bottom: 24px; }
+    .brand h1 {
+      font-size: 26px; margin: 0; letter-spacing: .5px;
+    }
+    .brand h1 .dot { color: var(--gold); }
+    .brand p {
+      margin: 4px 0 0; font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--gray);
+    }
+    .seal {
+      text-align: center; font-size: 18px; font-weight: 600;
+      padding: 12px; border-radius: 8px; margin-bottom: 20px;
+    }
+    .seal.valid { background: #eaf5ef; color: var(--green); }
+    .seal.revoked { background: #fbeae8; color: var(--red); }
+    .seal small { display: block; font-size: 13px; font-weight: 400; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 0; vertical-align: top; font-size: 15px; }
+    th {
+      color: var(--gray); font-weight: 500; width: 40%;
+      font-size: 12px; text-transform: uppercase; letter-spacing: .5px;
+    }
+    tr + tr th, tr + tr td { border-top: 1px solid var(--border); }
+    form { margin-top: 8px; }
+    label { display: block; font-size: 14px; margin-bottom: 8px; color: var(--gray); }
+    input[type=text] {
+      width: 100%; padding: 12px; font-size: 16px;
+      border: 1px solid var(--border); border-radius: 8px;
+    }
+    button {
+      margin-top: 12px; width: 100%; padding: 12px; font-size: 16px;
+      background: var(--navy); color: #fff; border: 0; border-radius: 8px;
+      cursor: pointer;
+    }
+    .error { color: var(--red); font-size: 14px; margin-bottom: 12px; }
+    .empty { text-align: center; color: var(--gray); padding: 16px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <h1>Liaison<span class="dot">.</span></h1>
+      <p>Plataforma de Extensão Universitária</p>
+    </div>
+
+    {% if not_found %}
+      <p class="empty">Certificado não encontrado.</p>
+
+    {% elif fields %}
+      {% if is_revoked %}
+        <div class="seal revoked">
+          ✗ Revogado
+          <small>Revogado em {{ revoked_at|date:"d/m/Y" }}</small>
+        </div>
+      {% else %}
+        <div class="seal valid">✓ Válido</div>
+      {% endif %}
+      <table>
+        <tr><th>Estudante</th><td>{{ fields.student_name }}</td></tr>
+        <tr><th>Atividade</th><td>{{ fields.activity_title }}</td></tr>
+        <tr><th>Organização</th><td>{{ fields.organization_name }}</td></tr>
+        <tr><th>Carga horária</th><td>{{ fields.hours_extenso }}</td></tr>
+        <tr><th>Emissão</th><td>{{ fields.issued_at }}</td></tr>
+        <tr><th>Código</th><td>{{ fields.validation_code }}</td></tr>
+      </table>
+
+    {% else %}
+      <form method="get" action="{% url 'certificate-validate-form' %}">
+        {% if error %}<p class="error">{{ error }}</p>{% endif %}
+        <label for="codigo">Digite o código de validação</label>
+        <input type="text" id="codigo" name="codigo"
+               placeholder="A1B2-C3D4-E5F6-7890" value="{{ code|default:'' }}">
+        <button type="submit">Validar</button>
+      </form>
+    {% endif %}
+  </div>
+</body>
+</html>

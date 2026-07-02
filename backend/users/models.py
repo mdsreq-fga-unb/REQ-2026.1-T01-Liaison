@@ -86,6 +86,9 @@ class StudentProfile(models.Model):
     ano_conclusao = models.SmallIntegerField(null=True, blank=True)
     horas_extensao_exigidas = models.SmallIntegerField(null=True, blank=True)
     interesses = models.JSONField(default=list, blank=True)
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
+    banner = models.ImageField(upload_to="banners/", blank=True, null=True)
+    bio = models.TextField(blank=True, default="", max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -97,6 +100,29 @@ class StudentProfile(models.Model):
     def __str__(self):
         nome = getattr(self.user, "nome", None) or self.user.email
         return f"StudentProfile({nome} — {self.matricula})"
+
+
+class StudentGalleryPhoto(models.Model):
+    """Foto da galeria do estudante."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student_profile = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="gallery_photos",
+    )
+    image = models.ImageField(upload_to="gallery/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "users_studentgalleryphoto"
+        verbose_name = "Foto da Galeria"
+        verbose_name_plural = "Fotos da Galeria"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"GalleryPhoto({self.id})"
+
 
 class OrganizationProfile(models.Model):
     """Perfil da organização social (1:1 com User)."""
@@ -123,6 +149,14 @@ class OrganizationProfile(models.Model):
         choices=STATUS_CHOICES,
         default="pending",
     )
+    # New fields — US1.5
+    logo = models.ImageField(upload_to="org_logos/", blank=True, null=True)
+    banner = models.ImageField(upload_to="org_banners/", blank=True, null=True)
+    mission = models.TextField(blank=True, default="", max_length=300)
+    full_description = models.TextField(blank=True, default="", max_length=2000)
+    areas_de_atuacao = models.JSONField(default=list, blank=True)
+    site = models.URLField(blank=True, default="")
+    endereco = models.TextField(blank=True, default="", max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -136,8 +170,29 @@ class OrganizationProfile(models.Model):
         return f"OrganizationProfile({nome} — {self.cnpj})"
 
 
-class AdminActionLog(models.Model):
+class OrgGalleryPhoto(models.Model):
+    """Foto da galeria da organização."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization_profile = models.ForeignKey(
+        OrganizationProfile,
+        on_delete=models.CASCADE,
+        related_name="gallery_photos",
+    )
+    image = models.ImageField(upload_to="org_gallery/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "users_orggalleryphoto"
+        verbose_name = "Foto da Galeria (Org)"
+        verbose_name_plural = "Fotos da Galeria (Org)"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"OrgGalleryPhoto({self.id})"
+
+
+class AdminActionLog(models.Model):
 
     class Action(models.TextChoices):
         APPROVE = "approve", "Aprovar"
@@ -148,7 +203,6 @@ class AdminActionLog(models.Model):
     admin = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="admin_actions"
     )
-    # target organization: link to OrganizationProfile for clarity
     organization = models.ForeignKey(
         OrganizationProfile,
         on_delete=models.CASCADE,

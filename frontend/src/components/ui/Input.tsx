@@ -19,6 +19,7 @@ export interface InputProps extends TextInputProps {
   testID?: string;
   hideLabel?: boolean;
   required?: boolean;
+  containerStyle?: any;
 }
 
 const Input = forwardRef<TextInput, InputProps>(function Input(
@@ -29,6 +30,7 @@ const Input = forwardRef<TextInput, InputProps>(function Input(
     error,
     testID = 'input-field',
     style,
+    containerStyle,
     secureTextEntry,
     hideLabel = false,
     required = false,
@@ -41,7 +43,7 @@ const Input = forwardRef<TextInput, InputProps>(function Input(
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {!hideLabel && (
         <Text style={styles.label}>
           {label}
@@ -98,6 +100,8 @@ const styles = StyleSheet.create({
     borderRadius: components.input.borderRadius,
     borderWidth: components.input.borderWidth,
     paddingHorizontal: components.input.paddingHorizontal,
+    paddingTop: 14,
+    paddingBottom: 14,
     color: colors.text.primary,
     backgroundColor: colors.neutral.white,
   },

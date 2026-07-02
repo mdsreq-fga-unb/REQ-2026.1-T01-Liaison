@@ -1,10 +1,26 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
-import StudentHomeScreen from '../screens/student/HomeScreen';
+import StudentTabNavigator from './StudentTabNavigator';
+import StudentProfileScreen from '../screens/student/StudentProfileScreen';
+import StudentProfileEditScreen from '../screens/student/StudentProfileEditScreen';
+import GalleryFullScreen from '../screens/student/GalleryFullScreen';
+import OpportunityDetailScreen from '../screens/student/OpportunityDetailScreen';
+import MyApplicationsScreen from '../screens/student/MyApplicationsScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+import PublicStudentProfileScreen from '../screens/student/PublicStudentProfileScreen';
+import PublicOrgProfileScreen from '../screens/organization/PublicOrgProfileScreen';
 
 export type StudentStackParamList = {
   StudentHome: undefined;
+  StudentProfile: undefined;
+  StudentProfileEdit: undefined;
+  GalleryFull: undefined;
+  OpportunityDetail: { id: string };
+  MyApplications: undefined;
+  Notifications: undefined;
+  PublicStudentProfile: { userId: string };
+  PublicOrgProfile: { orgId: string };
 };
 
 const Stack = createNativeStackNavigator<StudentStackParamList>();
@@ -14,8 +30,48 @@ export default function StudentStack() {
     <Stack.Navigator>
       <Stack.Screen
         name="StudentHome"
-        component={StudentHomeScreen}
-        options={{ title: 'Início — Estudante' }}
+        component={StudentTabNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="StudentProfile"
+        component={StudentProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="StudentProfileEdit"
+        component={StudentProfileEditScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="GalleryFull"
+        component={GalleryFullScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="OpportunityDetail"
+        component={OpportunityDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MyApplications"
+        component={MyApplicationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PublicStudentProfile"
+        component={PublicStudentProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PublicOrgProfile"
+        component={PublicOrgProfileScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

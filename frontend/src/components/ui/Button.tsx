@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   TouchableOpacityProps,
+  View,
 } from 'react-native';
 
 import { colors } from '../../theme/colors';
@@ -57,15 +58,18 @@ export default function Button({
         />
       ) : (
         <>
-          <Text
-            style={[
-              typography.button,
-              variant === 'primary' ? styles.textPrimary : styles.textSecondary,
-            ]}
-          >
-            {title}
-          </Text>
-          {rightIcon}
+          <View style={styles.contentRow}>
+            <Text
+              style={[
+                typography.button,
+                variant === 'primary' ? styles.textPrimary : styles.textSecondary,
+                styles.buttonText,
+              ]}
+            >
+              {title}
+            </Text>
+            {rightIcon}
+          </View>
         </>
       )}
     </TouchableOpacity>
@@ -98,5 +102,13 @@ const styles = StyleSheet.create({
   },
   textSecondary: {
     color: colors.brand.navy,
+  },
+  contentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    textAlign: 'center',
   },
 });

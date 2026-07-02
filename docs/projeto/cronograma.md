@@ -4,12 +4,12 @@ O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são
 
 ## 5.1 Plano de Releases
 
-| Release | Data | Objetivo | Escopo | Valor Entregue | Status | Evidências |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **R1 — Fundação** | 26/05/2026 | Cadastro e Acesso Seguro | Cadastro de estudantes e orgs. Autenticação. Moderação. Segurança. | Os três perfis de usuário conseguem se cadastrar e acessar com segurança. | ✅ **Concluído** | PRs #55, #57, #58, #60, #64, #65, #66 |
-| **R2 — Perfis e Conexão** | 16/06/2026 | Personalização e Descoberta | Gestão de perfis. Busca e visualização de vagas. Candidatura. | Estudantes descobrem vagas e se candidatam; perfis enriquecidos. | ✅ **Concluído** | PRs #83, #84, #87, #97, #99, #101, #113 |
-| **R3 — Gestão e Triagem** | 30/06/2026 | Ciclo Operacional das Vagas | Criação, edição. Avaliação de candidatos (aprovar/recusar). Status tracking. | Organizações gerenciam suas vagas. Acompanhamento de status mobile. | ✅ **Concluído** | PRs #117, #118, #120, #121, #123, #124 |
-| **R4 — Certificação** | 14/07/2026 | Fechamento do Ciclo | Lista de aprovados. Frequência. Certificado digital imutável. | A organização atesta a participação e o estudante recebe o certificado verificável. | ✅ **Concluído** | PRs #116, #125, #126 |
+| Release | Data | Objetivo | Escopo | Valor Entregue |
+| :--- | :--- | :--- | :--- | :--- |
+| **R1 — Fundação** | 26/05/2026 | Cadastro e Acesso Seguro | Cadastro de estudantes e organizações. Autenticação com e-mail e senha. Moderação de organizações pelo administrador. Segurança de credenciais. | A plataforma passa a existir: os três perfis de usuário conseguem se cadastrar e acessar com segurança. Apenas organizações legítimas são aprovadas. |
+| **R2 — Perfis e Conexão** | 16/06/2026 | Personalização e Descoberta | Gestão de perfis de estudantes e organizações. Visualização de oportunidades. Candidatura e cancelamento de candidatura. | Usuários constroem sua identidade na plataforma. Estudantes descobrem vagas e se candidatam com autonomia. |
+| **R3 — Gestão e Triagem** | 30/06/2026 | Ciclo Operacional das Vagas | Criação, edição e cancelamento de vagas pelas organizações. Avaliação de candidatos (aprovar/recusar). Suporte a uso concorrente e mobile. | Organizações gerenciam suas vagas de ponta a ponta. Plataforma responsiva e pronta para escala. |
+| **R4 — Certificação** | 14/07/2026 | Fechamento do Ciclo | Listagem de aprovados. Registro de presença e ateste de horas. Emissão automática de certificado digital com hash de validação. | O ciclo do voluntariado se fecha: a organização atesta a participação e o estudante recebe um certificado digital verificável. |
 
 ## 5.2 Execução Real por User Story
 
@@ -178,12 +178,11 @@ TOTAL (28 USs)           ████████░░  82%  (23/28)
 | :--- | :---: | :---: | :---: |
 | R1 — Fundação | 26/05/2026 | 0%** | 86% |
 | R2 — Perfis e Conexão | 16/06/2026 | 25% | 91% (núcleo) |
-| R3 — Gestão e Triagem | 30/06/2026 | 43% | 57% (combinado com R4)*** |
-| R4 — Certificação | 14/07/2026 | — (prazo não vencido) | 57% (combinado com R3)*** |
+| R3 — Gestão e Triagem | 30/06/2026 | 43% | — (fundida à análise de R4 abaixo) |
+| R4 — Certificação | 14/07/2026 | — (prazo não vencido) | 57% |
 
 \* Percentual do total de 28 USs entregues até a data planejada de cada release, não apenas as USs daquela release.
 \*\* R1 foi concluída poucos dias após sua data planejada (última entrega de R1 em 15/06); o "0%" reflete que a primeira entrega registrada (US1.1) ocorreu em 31/05, 5 dias após a data-alvo de 26/05.
-\*\*\* R3 e R4 são tratadas como um bloco único nesta análise (seção 5.2.3), pois suas USs formam uma cadeia de dependência contínua (triagem → frequência → certificação). O 57% representa 4 de 7 USs combinadas das duas releases, não um cálculo isolado por release.
 
 **Leitura do gráfico:** o ritmo de entregas foi historicamente abaixo do planejado até meados de junho (R1 atrasou ~5 dias; R2 estava em apenas 25% na sua própria data-alvo), mas houve uma concentração muito forte de entregas em 29-30/06 e 01/07 — 17 das 23 USs entregues (74% de tudo que foi entregue) saíram nos últimos 3 dias antes desta atualização. Isso confirma o desvio já registrado na seção 5.2: o cronograma documentado ficou defasado em relação ao ritmo real, que se acelerou abruptamente perto do prazo de R3/R4.
 

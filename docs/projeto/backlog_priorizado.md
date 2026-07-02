@@ -12,7 +12,7 @@ A coluna **Ordem** define a sequência de análise das histórias de usuário (U
 
 O gráfico posiciona cada história de usuário pela **Facilidade (E)** no eixo horizontal e pelo **Valor / Impacto (I)** no eixo vertical, definindo os quadrantes Quick Win, Plan, Later e Drop. Histórias com a mesma coordenada são distribuídas ao redor do ponto real (ligadas por uma linha) para não se sobreporem. Passe o mouse sobre um card para ver título completo e ICE Score.
 
-<iframe src="assets/matriz-facilidade-valor.html" title="Matriz Facilidade × Valor" style="width:100%; height:900px; border:1px solid #e7e3f0; border-radius:12px;" loading="lazy"></iframe>
+<iframe src="../assets/matriz-facilidade-valor.html" title="Matriz Facilidade × Valor" style="width:100%; height:900px; border:1px solid #e7e3f0; border-radius:12px;" loading="lazy"></iframe>
 
 ## 11.2 Sequência priorizada
 

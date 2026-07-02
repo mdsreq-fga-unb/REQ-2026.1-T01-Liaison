@@ -96,4 +96,3 @@ Projeto da disciplina **Engenharia de Requisitos de Software** — REQ-T1, 2026.
 ## Para desenvolvedores
 
 Rodar o projeto localmente, testes e arquitetura: **[`docs/DESENVOLVIMENTO.md`](docs/DESENVOLVIMENTO.md)**.
-Contexto técnico e decisões: [`CLAUDE.md`](./CLAUDE.md) · [`context/DECISIONS.md`](./context/DECISIONS.md) · [`context/GOTCHAS.md`](./context/GOTCHAS.md).

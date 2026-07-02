@@ -6,6 +6,20 @@ Este projeto está sendo desenvolvido pelo **Grupo Dona Izeti** na disciplina de
 
 ---
 
+## 🚀 Acesse o aplicativo
+
+O Liaison está **em produção** como app web instalável (PWA):
+
+<div style="text-align: center; margin: 1.5rem 0;">
+  <a href="https://liaison.gcsoftware.tech" target="_blank" style="display: inline-block; padding: 12px 28px; background: #2563eb; color: #fff; border-radius: 8px; font-weight: 600; text-decoration: none;">🌐 Abrir liaison.gcsoftware.tech</a>
+  &nbsp;
+  <a href="https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/releases/latest" target="_blank" style="display: inline-block; padding: 12px 28px; background: #111827; color: #fff; border-radius: 8px; font-weight: 600; text-decoration: none;">📦 Baixar APK (última release)</a>
+</div>
+
+> O APK e o link do app ficam sempre na [tag da release mais recente](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/releases/latest).
+
+---
+
 ## 👥 Equipe do Projeto
 
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; text-align: center; margin-bottom: 2rem;">

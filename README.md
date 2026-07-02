@@ -6,6 +6,18 @@ Plataforma que conecta estudantes universitários a organizações do terceiro s
 
 ---
 
+## 🚀 Acessar o app
+
+**Liaison está em produção** como aplicativo web instalável (PWA) — abra no navegador do celular ou desktop e instale como um app de verdade.
+
+🌐 **[liaison.gcsoftware.tech](https://liaison.gcsoftware.tech)**
+
+📦 Prefere Android nativo? Baixe o **APK** na [última release](https://github.com/mdsreq-fga-unb/REQ-2026.1-T01-Liaison/releases/latest) — os arquivos e o link ficam sempre na tag da release mais recente.
+
+> As instruções abaixo são para **desenvolvimento local**. Para apenas usar o app, use os links acima.
+
+---
+
 ## Pré-requisitos
 
 | Ferramenta | Versão | Necessário para |

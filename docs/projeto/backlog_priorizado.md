@@ -14,7 +14,13 @@ O gráfico posiciona cada história de usuário pela **Facilidade (E)** no eixo 
 
 <iframe src="../assets/matriz-facilidade-valor.html" title="Matriz Facilidade × Valor" style="width:100%; height:900px; border:1px solid #e7e3f0; border-radius:12px;" loading="lazy"></iframe>
 
-## 11.2 Sequência priorizada
+## 11.2 Quadro de Priorização MoSCoW
+
+As histórias de usuário organizadas nas quatro bandas de negócio (Must → Should → Could → Won't). Dentro de cada banda, os cards estão ordenados por ICE Score decrescente. Passe o mouse sobre um card para ver título completo, issue e notas I/C/E.
+
+<iframe src="../assets/quadro-moscow.html" title="Quadro de Priorização MoSCoW" style="width:100%; height:900px; border:1px solid #e7e3f0; border-radius:12px;" loading="lazy"></iframe>
+
+## 11.3 Sequência priorizada
 
 | Ordem | US | Issue | Descrição | MoSCoW | Quadrante | I | C | E | ICE |
 |:---:|:---|:---:|:---|:---|:---|:---:|:---:|:---:|:---:|

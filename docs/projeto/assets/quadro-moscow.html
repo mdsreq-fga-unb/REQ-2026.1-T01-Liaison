@@ -39,6 +39,14 @@
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(30,20,60,.06);
   }
+  .stack {
+    flex: 1 1 230px;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .stack .col { flex: 0 0 auto; width: 100%; }
   .col-head {
     padding: 12px 14px;
     color: #fff;
@@ -127,7 +135,7 @@ const BANDS = [
 const board = document.getElementById("board");
 const tip = document.getElementById("tip");
 
-BANDS.forEach(b => {
+function makeCol(b) {
   const items = DATA.filter(d => d.m === b.key).sort((a, z) => z.ICE - a.ICE);
   const col = document.createElement("div");
   col.className = "col";
@@ -156,8 +164,18 @@ BANDS.forEach(b => {
     card.addEventListener("mouseleave", () => { tip.style.opacity = 0; });
     body.appendChild(card);
   });
-  board.appendChild(col);
-});
+  return col;
+}
+
+const byKey = k => BANDS.find(b => b.key === k);
+board.appendChild(makeCol(byKey("Must")));
+board.appendChild(makeCol(byKey("Should")));
+// Could e Won't empilhados na mesma coluna para caber tudo em uma linha
+const stack = document.createElement("div");
+stack.className = "stack";
+stack.appendChild(makeCol(byKey("Could")));
+stack.appendChild(makeCol(byKey("Won't")));
+board.appendChild(stack);
 </script>
 </body>
 </html>

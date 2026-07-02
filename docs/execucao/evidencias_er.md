@@ -51,21 +51,19 @@ Realizamos a primeira reunião com o Cliente (Pastor Valdemir) para mapear o flu
 ![Print da aprovação do cliente](assets/whatsValdemir.png)
 ---
 
-<!--## Fase 3 - Construção
+## Fase 3 - Construção
 
-### Validação de implementação
+### Critérios de Aceite (DoD) e BDD
+Durante a construção, garantimos que a implementação de todas as issues do MVP atendessem rigorosamente à *Definition of Done* (DoD). Para isso, as histórias de usuário (US) foram traduzidas para cenários BDD/Gherkin diretamente nos Pull Requests, funcionando como um checklist exato dos requisitos.
+* **Evidência:** [Ata 10 - Revisão de Sprints e Adaptação de Escopo (23/06)](atas/ata_10_monitoria_23_06.md)
+  > **O que o vídeo/ata evidencia?** Uma reunião de **Alinhamento Técnico**, comprovando a decisão arquitetural e metodológica de refatorar as issues para seguir o formato de Critérios de Aceite BDD, fortalecendo a rastreabilidade entre requisito e código final.
 
-* Garantimos que a implementação de todas as issues tenham passado por nosso DoR e DoD para ser aprovado:
+### Demonstração e Validação do Cliente (Entrega do MVP)
+Após o término do desenvolvimento, o sistema (Frontend Mobile e Backend Django) foi empacotado para testes práticos e uso real. O cliente manipulou o sistema livremente no próprio dispositivo (via web mobile app).
+* **Evidência:** [Ata 12 - Validação Final Cliente (01/07)](atas/ata_12_validacao_final_cliente_01_07.md)
+  > **O que o vídeo/ata evidencia?** Uma sessão síncrona de **Validação de Software Funcional**, comprovando que o cliente testou os fluxos de criar vaga e gerir voluntários, aprovando-os de acordo com suas expectativas originais e validando o valor entregue pela solução.
 
-![Imagem de Validação DoD](assets/construcaoValidacao.png)
-
-### Demonstração ao Cliente
-* [Link para Ata de Reunião de Demonstração do Incremento ao Cliente]
-
-### Validação do Cliente
-* Após o MVP será feito um fórmulário de usabilidade para assim ter o conhecimento se o usuário aprova e está de acordo com o que ele imagina:
-<!-- * [Link forms de usabailidade do MVP] -->
-
-<!-- ### Verificação do Cliente
-* Após o MVP será feito um checklist com o cliente sobre a validação do MVP
-<!-- * [Link para Checklist de Validação de Entrega (MVP)] -->
+### Feedback Consolidado e Histórico
+Toda a trajetória de evolução, desde a elicitação até a entrega do MVP, com o respectivo "de acordo" do cliente ou do monitor de disciplina, foi consolidada em um único registro.
+* **Evidência:** [Matriz de Feedback Consolidado](feedback_consolidado.md)
+  > **O que este documento evidencia?** Um **Registro Centralizado de Validação**, servindo para comprovar as decisões tomadas, ajustes no backlog, artefatos apresentados e a rastreabilidade dos status das Entregas ao longo de toda a disciplina.

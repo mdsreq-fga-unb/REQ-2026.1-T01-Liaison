@@ -4,25 +4,24 @@ O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são
 
 ## 5.1 Plano de Releases
 
-| Release | Data | Objetivo | Escopo | Valor Entregue |
-| :--- | :--- | :--- | :--- | :--- |
-| **R1 — Fundação** | 26/05/2026 | Cadastro e Acesso Seguro | Cadastro de estudantes e organizações. Autenticação com e-mail e senha. Moderação de organizações pelo administrador. Segurança de credenciais. | A plataforma passa a existir: os três perfis de usuário conseguem se cadastrar e acessar com segurança. Apenas organizações legítimas são aprovadas. |
-| **R2 — Perfis e Conexão** | 16/06/2026 | Personalização e Descoberta | Gestão de perfis de estudantes e organizações. Visualização de oportunidades. Candidatura e cancelamento de candidatura. | Usuários constroem sua identidade na plataforma. Estudantes descobrem vagas e se candidatam com autonomia. |
-| **R3 — Gestão e Triagem** | 30/06/2026 | Ciclo Operacional das Vagas | Criação, edição e cancelamento de vagas pelas organizações. Avaliação de candidatos (aprovar/recusar). Suporte a uso concorrente e mobile. | Organizações gerenciam suas vagas de ponta a ponta. Plataforma responsiva e pronta para escala. |
-| **R4 — Certificação** | 14/07/2026 | Fechamento do Ciclo | Listagem de aprovados. Registro de presença e ateste de horas. Emissão automática de certificado digital com hash de validação. | O ciclo do voluntariado se fecha: a organização atesta a participação e o estudante recebe um certificado digital verificável. |
+| Release | Data | Objetivo | Escopo | Valor Entregue | Status | Evidências |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **R1 — Fundação** | 26/05/2026 | Cadastro e Acesso Seguro | Cadastro de estudantes e orgs. Autenticação. Moderação. Segurança. | Os três perfis de usuário conseguem se cadastrar e acessar com segurança. | ✅ **Concluído** | PRs #55, #57, #58, #60, #64, #65, #66 |
+| **R2 — Perfis e Conexão** | 16/06/2026 | Personalização e Descoberta | Gestão de perfis. Busca e visualização de vagas. Candidatura. | Estudantes descobrem vagas e se candidatam; perfis enriquecidos. | ✅ **Concluído** | PRs #83, #84, #87, #97, #99, #101, #113 |
+| **R3 — Gestão e Triagem** | 30/06/2026 | Ciclo Operacional das Vagas | Criação, edição. Avaliação de candidatos (aprovar/recusar). Status tracking. | Organizações gerenciam suas vagas. Acompanhamento de status mobile. | ✅ **Concluído** | PRs #117, #118, #120, #121, #123, #124 |
+| **R4 — Certificação** | 14/07/2026 | Fechamento do Ciclo | Lista de aprovados. Frequência. Certificado digital imutável. | A organização atesta a participação e o estudante recebe o certificado verificável. | ✅ **Concluído** | PRs #116, #125, #126 |
 
 ## 5.2 Execução Real por User Story
 
-> **Última atualização:** 01/07/2026 (revisão final, pós-aprovação)
+> **Última atualização:** 01/07/2026
 > **Método de levantamento:** cruzamento entre `gh issue list`, `gh pr list --json closingIssuesReferences` (vínculo oficial PR→issue) e o backlog formal (`backlog_produto.md`), executado nesta data. Não é uma estimativa — cada status abaixo tem evidência de código (PR) ou ausência dela verificada diretamente no repositório.
-> **Nota:** este documento foi entregue via PR #132, aprovado pelo monitor Luan Duarte e mergeado em 01/07/2026. Entre a submissão e a aprovação, diversas USs adicionais foram entregues e suas issues fechadas — esta revisão incorpora esse estado mais atual.
 
 **Legenda de status:**
 
 | Símbolo | Significado |
 | :---: | :--- |
 | ✅ | Entregue — código mergeado na `develop` e issue fechada |
-| ✅ (parcial) | Issue fechada, mas com cenários de aceite específicos documentados como não entregues ou incompletos |
+| 🟡 | Código entregue (PR mergeado), mas issue permanece aberta — pendência de *housekeeping*, não de desenvolvimento |
 | 🔵 | Em andamento — PR aberto, ainda não mergeado |
 | ⚪ | Pendente — sem PR aberto até o momento |
 
@@ -51,57 +50,56 @@ O projeto adota **KanbanXP** como framework de desenvolvimento. As releases são
 | **US2.5** | Busca e Filtro de Vagas (RF08) | ✅ | [PR #87](../../../pull/87) | — |
 | **US2.6** | Visualização de Detalhes da Vaga (RF09) | ✅ | [PR #113](../../../pull/113) | — |
 | **US2.7** | Candidatura em Vaga (RF10) | ✅ | [PR #113](../../../pull/113) | — |
-| **US2.8** | Avaliação de Candidaturas pela Organização (RF11) | ✅ | [PR #118](../../../pull/118), [PR #125](../../../pull/125) | Issue fechada. |
-| **US2.9** | Cancelamento de Candidatura (RF12) | ✅ | [PR #130](../../../pull/130) | Entregue no PR de release consolidado. O PR #114 (rascunho inicial só com frontend/mock, de Henrique Fontenelle) foi fechado sem merge por ter sido superado por esta entrega integrada. |
-| **US2.10** | Notificações de Status de Candidatura (RF12) | ✅ | [PR #120](../../../pull/120), [PR #122](../../../pull/122) | Issue fechada. |
-| **US2.11** | Acompanhamento de Minhas Candidaturas (RF12) | ✅ | [PR #117](../../../pull/117), [PR #124](../../../pull/124) | Issue fechada. |
+| **US2.8** | Avaliação de Candidaturas pela Organização (RF11) | 🟡 | [PR #118](../../../pull/118), [PR #125](../../../pull/125) | Código mergeado; issue #24 será fechada manualmente. |
+| **US2.9** | Cancelamento de Candidatura (RF12) | 🔵 | [PR #114](../../../pull/114) (aberto) | **Justificativa documentada no próprio PR:** frontend completo e funcional (lista de candidaturas, badge de status, modal de confirmação, regra de exibição do botão "Cancelar" apenas em candidaturas pendentes), porém com dados mockados. Falta a integração com a API real de listagem (`getMyApplications`, do PR #113) e com o endpoint de cancelamento (`PATCH /api/v1/applications/{id}/cancel/`). Responsabilidade: Henrique Fontenelle (frontend, concluído) e Gustavo Cintra (integração backend, review solicitada no PR). |
+| **US2.10** | Notificações de Status de Candidatura (RF12) | 🟡 | [PR #120](../../../pull/120), [PR #122](../../../pull/122) | Código mergeado; issue #25 será fechada manualmente. |
+| **US2.11** | Acompanhamento de Minhas Candidaturas (RF12) | 🟡 | [PR #117](../../../pull/117), [PR #124](../../../pull/124) | Código mergeado; issue #86 será fechada manualmente. |
 
-**R2: 11 de 11 USs do escopo original entregues (100%).**
+**R2: 10 de 11 USs do escopo original entregues ou com código mergeado (91%). 1 em andamento.**
 
 > **Desvio de escopo — USs adicionais não rastreadas no backlog:** durante a execução, foram criadas e implementadas três USs que **não constam na tabela oficial do backlog** (`backlog_produto.md`, seção 10.1): perfis públicos de estudante e organização, e listagem de vagas salvas. Estão documentadas abaixo para transparência, mas recomenda-se formalizar sua inclusão no backlog em revisão futura.
 
 | US (issue) | Descrição | Status | Evidência | Observações |
 | :--- | :--- | :---: | :--- | :--- |
-| US2.12 (#111) | Ver Perfil da Organização | ✅ | [PR #121](../../../pull/121), [PR #130](../../../pull/130) | Issue fechada. |
-| US2.13 (#119) | Ver Perfil do Estudante | ✅ | [PR #121](../../../pull/121), [PR #130](../../../pull/130) | Issue fechada. |
-| US2.14 (#112) | Listar Oportunidades Salvas | ✅ | [PR #130](../../../pull/130) | Issue fechada. |
+| US2.12 (#111) | Ver Perfil da Organização | 🟡 | [PR #121](../../../pull/121), [PR #130](../../../pull/130) | Código mergeado; issue #111 será fechada manualmente. |
+| US2.13 (#119) | Ver Perfil do Estudante | 🟡 | [PR #121](../../../pull/121), [PR #130](../../../pull/130) | Código mergeado; issue #119 será fechada manualmente. |
+| US2.14 (#112) | Listar Oportunidades Salvas | 🟡 | [PR #130](../../../pull/130) | Código mergeado (confirmado via `closingIssuesReferences` do PR #130, que também fecha #111 e #119); issue #112 será fechada manualmente. |
 
 ### 5.2.3 R3 — Gestão e Triagem / R4 — Certificação
 
 | US | Descrição | Status | Evidência | Observações |
 | :--- | :--- | :---: | :--- | :--- |
-| **US3.1** | Listagem de Estudantes Aprovados (RF13) | ✅ | [PR #126](../../../pull/126) | Issue fechada. |
-| **US3.2** | Registro de Frequência e Carga Horária (RF14) | ✅ | [PR #126](../../../pull/126) | Issue fechada. |
-| **US3.3** | Geração Automática de Certificado Digital (RF15) | ✅ | [PR #116](../../../pull/116) | Issue fechada. Issues #28/#29 (antigas, duplicadas) já estavam fechadas com label `duplicate`. |
-| **US3.4** | Exportação de Certificado em PDF (RF15) | ✅ (parcial) | [PR #116](../../../pull/116) | Issue fechada, mas com dois cenários explicitamente marcados como incompletos pelo próprio time, direto na descrição da issue: **Cenário 2 (exportação em lote/ZIP)** — "Planejado, não entregue no MVP"; **Cenário 3 (visualizador integrado)** — "Parcial, hoje o PDF abre no visualizador do dispositivo, não em um visualizador dentro do app". Download individual (Cenário 1) está funcional. |
-| **US3.5** | Visualização de Histórico de Horas (RF16) | ⚪ | — | **Bloqueada por dependência declarada:** issue #33 lista como pré-requisitos a US3.2 (#27) e a US3.3 (#31). Ambas já entregues, mas o desenvolvimento específico da tela de histórico ainda não foi iniciado. |
-| **US3.6** | Download de Certificados (RF16) | ⚪ | — | **Bloqueada por dependência declarada:** issue #34 lista como pré-requisito a US3.5 (#33), que ainda não foi iniciada. Único item da cadeia com bloqueio real, não apenas formal. |
-| **US3.7** | Portal Público de Validação de Certificados (RF17) | ✅ | [PR #116](../../../pull/116) | Issue fechada. **Nota de rastreabilidade:** há inconsistência no backlog — o RF17 aparece como *Could Have* na tabela de priorização (10.2.2) mas como *Should Have* no texto da seção 10.5; recomenda-se alinhar. |
+| **US3.1** | Listagem de Estudantes Aprovados (RF13) | 🟡 | [PR #126](../../../pull/126) | Código mergeado; issue #26 será fechada manualmente. |
+| **US3.2** | Registro de Frequência e Carga Horária (RF14) | 🟡 | [PR #126](../../../pull/126) | Código mergeado; issue #27 será fechada manualmente. |
+| **US3.3** | Geração Automática de Certificado Digital (RF15) | 🟡 | [PR #116](../../../pull/116) | Código mergeado; issue #31 será fechada manualmente. Issues #28/#29 (antigas, duplicadas) já estavam fechadas com label `duplicate`. |
+| **US3.4** | Exportação de Certificado em PDF (RF15) | ⚪ | — | **Bloqueada por dependência declarada:** issue #32 lista como pré-requisito formal a US3.3 (#31 — Geração de Certificado). A dependência já está tecnicamente satisfeita no código (PR #116, mergeado), mas a issue #32 não teve desenvolvimento próprio iniciado até o momento — não há PR aberto especificamente para esta US. |
+| **US3.5** | Visualização de Histórico de Horas (RF16) | ⚪ | — | **Bloqueada por dependência declarada:** issue #33 lista como pré-requisitos a US3.2 (#27 — Registro de Frequência) e a US3.3 (#31 — Geração de Certificado). Ambas já têm código entregue (PR #126 e #116), mas o desenvolvimento específico da tela de histórico ainda não foi iniciado. |
+| **US3.6** | Download de Certificados (RF16) | ⚪ | — | **Bloqueada por dependência declarada:** issue #34 lista como pré-requisito a US3.5 (#33 — Histórico de Horas), que ainda não foi iniciada (ver acima). Este é o único item da cadeia com bloqueio real e não apenas formal — não há como iniciar antes de #33. |
+| **US3.7** | Portal Público de Validação de Certificados (RF17) | 🟡 | [PR #116](../../../pull/116) | Código mergeado; issue #30 será fechada manualmente. **Nota de rastreabilidade:** há inconsistência no backlog — o RF17 aparece como *Could Have* na tabela de priorização (10.2.2) mas como *Should Have* no texto da seção 10.5; recomenda-se alinhar. |
 
-**R3/R4: 5 de 7 USs entregues, 1 entregue parcialmente (86% considerando entregas totais e parciais). 2 pendentes, ambas por dependência real (US3.5 bloqueia US3.6).**
+**R3/R4: 4 de 7 USs com código entregue (57%). 3 pendentes sem PR próprio (uma delas — US3.6 — com bloqueio real de dependência).**
 
 ### 5.2.4 Consolidado Geral
 
-| Release | Planejadas | Entregues (✅) | Entregues parcial (✅ parcial) | Em andamento (🔵) | Pendentes (⚪) |
+| Release | Planejadas | Entregues (✅) | Código entregue, issue pendente (🟡) | Em andamento (🔵) | Pendentes (⚪) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | R1 | 7 | 6 | 0 | 1 | 0 |
-| R2 (núcleo) | 11 | 11 | 0 | 0 | 0 |
-| R2 (+ 3 fora do escopo) | 3 | 3 | 0 | 0 | 0 |
-| R3/R4 | 7 | 4 | 1 | 0 | 2 |
-| **Total** | **28** | **24** | **1** | **1** | **2** |
+| R2 (núcleo) | 11 | 7 | 3 | 1 | 0 |
+| R2 (+ 3 fora do escopo) | 3 | 0 | 3 | 0 | 0 |
+| R3/R4 | 7 | 0 | 4 | 0 | 3 |
+| **Total** | **28** | **13** | **10** | **2** | **3** |
 
-**Progresso final: 25 de 28 USs entregues, total ou parcialmente (89%).** Único item em andamento: US1.6 (recuperação de senha, fora do MVP formal). Únicos itens pendentes: US3.5 e US3.6, bloqueadas em cadeia real de dependência. Esse é um salto expressivo em relação ao "60%" documentado originalmente e ao "82%" da submissão inicial deste PR — a diferença se deve a uma nova leva de entregas e fechamentos de issue que ocorreu entre a submissão do PR #132 e sua aprovação pelo monitor.
+**Progresso real estimado: 23 de 28 USs (82%) têm código entregue (✅ ou 🟡) na `develop`**, um avanço em relação à conferência anterior (79%), após confirmação de que a US2.14 também está coberta pelo PR #130. Isso reforça o achado de que a defasagem entre issue tracking e código real (item 1 dos desvios abaixo) é mais ampla do que o GitHub Issues sozinho revela — vale conferir `closingIssuesReferences` de cada PR por completo, não apenas os números esperados.
 
 ### 5.2.5 Desvios Identificados e Ações
 
-1. ~~**Defasagem entre issue tracking e código real:** 10 USs tinham PR mergeado com a issue correspondente ainda aberta.~~ **Resolvido em 01/07/2026** — todas as issues foram fechadas manualmente (#24, #25, #26, #27, #30, #31, #86, #111, #112, #119), alinhando o rastreamento à entrega real.
-2. **Escopo adicional não formalizado no backlog:** US2.12, US2.13 e US2.14 (perfis públicos e vagas salvas) foram desenvolvidas e entregues (issues fechadas), mas seguem **sem entrada correspondente** em `backlog_produto.md`. **Ação pendente:** formalizar no backlog ou justificar formalmente sua origem — este item continua em aberto.
-3. **Item fora do MVP formal, em andamento:** US1.6 (Recuperação de Senha, RF05) foi classificada como *Won't Have* na priorização inicial do MVP, mas está sendo desenvolvida (PR #93, ainda aberto). A decisão de antecipar está documentada na própria issue #17, que previa essa possibilidade. **Ação:** nenhuma correção necessária — manter o registro para rastreabilidade até o PR ser mergeado.
-4. **Inconsistência de classificação do RF17:** aparece como *Could Have* na tabela de priorização e *Should Have* no texto da seção 10.5 do backlog. A US derivada (US3.7) já foi entregue independente dessa classificação. **Ação pendente:** alinhar a classificação em revisão do documento.
-5. **US2.9 entregue por caminho diferente do planejado:** o PR #114 (Henrique Fontenelle) implementava apenas o frontend com dados mockados e foi fechado sem merge — a entrega real da US2.9 veio do PR #130, de forma integrada com outras USs. Não é uma falha, mas vale registrar que o plano inicial de divisão de trabalho (frontend/backend em PRs separados) não foi o que efetivamente gerou a entrega.
-6. **Entrega parcial documentada pelo próprio time:** US3.4 (Exportação de Certificado em PDF) foi fechada com 2 de 5 cenários de aceite marcados como não entregues ou parciais diretamente na issue (exportação em lote/ZIP; visualizador integrado ao app). Isso é citado como boa prática de transparência, mas registra que a entrega não é 100% completa frente aos critérios de aceite originais da história.
-7. **Dependência real ainda bloqueando entrega:** US3.5 e US3.6 seguem pendentes, com US3.6 formalmente bloqueada por depender de US3.5, que ainda não foi iniciada. É o único bloqueio de dependência real (não apenas formal) que resta no projeto.
-8. **Sincronização entre branches `develop` e `main`:** o workflow de deploy do GitHub Pages (`.github/workflows/deploy.yml`) publica exclusivamente a partir da `main`, mas o desenvolvimento ocorre na `develop`. Isso já causou perda de conteúdo real (seção 5.3 — Spike de Infraestrutura — existia apenas na `main` e não constava na `develop` até esta atualização). **Ação:** definir uma rotina de sincronização `develop` → `main` (PR periódico ou merge automatizado) para evitar que o conteúdo publicado fique defasado ou que documentação seja perdida em reescritas futuras.
+1. **Defasagem entre issue tracking e código real:** 10 USs têm PR mergeado na `develop` com a issue correspondente ainda aberta (🟡). Causa provável: merges que não passaram por squash com referência automática de fechamento, ou push direto sem a keyword `Closes #X`. **Ação:** fechar manualmente as issues #24, #25, #26, #27, #30, #31, #86, #111, #112, #119.
+2. **Escopo adicional não formalizado no backlog:** US2.12, US2.13 e US2.14 (perfis públicos e vagas salvas) foram desenvolvidas sem entrada correspondente em `backlog_produto.md`. **Ação:** formalizar no backlog ou justificar formalmente sua origem.
+3. **Antecipação de item *Won't Have*:** US1.6 (Recuperação de Senha, RF05) foi descartada do MVP na priorização inicial, mas está sendo desenvolvida (PR #93 aberto). A decisão está documentada na própria issue #17, que previa essa possibilidade. **Ação:** nenhuma correção necessária — apenas manter o registro para rastreabilidade.
+4. **Inconsistência de classificação do RF17:** aparece como *Could Have* na tabela de priorização e *Should Have* no texto da seção 10.5 do backlog. **Ação:** alinhar a classificação em revisão do documento.
+5. **Item em andamento com divisão de responsabilidade clara:** US2.9 (Cancelamento de Candidatura) tem o frontend concluído por Henrique Fontenelle (PR #114), aguardando integração com a API real por Gustavo Cintra (review já solicitada no PR).
+6. **Cadeia de dependência formalmente bloqueando entregas em R3/R4:** US3.4, US3.5 e US3.6 declaram dependências entre si e com US3.2/US3.3. As dependências de código (PR #126, #116) já estão satisfeitas, mas o desenvolvimento específico dessas três USs ainda não foi iniciado — US3.6 é a mais crítica, pois depende diretamente de US3.5, que também não foi iniciada.
+7. **Sincronização entre branches `develop` e `main`:** o workflow de deploy do GitHub Pages (`.github/workflows/deploy.yml`) publica exclusivamente a partir da `main`, mas o desenvolvimento ocorre na `develop`. Isso já causou perda de conteúdo real (seção 5.3 — Spike de Infraestrutura — existia apenas na `main` e não constava na `develop` até esta atualização). **Ação:** definir uma rotina de sincronização `develop` → `main` (PR periódico ou merge automatizado) para evitar que o conteúdo publicado fique defasado ou que documentação seja perdida em reescritas futuras.
 
 ## 5.3 Spike de Infraestrutura e Configuração de Ambiente
 
@@ -139,11 +137,11 @@ A equipe não possuía experiência prévia com provisionamento de servidores em
 
 ```
 R1 — Fundação           █████████░  86%  (6/7)
-R2 — Perfis e Conexão    ██████████ 100%  (11/11 do escopo original)
+R2 — Perfis e Conexão    █████████░  91%  (10/11 do escopo original)
 R3 — Gestão e Triagem
-R4 — Certificação        ███████░░░  71%  (5/7, sendo 4 totais + 1 parcial)
+R4 — Certificação        ██████░░░░  57%  (4/7)
 ──────────────────────────────────────────────
-TOTAL (28 USs)           █████████░  89%  (25/28, total ou parcial)
+TOTAL (28 USs)           ████████░░  82%  (23/28)
 ```
 
 ### 5.4.2 Linha do Tempo de Entregas Reais
@@ -157,12 +155,12 @@ TOTAL (28 USs)           █████████░  89%  (25/28, total ou p
 | 15/06/2026 | US1.7 | 7 | 25% |
 | 29/06/2026 | US2.2, US2.3, US2.4, US2.5, US2.6 | 12 | 43% |
 | 30/06/2026 | US2.8, US2.10, US2.11, US3.1, US3.2, US3.3, US3.7 | 19 | 68% |
-| 01/07/2026 | US2.7, US2.9, US2.12, US2.13, US2.14, US3.4 (parcial) | 25 | 89% |
+| 01/07/2026 | US2.7, US2.12, US2.13, US2.14 | 23 | 82% |
 
 ```
 100% ┤
- 90% ┤                                                      ●  89%
- 80% ┤
+ 90% ┤
+ 80% ┤                                                      ●  82%
  70% ┤                                              ●  68%
  60% ┤
  50% ┤
@@ -179,13 +177,13 @@ TOTAL (28 USs)           █████████░  89%  (25/28, total ou p
 | Release | Data planejada | % entregue na data planejada* | % entregue em 01/07/2026 |
 | :--- | :---: | :---: | :---: |
 | R1 — Fundação | 26/05/2026 | 0%** | 86% |
-| R2 — Perfis e Conexão | 16/06/2026 | 25% | 100% (núcleo) |
-| R3 — Gestão e Triagem | 30/06/2026 | 43% | 71% (combinado com R4)*** |
-| R4 — Certificação | 14/07/2026 | — (prazo não vencido) | 71% (combinado com R3)*** |
+| R2 — Perfis e Conexão | 16/06/2026 | 25% | 91% (núcleo) |
+| R3 — Gestão e Triagem | 30/06/2026 | 43% | 57% (combinado com R4)*** |
+| R4 — Certificação | 14/07/2026 | — (prazo não vencido) | 57% (combinado com R3)*** |
 
 \* Percentual do total de 28 USs entregues até a data planejada de cada release, não apenas as USs daquela release.
 \*\* R1 foi concluída poucos dias após sua data planejada (última entrega de R1 em 15/06); o "0%" reflete que a primeira entrega registrada (US1.1) ocorreu em 31/05, 5 dias após a data-alvo de 26/05.
-\*\*\* R3 e R4 são tratadas como um bloco único nesta análise (seção 5.2.3), pois suas USs formam uma cadeia de dependência contínua (triagem → frequência → certificação). O 71% representa 5 de 7 USs combinadas das duas releases (4 totais + 1 parcial), não um cálculo isolado por release.
+\*\*\* R3 e R4 são tratadas como um bloco único nesta análise (seção 5.2.3), pois suas USs formam uma cadeia de dependência contínua (triagem → frequência → certificação). O 57% representa 4 de 7 USs combinadas das duas releases, não um cálculo isolado por release.
 
-**Leitura do gráfico:** o ritmo de entregas foi historicamente abaixo do planejado até meados de junho (R1 atrasou ~5 dias; R2 estava em apenas 25% na sua própria data-alvo), mas houve uma concentração muito forte de entregas em 29/06–01/07 — 18 das 25 USs entregues (72% de tudo que foi entregue) saíram nesses últimos 3 dias antes da conclusão. Isso confirma o desvio já registrado na seção 5.2: o cronograma documentado ficou defasado em relação ao ritmo real, que se acelerou abruptamente perto do prazo de R3/R4 e seguiu se acelerando até a aprovação final deste documento.
+**Leitura do gráfico:** o ritmo de entregas foi historicamente abaixo do planejado até meados de junho (R1 atrasou ~5 dias; R2 estava em apenas 25% na sua própria data-alvo), mas houve uma concentração muito forte de entregas em 29-30/06 e 01/07 — 17 das 23 USs entregues (74% de tudo que foi entregue) saíram nos últimos 3 dias antes desta atualização. Isso confirma o desvio já registrado na seção 5.2: o cronograma documentado ficou defasado em relação ao ritmo real, que se acelerou abruptamente perto do prazo de R3/R4.
 
